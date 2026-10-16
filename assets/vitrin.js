@@ -59,12 +59,14 @@ function icon(k){
 function render(){
   var t = fold(term);
   var list = all.filter(function(x){
-    if (cat !== "*" && x.c !== cat) return false;
+    /* Arama yazılıyken kategori süzgeci devre dışı: kullanıcı "pdf" yazdığında
+       Akademik kategorisi seçili diye boş ekran görmemeli. */
+    if (!t && cat !== "*" && x.c !== cat) return false;
     if (!t) return true;
     return fold(x.t).indexOf(t) > -1 || fold(x.d).indexOf(t) > -1
         || fold(x.c).indexOf(t) > -1;
   });
-  count.textContent=list.length+" "+T("count_suffix")+(cat!=="*"?" · "+T("cat_"+cat):"");
+  count.textContent=list.length+" "+T("count_suffix")+(!t&&cat!=="*"?" · "+T("cat_"+cat):"");
   if (!list.length){
     root.innerHTML = '<p class="empty">'+T("empty")+'</p>';
     return;
@@ -133,9 +135,8 @@ function buildChips(){
   });
 }
 
-/* Sayfaları Blogger'ın kendi akışından okur: URL'leri tahmin etmeye
-   çalışmıyoruz, Blogger ne verdiyse o. Yeni sayfa ekleyince vitrin
-   kendiliğinden güncellenir. */
+/* Katalog derleme sırasında bu dosyaya gömülür (bkz. uret.py).
+   Yeni araç eklendiğinde vitrin yeniden üretilir. */
 
 all = ARACLAR.slice();
 buildChips();
