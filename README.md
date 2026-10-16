@@ -53,9 +53,23 @@ Araç sayfalarının kendi içeriği Türkçedir; çeviri arayüz kabuğunu kaps
 
 ## Çevrimdışı sürüm
 
-`VuMaTech-Araclar-Cevrimdisi.zip` — araçların tamamı ve gereken kütüphaneler
-tek dosyada gömülü. İnternet bağlantısı olmadan çalışır; ana sayfadaki
-indirme bağlantısı bu dosyayı sunar.
+`VuMaTech-Araclar-Cevrimdisi.zip` — 65 araç, gereken kütüphaneler ve tasarım
+tek bir HTML dosyasına gömülü. İnternet bağlantısı olmadan çalışır; ana
+sayfadaki indirme bağlantısı bu dosyayı sunar.
+
+Paket sitenin kendi ana sayfasından ve varlıklarından üretilir, dolayısıyla
+görünüm, dört dil ve tema seçimi siteyle aynıdır. Araç gövdeleri açılışta
+çalıştırılmaz; bir araç açıldığında gövdesi yazılır ve gereken kütüphane o an
+enjekte edilir.
+
+```
+bash cevrimdisi/indir.sh        # kütüphaneleri npm'den al (bir kez)
+python3 cevrimdisi/uret-paket.py
+```
+
+Canlı internet gerektiren üç araç (Crossref, Open Library, ORCID) pakete
+alınmaz. Vesikalık aracında yapay zekâ ile arka plan kaldırma çevrimdışı
+çalışmaz; renkten kaldırma seçeneği çalışır.
 
 ## Dış bağımlılıklar
 

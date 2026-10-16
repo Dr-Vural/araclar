@@ -1,3 +1,6 @@
 __pycache__/
 *.pyc
 .DS_Store
+
+# çevrimdışı pakete gömülen üçüncü taraf kütüphaneler (indir.sh ile alınır)
+cevrimdisi/libs/
