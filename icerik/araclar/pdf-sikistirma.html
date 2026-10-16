@@ -1,0 +1,114 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<div class="tk-cols">
+<div>
+  <div class="tk-drop" id="pc-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6v20h12V8z M14 2v6h4"/><path d="M9 15l3 3 3-3M12 11v7"/></svg>
+    <strong>PDF bırakın</strong><span>Taranmış ve görsel ağırlıklı belgelerde etkilidir</span>
+  </div>
+  <input type="file" id="pc-file" class="tk-hidden" accept="application/pdf,.pdf">
+  <div class="tk-panel">
+    <p class="tk-h">Sıkıştırma düzeyi</p>
+    <div class="tk-field"><label for="pc-lvl">Hazır ayar</label>
+      <select id="pc-lvl" class="tk-sel">
+        <option value="1.0,0.55">Güçlü — ekran (72 dpi)</option>
+        <option value="1.6,0.70" selected>Dengeli — okuma (110 dpi)</option>
+        <option value="2.2,0.82">Hafif — baskı (160 dpi)</option>
+      </select></div>
+    <div class="tk-acts">
+      <button class="tk-btn" id="pc-go" disabled>Sıkıştır</button>
+      <span class="tk-msg" id="pc-msg">dosya bekleniyor</span>
+    </div>
+  </div>
+  <div class="tk-panel">
+    <p class="tk-h">Ölçüm</p>
+    <div class="tk-stats">
+      <div class="tk-stat"><b id="pc-a">—</b><span>özgün</span></div>
+      <div class="tk-stat ok"><b id="pc-b">—</b><span>sıkıştırılmış</span></div>
+      <div class="tk-stat"><b id="pc-c">—</b><span>kazanç</span></div>
+    </div>
+    <div id="pc-res"></div>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Nasıl çalışır ve ne kaybedersiniz</p>
+  <p class="tk-note">Her sayfa seçilen çözünürlükte yeniden çizilip JPEG olarak
+     gömülür. Bu yöntem taranmış belgelerde dosyayı çok küçültür.
+     <strong>Ancak sayfalar görsele dönüştüğü için metin seçilemez ve
+     aranamaz hale gelir</strong>; bağlantılar, form alanları ve yer imleri
+     kaybolur. Metin ağırlıklı bir PDF'i sıkıştırmak dosyayı büyütebilir bile —
+     böyle bir durumda araç sizi uyarır.</p>
+  <p class="tk-note">Metin katmanını korumak zorundaysanız bu aracı kullanmayın;
+     kaynak belgeyi üreten programdan "web için en iyi duruma getirilmiş"
+     seçeneğiyle yeniden dışa aktarın.</p>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var drop=$("pc-drop"),inp=$("pc-file"),msg=$("pc-msg"),go=$("pc-go");
+var buf=null,name="belge",orig=0;
+function kb(n){return n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB"}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files[0])});
+inp.addEventListener("change",function(e){take(e.target.files[0])});
+function take(f){
+  if(!f)return;
+  if(typeof pdfjsLib==="undefined"){msg.className="tk-msg err";msg.textContent="pdf.js y\u00fcklenemedi";return}
+  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  name=f.name.replace(/\.pdf$/i,"");orig=f.size;
+  f.arrayBuffer().then(function(b){buf=b;return pdfjsLib.getDocument({data:b.slice(0)}).promise})
+   .then(function(d){go.disabled=false;msg.className="tk-msg";
+     $("pc-a").textContent=kb(orig);
+     msg.textContent=d.numPages+" sayfa y\u00fcklendi"})
+   .catch(function(){msg.className="tk-msg err";msg.textContent="okunamad\u0131"});
+}
+go.addEventListener("click",function(){
+  msg.className="tk-msg";go.disabled=true;
+  var p=$("pc-lvl").value.split(","),scale=+p[0],q=+p[1];
+  var doc;
+  PDFLib.PDFDocument.create().then(function(d){
+    doc=d;
+    return pdfjsLib.getDocument({data:buf.slice(0)}).promise;
+  }).then(function(src){
+    if(src.numPages>200)throw new Error("200 sayfadan fazla \u2014 \u00f6nce b\u00f6l\u00fcn");
+    var chain=Promise.resolve();
+    for(var i=1;i<=src.numPages;i++)(function(n){
+      chain=chain.then(function(){
+        msg.textContent="sayfa "+n+" / "+src.numPages;
+        return src.getPage(n).then(function(pg){
+          var v=pg.getViewport({scale:scale});
+          var c=document.createElement("canvas");c.width=v.width;c.height=v.height;
+          var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);
+          return pg.render({canvasContext:x,viewport:v}).promise.then(function(){
+            return doc.embedJpg(c.toDataURL("image/jpeg",q));
+          }).then(function(im){
+            var base=pg.getViewport({scale:1});
+            var page=doc.addPage([base.width,base.height]);
+            page.drawImage(im,{x:0,y:0,width:base.width,height:base.height});
+          });
+        });
+      });
+    })(i);
+    return chain;
+  }).then(function(){return doc.save()}).then(function(b){
+    var blob=new Blob([b],{type:"application/pdf"});
+    var pct=Math.round((1-blob.size/orig)*100);
+    $("pc-b").textContent=kb(blob.size);
+    $("pc-c").textContent=(pct>0?"\u2212":"+")+Math.abs(pct)+"%";
+    $("pc-c").parentNode.className="tk-stat "+(pct>0?"":"warn");
+    $("pc-res").innerHTML='<div class="tk-acts"><a class="tk-btn" style="text-decoration:none" href="'
+      +URL.createObjectURL(blob)+'" download="'+esc(name)+'-kucuk.pdf">indir</a></div>'
+      +(pct<=0?'<p class="tk-note"><span class="tk-mark">Dosya k\u00fc\u00e7\u00fclmedi.</span> '
+        +'Bu PDF b\u00fcy\u00fck olas\u0131l\u0131kla metin a\u011f\u0131rl\u0131kl\u0131; s\u0131k\u0131\u015ft\u0131rma ona yaramaz. '
+        +'\u00d6zg\u00fcn dosyan\u0131z\u0131 kullan\u0131n.</p>':'');
+    msg.textContent="tamamland\u0131";go.disabled=false;
+  }).catch(function(e){msg.className="tk-msg err";msg.textContent=e.message;go.disabled=false});
+});
+})();
+//]]></script>

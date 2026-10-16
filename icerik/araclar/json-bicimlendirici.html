@@ -1,0 +1,95 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">JSON</p>
+  <div class="tk-field"><label for="js-in">Girdi</label>
+    <textarea id="js-in" class="tk-area" spellcheck="false" placeholder='{"ad":"VuMaTech","araclar":[1,2,3]}'></textarea></div>
+  <div class="tk-field"><label for="js-out">Çıktı</label>
+    <textarea id="js-out" class="tk-area" readonly spellcheck="false"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="js-fmt">Biçimlendir</button>
+    <button class="tk-btn ghost" id="js-min">Küçült</button>
+    <button class="tk-btn ghost" id="js-copy">Kopyala</button>
+    <span class="tk-msg" id="js-msg"></span>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Doğrulama</p>
+  <div class="tk-out" id="js-diag"><span class="tk-blank">JSON yapıştırın.</span></div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Ayar</p>
+  <div class="tk-field"><label for="js-ind">Girinti</label>
+    <select id="js-ind" class="tk-sel"><option value="2">2 boşluk</option>
+    <option value="4">4 boşluk</option><option value="t">sekme</option></select></div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="js-sort"><span>Anahtarları alfabetik sırala</span></label>
+    <label><input type="checkbox" id="js-esc"><span>Türkçe harfleri \u ile kaçır<em>Eski sistemlere veri gönderirken</em></span></label>
+  </div>
+  <div class="tk-stats" style="margin-top:16px">
+    <div class="tk-stat"><b id="js-k">—</b><span>anahtar</span></div>
+    <div class="tk-stat"><b id="js-d">—</b><span>derinlik</span></div>
+  </div>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+function sortKeys(o){
+  if(Array.isArray(o))return o.map(sortKeys);
+  if(o&&typeof o==="object"){var r={};Object.keys(o).sort().forEach(function(k){r[k]=sortKeys(o[k])});return r}
+  return o;
+}
+function stats(o,d){
+  d=d||1;var k=0,mx=d;
+  if(o&&typeof o==="object"){
+    var keys=Array.isArray(o)?o:Object.keys(o);
+    if(!Array.isArray(o))k+=Object.keys(o).length;
+    (Array.isArray(o)?o:Object.values(o)).forEach(function(v){
+      var s=stats(v,d+1);k+=s.k;if(s.d>mx)mx=s.d});
+  }
+  return {k:k,d:mx};
+}
+function parse(){
+  var s=$("js-in").value.trim();
+  if(!s){$("js-diag").innerHTML='<span class="tk-blank">JSON yap\u0131\u015ft\u0131r\u0131n.</span>';return null}
+  try{
+    var o=JSON.parse(s);
+    var st=stats(o);
+    $("js-k").textContent=st.k;$("js-d").textContent=st.d;
+    $("js-diag").innerHTML='<span class="tk-good">Ge\u00e7erli JSON.</span>\n'
+      +"K\u00f6k t\u00fcr: "+(Array.isArray(o)?"dizi ("+o.length+" \u00f6\u011fe)":typeof o==="object"&&o?"nesne":typeof o);
+    return o;
+  }catch(e){
+    var m=String(e.message),pos=(m.match(/position (\d+)/)||[])[1];
+    var loc="";
+    if(pos!==undefined){
+      var upto=s.slice(0,+pos),ln=upto.split("\n").length,col=pos-upto.lastIndexOf("\n");
+      loc="\nSat\u0131r "+ln+", s\u00fctun "+col+"\n\n"+(s.split("\n")[ln-1]||"").slice(0,80)
+         +"\n"+" ".repeat(Math.max(0,col-1))+"^";
+    }
+    $("js-diag").innerHTML='<span class="tk-mark">Ge\u00e7ersiz JSON.</span>\n'+m+loc;
+    $("js-k").textContent="\u2014";$("js-d").textContent="\u2014";
+    return null;
+  }
+}
+function ind(){var v=$("js-ind").value;return v==="t"?"\t":parseInt(v,10)}
+function escNonAscii(s){return s.replace(/[\u0080-\uffff]/g,function(c){
+  return "\\u"+("000"+c.charCodeAt(0).toString(16)).slice(-4)})}
+function emit(pretty){
+  var o=parse();if(o===null)return;
+  if($("js-sort").checked)o=sortKeys(o);
+  var s=JSON.stringify(o,null,pretty?ind():0);
+  if($("js-esc").checked)s=escNonAscii(s);
+  $("js-out").value=s;
+  $("js-msg").textContent=s.length.toLocaleString("tr-TR")+" karakter";
+}
+$("js-fmt").addEventListener("click",function(){emit(true)});
+$("js-min").addEventListener("click",function(){emit(false)});
+$("js-in").addEventListener("input",parse);
+$("js-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("js-out").value).then(function(){$("js-msg").textContent="kopyaland\u0131"})});
+})();
+//]]></script>

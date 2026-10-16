@@ -1,0 +1,137 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Çıkarılan metin</p>
+  <textarea id="pt-out" class="tk-area" style="min-height:420px" readonly spellcheck="false"></textarea>
+  <div class="tk-acts">
+    <button class="tk-btn ghost" id="pt-copy">Kopyala</button>
+    <button class="tk-btn ghost" id="pt-dl">TXT indir</button>
+    <span class="tk-msg" id="pt-msg">dosya bekleniyor</span>
+  </div>
+</div>
+<div>
+  <div class="tk-drop" id="pt-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6v20h12V8z M14 2v6h4"/><path d="M9 13h6M9 17h4"/></svg>
+    <strong>PDF bırakın</strong><span>Metin katmanı olan dosyalar için</span>
+  </div>
+  <input type="file" id="pt-file" class="tk-hidden" accept="application/pdf,.pdf">
+  <div class="tk-panel">
+    <p class="tk-h">Ayar</p>
+    <div class="tk-field"><label for="pt-range">Sayfalar (boş = hepsi)</label>
+      <input type="text" id="pt-range" class="tk-in" placeholder="1-5, 8"></div>
+    <div class="tk-checks">
+      <label><input type="checkbox" id="pt-marks" checked><span>Sayfa numarası başlığı ekle<em>--- Sayfa 3 --- biçiminde ayraç</em></span></label>
+      <label><input type="checkbox" id="pt-join" checked><span>Satır sonlarını birleştir<em>Paragrafı tek satır yapar, tire ile bölünmüş kelimeleri onarır</em></span></label>
+      <label><input type="checkbox" id="pt-blank"><span>Boş satırları sıkıştır</span></label>
+    </div>
+    <div class="tk-acts">
+      <button class="tk-btn" id="pt-go" disabled>Metni çıkar</button>
+    </div>
+  </div>
+  <div class="tk-panel">
+    <p class="tk-h">Ölçüm</p>
+    <div class="tk-stats">
+      <div class="tk-stat"><b id="pt-p">—</b><span>sayfa</span></div>
+      <div class="tk-stat ok"><b id="pt-w">—</b><span>kelime</span></div>
+      <div class="tk-stat"><b id="pt-c">—</b><span>karakter</span></div>
+    </div>
+    <p class="tk-note">Bu araç PDF'in <strong>metin katmanını</strong> okur.
+       Taranmış belgelerde (sayfalar fotoğraf olarak gömülüyse) çıktı boş gelir —
+       o durumda metin gerçekten yoktur, karakter tanıma gerekir. Araç bunu
+       fark ederse uyarır.</p>
+  </div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var drop=$("pt-drop"),inp=$("pt-file"),msg=$("pt-msg"),go=$("pt-go"),out=$("pt-out");
+var buf=null,name="belge";
+function esc(s){return String(s)}
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files[0])});
+inp.addEventListener("change",function(e){take(e.target.files[0])});
+function take(f){
+  if(!f)return;
+  if(typeof pdfjsLib==="undefined"){msg.className="tk-msg err";msg.textContent="pdf.js yuklenemedi";return}
+  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  name=f.name.replace(/\.pdf$/i,"");
+  f.arrayBuffer().then(function(b){buf=b;return pdfjsLib.getDocument({data:b.slice(0)}).promise})
+   .then(function(d){go.disabled=false;msg.className="tk-msg";
+     $("pt-p").textContent=d.numPages;msg.textContent=d.numPages+" sayfa yuklendi"})
+   .catch(function(){msg.className="tk-msg err";msg.textContent="okunamadi"});
+}
+function parseRange(s,n){
+  if(!s.trim()){var a=[];for(var i=1;i<=n;i++)a.push(i);return a}
+  var idx=[];
+  s.split(",").forEach(function(p){
+    p=p.trim().toLocaleLowerCase("tr").replace(/son/g,String(n));
+    var m=p.match(/^(\d+)\s*-\s*(\d+)$/);
+    if(m){for(var i=+m[1];i<=+m[2];i++)if(i>=1&&i<=n)idx.push(i)}
+    else{var v=parseInt(p,10);if(v>=1&&v<=n)idx.push(v)}
+  });
+  return idx;
+}
+/* pdf.js metni parcalar halinde verir; satir kirilmalarini y konumundan
+   cikariyoruz, yoksa her kelime ayri satira duser. */
+function pageText(page){
+  return page.getTextContent().then(function(tc){
+    var lines=[],cur=null,lastY=null;
+    tc.items.forEach(function(it){
+      var y=it.transform[5];
+      if(lastY===null||Math.abs(y-lastY)>2){
+        if(cur!==null)lines.push(cur);
+        cur=it.str;lastY=y;
+      }else cur+=it.str;
+      if(it.hasEOL){lines.push(cur);cur="";lastY=null}
+    });
+    if(cur!==null&&cur!=="")lines.push(cur);
+    return lines.join("\n");
+  });
+}
+go.addEventListener("click",function(){
+  msg.className="tk-msg";msg.textContent="okunuyor...";go.disabled=true;
+  pdfjsLib.getDocument({data:buf.slice(0)}).promise.then(function(doc){
+    var want=parseRange($("pt-range").value,doc.numPages);
+    if(!want.length)throw new Error("gecerli sayfa girin");
+    var parts=[],chain=Promise.resolve();
+    want.forEach(function(n){
+      chain=chain.then(function(){
+        msg.textContent="sayfa "+n+" / "+want[want.length-1];
+        return doc.getPage(n).then(pageText).then(function(t){
+          parts.push($("pt-marks").checked?"--- Sayfa "+n+" ---\n"+t:t);
+        });
+      });
+    });
+    return chain.then(function(){return parts.join("\n\n")});
+  }).then(function(t){
+    if($("pt-join").checked){
+      t=t.replace(/(\p{L})[-\u2010\u2011]\s*\n\s*(\p{L})/gu,"$1$2");
+      t=t.replace(/([^\n])\n(?![\n-])([^\n])/g,"$1 $2");
+    }
+    if($("pt-blank").checked)t=t.replace(/\n{3,}/g,"\n\n");
+    t=t.replace(/[ \t]{2,}/g," ").trim();
+    out.value=t;
+    var w=t.trim()?t.trim().split(/\s+/).length:0;
+    $("pt-w").textContent=w.toLocaleString("tr-TR");
+    $("pt-c").textContent=t.length.toLocaleString("tr-TR");
+    go.disabled=false;
+    if(w<5){msg.className="tk-msg err";
+      msg.textContent="metin katmani bulunamadi \u2014 bu PDF taranmis olabilir"}
+    else msg.textContent=w+" kelime cikarildi";
+  }).catch(function(e){msg.className="tk-msg err";msg.textContent=e.message;go.disabled=false});
+});
+$("pt-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText(out.value).then(function(){msg.textContent="kopyalandi"})});
+$("pt-dl").addEventListener("click",function(){
+  if(!out.value)return;
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob(["\ufeff"+out.value],{type:"text/plain;charset=utf-8"}));
+  a.download=name+".txt";a.click();
+});
+})();
+//]]></script>

@@ -1,0 +1,74 @@
+<div class="tk-panel">
+  <p class="tk-h">İki metin</p>
+  <div class="tk-two">
+    <div class="tk-field"><label for="df-a">Eski sürüm</label>
+      <textarea id="df-a" class="tk-area" spellcheck="false" placeholder="İlk metni yapıştırın…"></textarea></div>
+    <div class="tk-field"><label for="df-b">Yeni sürüm</label>
+      <textarea id="df-b" class="tk-area" spellcheck="false" placeholder="İkinci metni yapıştırın…"></textarea></div>
+  </div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="df-go">Karşılaştır</button>
+    <div class="tk-checks" style="margin:0 0 0 10px">
+      <label><input type="checkbox" id="df-case"><span>Büyük/küçük harf ayrımını yok say</span></label>
+    </div>
+    <span class="tk-msg" id="df-msg"></span>
+  </div>
+</div>
+
+<div class="tk-panel">
+  <p class="tk-h">Fark</p>
+  <div class="tk-stats">
+    <div class="tk-stat ok"><b id="df-add">0</b><span>eklenen satır</span></div>
+    <div class="tk-stat warn"><b id="df-del">0</b><span>silinen satır</span></div>
+    <div class="tk-stat"><b id="df-same">0</b><span>değişmeyen</span></div>
+  </div>
+  <div class="tk-out" id="df-out" style="max-height:520px;white-space:pre"><span class="tk-blank">İki metin girip “Karşılaştır”a basın.</span></div>
+  <p class="tk-note">Karşılaştırma satır bazlıdır. Hakem düzeltmeleri, sözleşme
+     sürümleri ve çeviri revizyonlarını kıyaslamak için uygundur.
+     <span class="tk-good">+</span> eklenen, <span class="tk-mark">−</span>
+     silinen satırdır.</p>
+</div>
+
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+/* Sat\u0131r bazl\u0131 LCS \u2014 b\u00fcy\u00fck metinlerde \u00e7al\u0131\u015fabilir kalmas\u0131 i\u00e7in sat\u0131r say\u0131s\u0131 s\u0131n\u0131rl\u0131. */
+function lcs(a,b,fold){
+  var n=a.length,m=b.length;
+  var A=fold?a.map(function(x){return x.toLocaleLowerCase("tr")}):a;
+  var B=fold?b.map(function(x){return x.toLocaleLowerCase("tr")}):b;
+  var dp=[];
+  for(var i=0;i<=n;i++)dp.push(new Uint32Array(m+1));
+  for(i=n-1;i>=0;i--)for(var j=m-1;j>=0;j--)
+    dp[i][j]=A[i]===B[j]?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1]);
+  var out=[],x=0,y=0;
+  while(x<n&&y<m){
+    if(A[x]===B[y]){out.push([" ",a[x]]);x++;y++}
+    else if(dp[x+1][y]>=dp[x][y+1]){out.push(["-",a[x]]);x++}
+    else {out.push(["+",b[y]]);y++}
+  }
+  while(x<n)out.push(["-",a[x++]]);
+  while(y<m)out.push(["+",b[y++]]);
+  return out;
+}
+$("df-go").addEventListener("click",function(){
+  var a=$("df-a").value.split("\n"),b=$("df-b").value.split("\n");
+  if(a.length>1500||b.length>1500){
+    $("df-msg").className="tk-msg err";
+    $("df-msg").textContent="en fazla 1500 sat\u0131r \u2014 metni b\u00f6l\u00fcn";return}
+  $("df-msg").className="tk-msg";$("df-msg").textContent="kar\u015f\u0131la\u015ft\u0131r\u0131l\u0131yor\u2026";
+  var d=lcs(a,b,$("df-case").checked);
+  var add=0,del=0,same=0;
+  var html=d.map(function(r){
+    if(r[0]==="+"){add++;return '<span class="tk-good">+ '+esc(r[1])+'</span>'}
+    if(r[0]==="-"){del++;return '<span class="tk-mark">\u2212 '+esc(r[1])+'</span>'}
+    same++;return '<span style="color:var(--ink-3)">  '+esc(r[1])+'</span>';
+  }).join("\n");
+  $("df-add").textContent=add;$("df-del").textContent=del;$("df-same").textContent=same;
+  $("df-out").innerHTML=html||'<span class="tk-blank">\u0130ki metin de bo\u015f.</span>';
+  $("df-msg").textContent=(add+del)?(add+del)+" sat\u0131r farkl\u0131":"iki metin ayn\u0131";
+});
+})();
+//]]></script>

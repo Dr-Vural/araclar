@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="tr" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f4f3f0">
+<title>Korelasyon Hesaplayıcı — VuMaTech Tools</title>
+<meta name="description" content="Pearson ve Spearman korelasyon matrisi, anlamlılık yıldızları ve ikili ilişki için APA cümlesi.">
+<link rel="canonical" href="https://tools.vumatech.net/araclar/korelasyon-hesaplayici/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="VuMaTech Tools">
+<meta property="og:title" content="Korelasyon Hesaplayıcı — VuMaTech Tools">
+<meta property="og:description" content="Pearson ve Spearman korelasyon matrisi, anlamlılık yıldızları ve ikili ilişki için APA cümlesi.">
+<meta property="og:url" content="https://tools.vumatech.net/araclar/korelasyon-hesaplayici/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/assets/kit.css">
+<script>
+/* Tema, sayfa çizilmeden uygulanır; yoksa karanlık temada bir an beyaz parlama olur.
+   Kayıtlı tercih yoksa işletim sistemi ayarı kullanılır. */
+(function(){try{
+  var t=localStorage.getItem("vmt_theme");
+  if(t!=="dark"&&t!=="light"){
+    t=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";
+  }
+  document.documentElement.setAttribute("data-theme",t);
+  var m=document.querySelector('meta[name="theme-color"]');
+  if(m)m.setAttribute("content", t==="dark"?"#0d1014":"#f4f3f0");
+}catch(e){document.documentElement.setAttribute("data-theme","light");}})();
+</script>
+</head>
+<body>
+<div class="shell">
+  <div class='crest'>
+    <a class='name' href="/">VuMaTech <b>Tools</b></a>
+    <span class='crest-right'>
+<div class='langpick' id='langpick' role='group' aria-label='Dil'>
+        <button class='langbtn' data-lang='tr' title='Türkçe' aria-label='Türkçe'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e30a17'/><circle cx='11.5' cy='10' r='5' fill='#fff'/><circle cx='13' cy='10' r='4' fill='#e30a17'/><path fill='#fff' d='M17.5 10l4.2-1.4-2.6 3.6v-4.4l2.6 3.6z'/></svg></button>
+        <button class='langbtn' data-lang='ky' title='Кыргызча' aria-label='Кыргызча'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e8112d'/><circle cx='15' cy='10' r='4.2' fill='#ffef00'/><circle cx='15' cy='10' r='2.4' fill='none' stroke='#e8112d' stroke-width='.5'/><g stroke='#ffef00' stroke-width='.5'><path d='M15 4v12M9 10h12M10.6 5.6l8.8 8.8M19.4 5.6l-8.8 8.8'/></g></svg></button>
+        <button class='langbtn' data-lang='ru' title='Русский' aria-label='Русский'><svg viewBox='0 0 30 20'><rect width='30' height='6.67' fill='#fff'/><rect y='6.67' width='30' height='6.67' fill='#0039a6'/><rect y='13.33' width='30' height='6.67' fill='#d52b1e'/></svg></button>
+        <button class='langbtn' data-lang='en' title='English' aria-label='English'><svg viewBox='0 0 30 20'><clipPath id='uk'><rect width='30' height='20'/></clipPath><g clip-path='url(#uk)'><rect width='30' height='20' fill='#012169'/><path d='M0 0l30 20M30 0L0 20' stroke='#fff' stroke-width='4'/><path d='M0 0l30 20M30 0L0 20' stroke='#c8102e' stroke-width='2'/><path d='M15 0v20M0 10h30' stroke='#fff' stroke-width='6'/><path d='M15 0v20M0 10h30' stroke='#c8102e' stroke-width='3.5'/></g></svg></button>
+      </div>
+      <button class='themebtn' id='themebtn' aria-label='Tema'>
+        <svg class='i-moon' viewBox='0 0 24 24'><path d='M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z'/></svg>
+        <svg class='i-sun' viewBox='0 0 24 24'><circle cx='12' cy='12' r='4.2'/><path d='M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8'/></svg>
+      </button>
+      <a class='up' href='https://vumatech.net'>vumatech.net</a>
+    </span>
+  </div>
+
+
+<a class="back" href="/" data-i18n="back">← bütün araçlar</a>
+<h1 class="view">Korelasyon Hesaplayıcı</h1>
+<p class="priv"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> <span data-i18n="priv">Bu araç tamamen tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</span></p>
+<div class="tk">
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Veri</p>
+  <div class="tk-field"><label for="kr-in">İki ya da daha çok sütun. Excel'den doğrudan yapıştırın; başlık satırı olabilir.</label>
+    <textarea id="kr-in" class="tk-area" style="min-height:300px" spellcheck="false" placeholder="Kaygı	Başarı	Uyku&#10;12	78	6,5&#10;18	65	5,0&#10;9	88	7,5"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="kr-go">Hesapla</button>
+    <button class="tk-btn ghost" id="kr-demo">Örnek</button>
+    <span class="tk-msg" id="kr-msg"></span>
+  </div>
+  <div class="tk-field" style="margin-top:14px"><label for="kr-type">Katsayı</label>
+    <select id="kr-type" class="tk-sel">
+      <option value="pearson">Pearson r</option>
+      <option value="spearman">Spearman rho (sıra)</option>
+    </select></div>
+  <div class="tk-checks"><label><input type="checkbox" id="kr-head" checked><span>İlk satır başlık</span></label></div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Korelasyon matrisi</p>
+  <div class="tk-out" id="kr-out" style="max-height:300px"><span class="tk-blank">Sütunları yapıştırıp “Hesapla”ya basın.</span></div>
+  <p class="tk-h2">İkili sonuç</p>
+  <div class="tk-out" id="kr-apa" style="font-family:var(--sans);font-size:14px">—</div>
+  <p class="tk-note">Yıldızlar anlamlılık düzeyini gösterir: * p&lt;.05, ** p&lt;.01,
+     *** p&lt;.001. p değeri iki yönlüdür ve t dönüşümüyle hesaplanır. Pearson
+     doğrusal ilişki, Spearman sıralı/tekdüze ilişki ölçer; dağılım normal
+     değilse ya da sıralı veri varsa Spearman tercih edilir. İlişki nedensellik
+     anlamına gelmez.</p>
+</div>
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+function parse(t){
+  var rows=t.split("\n").map(function(l){return l.trim()}).filter(Boolean)
+    .map(function(l){return l.split(/[\t;,]+|\s{2,}/).map(function(x){return x.trim()})});
+  return rows;
+}
+function rank(a){
+  var idx=a.map(function(v,i){return [v,i]}).sort(function(x,y){return x[0]-y[0]});
+  var r=new Array(a.length),i=0;
+  while(i<idx.length){
+    var j=i;while(j<idx.length-1&&idx[j+1][0]===idx[i][0])j++;
+    var avg=(i+j)/2+1;
+    for(var k=i;k<=j;k++)r[idx[k][1]]=avg;
+    i=j+1;
+  }
+  return r;
+}
+function pearson(x,y){
+  var n=x.length,mx=x.reduce(function(a,b){return a+b},0)/n,my=y.reduce(function(a,b){return a+b},0)/n;
+  var sxy=0,sx=0,sy=0;
+  for(var i=0;i<n;i++){var dx=x[i]-mx,dy=y[i]-my;sxy+=dx*dy;sx+=dx*dx;sy+=dy*dy}
+  return (sx&&sy)?sxy/Math.sqrt(sx*sy):0;
+}
+function gammaln(x){var c=[76.18009172947146,-86.50532032941677,24.01409824083091,
+  -1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+  var y=x,t=x+5.5;t-=(x+0.5)*Math.log(t);var s=1.000000000190015;
+  for(var j=0;j<6;j++)s+=c[j]/++y;return -t+Math.log(2.5066282746310005*s/x)}
+function betacf(a,b,x){var M=200,EPS=3e-12,FP=1e-300,qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;
+  if(Math.abs(d)<FP)d=FP;d=1/d;var h=d;
+  for(var m=1;m<=M;m++){var m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));
+    d=1+aa*d;if(Math.abs(d)<FP)d=FP;c=1+aa/c;if(Math.abs(c)<FP)c=FP;d=1/d;h*=d*c;
+    aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));d=1+aa*d;if(Math.abs(d)<FP)d=FP;
+    c=1+aa/c;if(Math.abs(c)<FP)c=FP;d=1/d;var del=d*c;h*=del;if(Math.abs(del-1)<EPS)break}
+  return h}
+function ibeta(x,a,b){if(x<=0)return 0;if(x>=1)return 1;
+  var bt=Math.exp(gammaln(a+b)-gammaln(a)-gammaln(b)+a*Math.log(x)+b*Math.log(1-x));
+  return x<(a+1)/(a+b+2)?bt*betacf(a,b,x)/a:1-bt*betacf(b,a,1-x)/b}
+function pOf(r,n){
+  if(n<3||Math.abs(r)>=1)return 0;
+  var t=r*Math.sqrt((n-2)/(1-r*r)),df=n-2;
+  return ibeta(df/(df+t*t),df/2,0.5);
+}
+function stars(p){return p<0.001?"***":p<0.01?"**":p<0.05?"*":""}
+function run(){
+  var rows=parse($("kr-in").value);
+  if(rows.length<3){err("en az 3 satır girin");return}
+  var head=$("kr-head").checked;
+  var names=head?rows[0]:rows[0].map(function(_,i){return "V"+(i+1)});
+  var body=head?rows.slice(1):rows;
+  var k=names.length;
+  var cols=[];
+  for(var j=0;j<k;j++){
+    cols.push(body.map(function(r){return parseFloat((r[j]||"").replace(",","."))})
+      .filter(function(v){return !isNaN(v)}));
+  }
+  var minN=Math.min.apply(null,cols.map(function(c){return c.length}));
+  if(minN<3){err("her sütunda en az 3 geçerli sayı olmalı");return}
+  var spear=$("kr-type").value==="spearman";
+  var data=cols.map(function(c){return spear?rank(c.slice(0,minN)):c.slice(0,minN)});
+  // matris
+  var w=Math.max.apply(null,names.map(function(n){return n.length}));
+  var pad=function(s,n){s=String(s);return s+" ".repeat(Math.max(0,n-s.length))};
+  var head2=pad("",w+2)+names.map(function(n){return pad(n.slice(0,8),10)}).join("");
+  var lines=[head2];
+  for(var a=0;a<k;a++){
+    var row=pad(names[a].slice(0,w),w+2);
+    for(var b=0;b<k;b++){
+      if(b>a){row+=pad("",10);continue}
+      var r=a===b?1:pearson(data[a],data[b]);
+      var p=a===b?0:pOf(r,minN);
+      row+=pad(r.toFixed(2).replace(/^0/,"").replace(/^-0/,"-")+(a===b?"":stars(p)),10);
+    }
+    lines.push(row);
+  }
+  $("kr-out").textContent=lines.join("\n")+"\n\nn = "+minN
+    +"  ·  "+(spear?"Spearman rho":"Pearson r")+"\n* p<.05  ** p<.01  *** p<.001";
+  // ilk iki sütun için APA
+  if(k>=2){
+    var r=pearson(data[0],data[1]),p=pOf(r,minN);
+    var sz=Math.abs(r)<0.1?"ihmal edilebilir":Math.abs(r)<0.3?"zayıf":
+           Math.abs(r)<0.5?"orta":Math.abs(r)<0.7?"güçlü":"çok güçlü";
+    var sym=spear?"r_s":"r";
+    $("kr-apa").textContent=names[0]+" ile "+names[1]+" arasında "
+      +(r>0?"pozitif":"negatif")+" yönde "+sz+" düzeyde"
+      +(p<0.05?" ve anlamlı":" ancak anlamsız")+" bir ilişki bulunmuştur, "
+      +sym+"("+(minN-2)+") = "+r.toFixed(2).replace(",",".")
+      +", p "+(p<0.001?"< .001":"= "+p.toFixed(3).replace(/^0/,""))+".";
+  }
+  $("kr-msg").className="tk-msg";$("kr-msg").textContent=k+" değişken, n = "+minN;
+}
+function err(m){$("kr-msg").className="tk-msg err";$("kr-msg").textContent=m}
+$("kr-go").addEventListener("click",run);
+["kr-type","kr-head"].forEach(function(id){$(id).addEventListener("change",run)});
+$("kr-demo").addEventListener("click",function(){
+  $("kr-in").value="Kaygı\tBaşarı\tUyku\n12\t78\t6,5\n18\t65\t5,0\n9\t88\t7,5\n"
+    +"22\t55\t4,5\n15\t72\t6,0\n7\t91\t8,0\n20\t60\t5,5\n11\t80\t7,0\n"
+    +"25\t50\t4,0\n14\t74\t6,5";run()});
+})();
+</script>
+</div>
+  <div class='adzone'>
+    <span class='lbl'>reklam</span>
+    <!-- AdSense birimi: Google'dan aldığınız data-ad-slot değerini yazıp
+         aşağıdaki iki satırın yorumunu kaldırın.
+    <script async='async' src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5193342573714090' crossorigin='anonymous'/>
+    <ins class='adsbygoogle' style='display:block' data-ad-client='ca-pub-5193342573714090' data-ad-slot='XXXXXXXXXX' data-ad-format='auto' data-full-width-responsive='true'/>
+    -->
+  </div>
+
+  <div class='promo'>
+    <p class='kicker' data-i18n='promo_kicker'>VuMaTech Studio · Bişkek</p>
+    <h2><span data-i18n='promo_h2_a'>Bu araçları yapan ekip </span><em data-i18n='promo_h2_b'>sizin sitenizi de yapar</em></h2>
+    <p class='lead' data-i18n='promo_lead'>Kurumsal siteden dijital menüye, akademik dergi sistemlerinden oyun portalına kadar. Tasarım, kurulum ve yıllık bakım tek elden.</p>
+    <div class='svcs'>
+      <a class='svc' href='https://web.vumatech.net'>
+        <b data-i18n='svc_web'>Web Tasarım</b><span data-i18n='svc_web_d'>Kurumsal site, portfolyo, tanıtım sayfası</span></a>
+      <a class='svc' href='https://menu.vumatech.net'>
+        <b data-i18n='svc_menu'>QR Dijital Menü</b><span data-i18n='svc_menu_d'>Çok dilli menü, anlık güncelleme, baskı maliyeti yok</span></a>
+      <a class='svc' href='https://academy.vumatech.net'>
+        <b data-i18n='svc_acad'>Akademik Web</b><span data-i18n='svc_acad_d'>Akademisyen sitesi, özgeçmiş, yayın listesi</span></a>
+      <a class='svc' href='https://ojs.vumatech.net'>
+        <b data-i18n='svc_ojs'>OJS Dergi Sistemi</b><span data-i18n='svc_ojs_d'>Kurulum, tema, hakem süreci yönetimi</span></a>
+    </div>
+    <div class='cta'>
+      <a class='btn' id='tg-btn' href='https://t.me/vumatech' target='_blank' rel='noopener'><svg viewBox='0 0 24 24'><path d='M9.8 15.3l-.4 4c.5 0 .8-.2 1.1-.5l2.6-2.4 5.4 3.9c1 .5 1.7.3 2-1l3.6-16.8c.3-1.2-.5-1.8-1.4-1.4L1.3 9.9c-1.2.5-1.2 1.1-.2 1.4l5.3 1.6L18.6 5c.6-.4 1.1-.2.7.2z'/></svg>
+        <span data-i18n='promo_wa'>Telegram: @vumatech</span></a>
+      <a class='btn line' href='https://vumatech.net' data-i18n='promo_all'>Tüm hizmetler</a>
+    </div>
+  </div>
+
+  <div class='foot'>
+    <div class='cols'>
+      <div>
+        <a class='brand' href='https://vumatech.net'>VuMaTech <b>Studio</b></a>
+        <p data-i18n='foot_about'>Bişkek merkezli web tasarım ve dijital hizmet atölyesi. Türkiye ve Kırgızistan'da çalışır.</p>
+        <p data-i18n='foot_about2'>Bu sayfadaki bütün araçlar ücretsizdir ve tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</p>
+      </div>
+      <div>
+        <h3 data-i18n='foot_services'>Hizmetler</h3>
+        <ul>
+          <li><a href='https://web.vumatech.net'>Web tasarım</a></li>
+          <li><a href='https://menu.vumatech.net'>QR dijital menü</a></li>
+          <li><a href='https://academy.vumatech.net'>Akademik web</a></li>
+          <li><a href='https://ojs.vumatech.net'>OJS dergi sistemi</a></li>
+          <li><a href='https://game.vumatech.net'>Oyun portalı</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n='foot_contact'>İletişim</h3>
+        <ul>
+          <li><a id='tg-foot' href='https://t.me/vumatech'>Telegram · @vumatech</a></li>
+          <li><a href='mailto:vumatechnet@gmail.com'>vumatechnet@gmail.com</a></li>
+          <li><a href='https://vumatech.net'>vumatech.net</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class='base'>
+      <span>© VuMaTech Studio · Bişkek</span>
+      <span><a href="/hakkinda/">Hakkında</a> · <a href="/gizlilik-ve-kvkk/">Gizlilik ve KVKK</a> · </span><span><a href="/">araç dizini</a> · <a href='https://vumatech.net'>VuMaTech</a></span>
+    </div>
+  </div>
+
+</div>
+
+
+</div>
+<script src="/assets/site.js"></script>
+
+</body>
+</html>

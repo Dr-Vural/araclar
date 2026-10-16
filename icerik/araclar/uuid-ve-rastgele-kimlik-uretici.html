@@ -1,0 +1,76 @@
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Ayar</p>
+  <div class="tk-field"><label for="uu-type">Tür</label>
+    <select id="uu-type" class="tk-sel">
+      <option value="v4">UUID v4 — rastgele</option>
+      <option value="nodash">UUID v4 — tiresiz</option>
+      <option value="short">Kısa kimlik — 12 karakter</option>
+      <option value="nano">Nano ID — 21 karakter</option>
+      <option value="num">Sayısal kimlik — 16 hane</option>
+      <option value="ulid">ULID — zaman sıralı</option>
+    </select></div>
+  <div class="tk-field"><label for="uu-n">Adet</label>
+    <input type="number" id="uu-n" class="tk-in" value="10" min="1" max="1000"></div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="uu-up"><span>Büyük harf</span></label>
+    <label><input type="checkbox" id="uu-q"><span>Tırnak içine al ve virgülle ayır<em>Kod içine yapıştırmak için</em></span></label>
+  </div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="uu-go">Üret</button>
+    <button class="tk-btn ghost" id="uu-copy">Kopyala</button>
+    <span class="tk-msg" id="uu-msg"></span>
+  </div>
+  <p class="tk-note">Değerler <code>crypto.getRandomValues</code> ile üretilir;
+     tarayıcının kriptografik rastgelelik kaynağıdır. ULID zaman damgasıyla
+     başladığı için üretim sırasına göre sıralanır — veritabanı indekslerinde
+     UUID v4'ten daha verimlidir.</p>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Çıktı</p>
+  <div class="tk-out" id="uu-out" style="max-height:520px">—</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var B32="0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+var A62="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+var NANO="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz-";
+function rb(n){var a=new Uint8Array(n);crypto.getRandomValues(a);return a}
+function pick(alpha,n){
+  var a=rb(n),s="";
+  for(var i=0;i<n;i++)s+=alpha[a[i]%alpha.length];
+  return s;
+}
+function uuid4(){
+  if(crypto.randomUUID)return crypto.randomUUID();
+  var b=rb(16);b[6]=(b[6]&0x0f)|0x40;b[8]=(b[8]&0x3f)|0x80;
+  var h=Array.prototype.map.call(b,function(x){return ("0"+x.toString(16)).slice(-2)}).join("");
+  return h.slice(0,8)+"-"+h.slice(8,12)+"-"+h.slice(12,16)+"-"+h.slice(16,20)+"-"+h.slice(20);
+}
+function ulid(){
+  var t=Date.now(),s="";
+  for(var i=9;i>=0;i--){s=B32[t%32]+s;t=Math.floor(t/32)}
+  return s+pick(B32,16);
+}
+function gen(){
+  var t=$("uu-type").value,n=Math.min(1000,+$("uu-n").value||1),out=[];
+  for(var i=0;i<n;i++){
+    var v=t==="v4"?uuid4():t==="nodash"?uuid4().replace(/-/g,""):
+          t==="short"?pick(A62,12):t==="nano"?pick(NANO,21):
+          t==="num"?pick("0123456789",16):ulid();
+    if($("uu-up").checked)v=v.toUpperCase();
+    out.push($("uu-q").checked?'"'+v+'"':v);
+  }
+  $("uu-out").textContent=out.join($("uu-q").checked?",\n":"\n");
+  $("uu-msg").textContent=n+" kimlik \u00fcretildi";
+}
+$("uu-go").addEventListener("click",gen);
+["uu-type","uu-n","uu-up","uu-q"].forEach(function(id){$(id).addEventListener("change",gen)});
+$("uu-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("uu-out").textContent).then(function(){$("uu-msg").textContent="kopyaland\u0131"})});
+gen();
+})();
+//]]></script>

@@ -1,0 +1,90 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Metin</p>
+  <textarea id="wc-in" class="tk-area" style="min-height:340px" placeholder="Metni buraya yapıştırın veya yazmaya başlayın…"></textarea>
+</div>
+<div>
+  <div class="tk-panel">
+    <p class="tk-h">Sayım</p>
+    <div class="tk-stats">
+      <div class="tk-stat"><b id="wc-w">0</b><span>kelime</span></div>
+      <div class="tk-stat"><b id="wc-c">0</b><span>karakter</span></div>
+      <div class="tk-stat"><b id="wc-n">0</b><span>boşluksuz</span></div>
+      <div class="tk-stat"><b id="wc-s">0</b><span>cümle</span></div>
+      <div class="tk-stat"><b id="wc-p">0</b><span>paragraf</span></div>
+      <div class="tk-stat"><b id="wc-r">0dk</b><span>okuma</span></div>
+    </div>
+  </div>
+  <div class="tk-panel">
+    <p class="tk-h">Sınır denetimi</p>
+    <div class="tk-field"><label for="wc-preset">Hazır sınırlar</label>
+      <select id="wc-preset" class="tk-sel">
+        <option value="0,0">Yok</option>
+        <option value="150,250">Dergi özeti — 150–250 kelime</option>
+        <option value="200,300">Dergi özeti — 200–300 kelime</option>
+        <option value="100,150">Bildiri özeti — 100–150 kelime</option>
+        <option value="0,280">X / Twitter — 280 karakter</option>
+        <option value="0,2200">Instagram — 2200 karakter</option>
+        <option value="0,160">Meta açıklama — 160 karakter</option>
+        <option value="0,60">Sayfa başlığı — 60 karakter</option>
+      </select></div>
+    <div class="tk-two">
+      <div class="tk-field"><label for="wc-min">En az</label><input type="number" id="wc-min" class="tk-in" value="0" min="0"></div>
+      <div class="tk-field"><label for="wc-max">En çok</label><input type="number" id="wc-max" class="tk-in" value="0" min="0"></div>
+    </div>
+    <div class="tk-field"><label for="wc-unit">Birim</label>
+      <select id="wc-unit" class="tk-sel"><option value="w">kelime</option><option value="c">karakter</option></select></div>
+    <div class="tk-out" id="wc-verdict"><span class="tk-blank">Sınır seçin ya da elle girin.</span></div>
+  </div>
+  <div class="tk-panel">
+    <p class="tk-h">En sık geçen kelimeler</p>
+    <div class="tk-out" id="wc-freq" style="max-height:200px"><span class="tk-blank">—</span></div>
+  </div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var STOP="ve bir bu da de i\u00e7in ile o ki mi ne \u00e7ok daha en var yok ama gibi ise ya her".split(" ");
+var inp=$("wc-in");
+function run(){
+  var s=inp.value;
+  var words=s.trim()?s.trim().split(/\s+/):[];
+  var sent=s.trim()?(s.match(/[^.!?\u2026]+[.!?\u2026]+/g)||[s]).length:0;
+  var para=s.trim()?s.split(/\n\s*\n/).filter(function(p){return p.trim()}).length:0;
+  $("wc-w").textContent=words.length;
+  $("wc-c").textContent=s.length;
+  $("wc-n").textContent=s.replace(/\s/g,"").length;
+  $("wc-s").textContent=sent;
+  $("wc-p").textContent=para;
+  var mins=words.length/200;
+  $("wc-r").textContent=mins<1?Math.max(1,Math.round(mins*60))+"sn":Math.round(mins)+"dk";
+
+  var mn=parseInt($("wc-min").value,10)||0,mx=parseInt($("wc-max").value,10)||0;
+  var unit=$("wc-unit").value,val=unit==="w"?words.length:s.length;
+  var box=$("wc-verdict"),ul=unit==="w"?"kelime":"karakter";
+  if(!mn&&!mx)box.innerHTML='<span class="tk-blank">S\u0131n\u0131r se\u00e7in ya da elle girin.</span>';
+  else if(mx&&val>mx)box.innerHTML='<span class="tk-mark">'+(val-mx)+' '+ul+' fazla.</span>\n'
+    +'\u015eu an '+val+', \u00fcst s\u0131n\u0131r '+mx+'.';
+  else if(mn&&val<mn)box.innerHTML='<span class="tk-mark">'+(mn-val)+' '+ul+' eksik.</span>\n'
+    +'\u015eu an '+val+', alt s\u0131n\u0131r '+mn+'.';
+  else box.innerHTML='<span class="tk-good">S\u0131n\u0131r i\u00e7inde.</span>\n'+val+' '+ul+'.';
+
+  var f={},t=s.toLocaleLowerCase("tr").match(/[\w\u00e7\u011f\u0131\u00f6\u015f\u00fc\u00e2\u00ee\u00fb]+/g)||[];
+  t.forEach(function(w){if(w.length>2&&STOP.indexOf(w)<0)f[w]=(f[w]||0)+1});
+  var top=Object.keys(f).sort(function(a,b){return f[b]-f[a]}).slice(0,12);
+  $("wc-freq").textContent=top.length?top.map(function(w){
+    return w.padEnd(20,".")+" "+f[w]}).join("\n"):"\u2014";
+}
+["wc-in","wc-min","wc-max","wc-unit"].forEach(function(id){$(id).addEventListener("input",run)});
+$("wc-unit").addEventListener("change",run);
+$("wc-preset").addEventListener("change",function(){
+  var p=this.value.split(",");
+  $("wc-min").value=p[0];$("wc-max").value=p[1];
+  $("wc-unit").value=(this.selectedIndex<=3&&this.selectedIndex>0)?"w":"c";
+  run();
+});
+run();
+})();
+//]]></script>

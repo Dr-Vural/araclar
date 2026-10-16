@@ -1,0 +1,96 @@
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Hesap türü</p>
+  <div class="tk-field"><label for="yz-mode">Ne hesaplamak istiyorsunuz</label>
+    <select id="yz-mode" class="tk-sel">
+      <option value="of">Bir sayının yüzde kaçı</option>
+      <option value="what">X, Y'nin yüzde kaçıdır</option>
+      <option value="change">İki değer arasındaki yüzde değişim</option>
+      <option value="inc">Yüzde artır / azalt</option>
+      <option value="rev">Yüzde eklenmiş tutarı geri çöz</option>
+      <option value="frac">Kesir ve yüzde dönüşümü</option>
+    </select></div>
+  <div id="yz-fields"></div>
+  <div class="tk-stats" style="margin-top:8px">
+    <div class="tk-stat ok"><b id="yz-res">—</b><span>sonuç</span></div>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Açıklama</p>
+  <div class="tk-out" id="yz-exp">—</div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Sık karıştırılan iki şey</p>
+  <p class="tk-note"><strong>Yüzde puan ile yüzde değişim aynı şey değildir.</strong>
+     Faiz %20'den %25'e çıktıysa artış <span class="tk-good">5 yüzde puan</span>
+     ama <span class="tk-mark">%25 oranında</span> artmıştır.</p>
+  <p class="tk-note"><strong>Aynı oranda artış ve azalış başa döndürmez.</strong>
+     100 lira %20 artarsa 120 olur; 120 lira %20 azalırsa 96 olur, 100 değil.
+     Geri dönmek için "yüzde eklenmiş tutarı geri çöz" seçeneğini kullanın.</p>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var F={
+ of:[["a","Y\u00fczde (%)","20"],["b","Say\u0131","1500"]],
+ what:[["a","X de\u011feri","45"],["b","Y de\u011feri","180"]],
+ change:[["a","Eski de\u011fer","1200"],["b","Yeni de\u011fer","1560"]],
+ inc:[["a","Ba\u015flang\u0131\u00e7 de\u011feri","1000"],["b","Y\u00fczde (%) \u2014 azaltmak i\u00e7in eksi yaz\u0131n","15"]],
+ rev:[["a","Y\u00fczde eklenmi\u015f tutar","1200"],["b","Eklenen y\u00fczde (%)","20"]],
+ frac:[["a","Pay","3"],["b","Payda","8"]]
+};
+function n(v){return new Intl.NumberFormat("tr-TR",{maximumFractionDigits:6}).format(v)}
+function build(){
+  var m=$("yz-mode").value;
+  $("yz-fields").innerHTML=F[m].map(function(f){
+    return '<div class="tk-field"><label for="yz-'+f[0]+'">'+f[1]+'</label>'
+      +'<input type="number" step="any" id="yz-'+f[0]+'" class="tk-in yzf" value="'+f[2]+'"></div>';
+  }).join("");
+  Array.prototype.forEach.call(document.querySelectorAll(".yzf"),function(x){
+    x.addEventListener("input",run)});
+  run();
+}
+function run(){
+  var m=$("yz-mode").value;
+  var a=parseFloat(($("yz-a")||{}).value),b=parseFloat(($("yz-b")||{}).value);
+  if(isNaN(a)||isNaN(b)){$("yz-res").textContent="\u2014";$("yz-exp").textContent="\u2014";return}
+  var r,e;
+  if(m==="of"){
+    r=b*a/100;
+    e=n(b)+" say\u0131s\u0131n\u0131n %"+n(a)+"'i\n= "+n(b)+" \u00d7 "+n(a)+" \u00f7 100\n= "+n(r);
+  }else if(m==="what"){
+    if(!b){$("yz-res").textContent="\u2014";$("yz-exp").textContent="Y s\u0131f\u0131r olamaz.";return}
+    r=a/b*100;
+    e=n(a)+" de\u011feri "+n(b)+" de\u011ferinin %"+n(r)+"'idir\n= "+n(a)+" \u00f7 "+n(b)+" \u00d7 100";
+  }else if(m==="change"){
+    if(!a){$("yz-res").textContent="\u2014";$("yz-exp").textContent="Eski de\u011fer s\u0131f\u0131r olamaz.";return}
+    r=(b-a)/a*100;
+    e=(r>=0?"Art\u0131\u015f":"Azal\u0131\u015f")+" %"+n(Math.abs(r))
+      +"\n= ("+n(b)+" \u2212 "+n(a)+") \u00f7 "+n(a)+" \u00d7 100"
+      +"\n\nFark: "+n(b-a)+"\nKat: "+n(a?b/a:0)+"\u00d7";
+  }else if(m==="inc"){
+    r=a*(1+b/100);
+    e=n(a)+(b>=0?" de\u011feri %"+n(b)+" art\u0131r\u0131l\u0131rsa":" de\u011feri %"+n(-b)+" azalt\u0131l\u0131rsa")
+      +"\n= "+n(a)+" \u00d7 (1 "+(b>=0?"+":"\u2212")+" "+n(Math.abs(b))+" \u00f7 100)"
+      +"\n= "+n(r)+"\n\nFark: "+n(r-a);
+  }else if(m==="rev"){
+    r=a/(1+b/100);
+    e="Y\u00fczde eklenmeden \u00f6nceki de\u011fer\n= "+n(a)+" \u00f7 (1 + "+n(b)+" \u00f7 100)\n= "+n(r)
+      +"\n\nEklenen tutar: "+n(a-r);
+  }else{
+    if(!b){$("yz-res").textContent="\u2014";$("yz-exp").textContent="Payda s\u0131f\u0131r olamaz.";return}
+    r=a/b*100;
+    e=n(a)+" / "+n(b)+" = %"+n(r)+"\nOndal\u0131k: "+n(a/b)
+      +"\nBinde: \u2030"+n(a/b*1000);
+  }
+  $("yz-res").textContent=(m==="what"||m==="change"||m==="frac")?"%"+n(r):n(r);
+  $("yz-exp").textContent=e;
+}
+$("yz-mode").addEventListener("change",build);
+build();
+})();
+//]]></script>

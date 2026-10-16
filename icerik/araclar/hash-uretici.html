@@ -1,0 +1,80 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Girdi</p>
+  <div class="tk-field"><label for="hs-in">Metin</label>
+    <textarea id="hs-in" class="tk-area" spellcheck="false" placeholder="Özeti alınacak metin…"></textarea></div>
+  <div class="tk-drop" id="hs-drop" tabindex="0" role="button" style="padding:24px">
+    <strong style="font-size:15px">Ya da dosya bırakın</strong>
+    <span>Büyük dosyalarda birkaç saniye sürebilir</span>
+  </div>
+  <input type="file" id="hs-file" class="tk-hidden">
+  <div class="tk-acts">
+    <button class="tk-btn" id="hs-go">Özet al</button>
+    <span class="tk-msg" id="hs-msg"></span>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Özetler</p>
+  <div class="tk-out" id="hs-out" style="max-height:340px"><span class="tk-blank">Metin yazın veya dosya bırakın.</span></div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Doğrulama</p>
+  <div class="tk-field"><label for="hs-cmp">Beklenen özeti yapıştırın</label>
+    <input type="text" id="hs-cmp" class="tk-in" spellcheck="false" placeholder="karşılaştırmak için"></div>
+  <div class="tk-out" id="hs-verdict"><span class="tk-blank">—</span></div>
+  <p class="tk-note">MD5 ve SHA-1 çakışmaya açıktır; imza ve parola saklamada
+     kullanılmamalıdır. Dosya bütünlüğü doğrulaması için SHA-256 tercih edin.
+     Tarayıcı MD5 desteklemediği için burada yer almaz.</p>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var ALGS=["SHA-1","SHA-256","SHA-384","SHA-512"];
+var msg=$("hs-msg"),out=$("hs-out"),last={};
+function hex(buf){
+  return Array.prototype.map.call(new Uint8Array(buf),function(b){
+    return ("0"+b.toString(16)).slice(-2)}).join("");
+}
+function run(data,label){
+  msg.className="tk-msg";msg.textContent="hesaplan\u0131yor\u2026";
+  Promise.all(ALGS.map(function(a){
+    return crypto.subtle.digest(a,data).then(function(d){return [a,hex(d)]});
+  })).then(function(rs){
+    last={};
+    out.textContent=rs.map(function(r){last[r[0]]=r[1];
+      return r[0].padEnd(9)+" "+r[1]}).join("\n\n");
+    msg.textContent=label+" \u00b7 "+data.byteLength.toLocaleString("tr-TR")+" bayt";
+    compare();
+  }).catch(function(){msg.className="tk-msg err";msg.textContent="hesaplanamad\u0131"});
+}
+function compare(){
+  var v=$("hs-cmp").value.trim().toLowerCase();
+  if(!v){$("hs-verdict").innerHTML='<span class="tk-blank">\u2014</span>';return}
+  var hit=Object.keys(last).filter(function(k){return last[k]===v});
+  $("hs-verdict").innerHTML=hit.length
+    ? '<span class="tk-good">E\u015fle\u015fti.</span> '+hit[0]
+    : '<span class="tk-mark">E\u015fle\u015fmedi.</span> Girdi de\u011fi\u015fmi\u015f olabilir.';
+}
+$("hs-go").addEventListener("click",function(){
+  var s=$("hs-in").value;
+  if(!s){msg.className="tk-msg err";msg.textContent="metin girin veya dosya b\u0131rak\u0131n";return}
+  run(new TextEncoder().encode(s),"metin");
+});
+$("hs-cmp").addEventListener("input",compare);
+var drop=$("hs-drop"),inp=$("hs-file");
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+function take(f){
+  if(!f)return;
+  f.arrayBuffer().then(function(b){run(b,f.name)});
+}
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files[0])});
+inp.addEventListener("change",function(e){take(e.target.files[0])});
+})();
+//]]></script>

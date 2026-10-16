@@ -1,0 +1,146 @@
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Hesap</p>
+  <div class="tk-field"><label for="or-mode">Araştırma deseni</label>
+    <select id="or-mode" class="tk-sel">
+      <option value="survey">Anket / tarama — oran kestirimi</option>
+      <option value="ttest">İki grup karşılaştırması — bağımsız t testi</option>
+      <option value="paired">Eşleştirilmiş t testi / öntest-sontest</option>
+      <option value="corr">Korelasyon</option>
+      <option value="anova">Tek yönlü ANOVA</option>
+    </select></div>
+  <div id="or-fields"></div>
+  <div class="tk-stats" style="margin-top:8px">
+    <div class="tk-stat ok"><b id="or-n">—</b><span id="or-lbl">gereken örneklem</span></div>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Açıklama</p>
+  <div class="tk-out" id="or-exp">—</div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Yöntem bölümü için hazır cümle</p>
+  <div class="tk-out" id="or-sent" style="font-family:var(--sans);font-size:14.5px">—</div>
+  <div class="tk-acts"><button class="tk-btn ghost" id="or-copy">Kopyala</button>
+    <span class="tk-msg" id="or-msg"></span></div>
+  <p class="tk-note">Etki büyüklüğü değerleri için Cohen'in ölçütleri: d için
+     küçük 0,20 · orta 0,50 · büyük 0,80; korelasyon için 0,10 · 0,30 · 0,50;
+     f için 0,10 · 0,25 · 0,40. Alan yazınında benzer çalışmalardan bir etki
+     büyüklüğü kestirimi varsa onu kullanmak, Cohen'in genel ölçütlerinden
+     daha doğrudur.</p>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var Z={90:1.6449,95:1.9600,99:2.5758};
+var ZP={80:0.8416,85:1.0364,90:1.2816,95:1.6449};
+var F={
+ survey:[["N","Evren b\u00fcy\u00fckl\u00fc\u011f\u00fc (bilinmiyorsa 0)","0"],["p","Beklenen oran (0\u20131)","0.5"],
+         ["d","Kabul edilen hata pay\u0131 (0\u20131)","0.05"],["cl","G\u00fcven d\u00fczeyi (%)","95"]],
+ ttest:[["es","Beklenen etki b\u00fcy\u00fckl\u00fc\u011f\u00fc \u2014 Cohen d","0.5"],["a","Alfa (%)","5"],
+        ["pw","\u0130stenen g\u00fc\u00e7 (%)","80"]],
+ paired:[["es","Beklenen etki b\u00fcy\u00fckl\u00fc\u011f\u00fc \u2014 Cohen d","0.5"],["a","Alfa (%)","5"],
+        ["pw","\u0130stenen g\u00fc\u00e7 (%)","80"]],
+ corr:[["es","Beklenen korelasyon r","0.3"],["a","Alfa (%)","5"],["pw","\u0130stenen g\u00fc\u00e7 (%)","80"]],
+ anova:[["es","Beklenen etki b\u00fcy\u00fckl\u00fc\u011f\u00fc \u2014 Cohen f","0.25"],["k","Grup say\u0131s\u0131","3"],
+        ["a","Alfa (%)","5"],["pw","\u0130stenen g\u00fc\u00e7 (%)","80"]]
+};
+function build(){
+  var m=$("or-mode").value;
+  $("or-fields").innerHTML=F[m].map(function(f){
+    return '<div class="tk-field"><label for="or-'+f[0]+'">'+f[1]+'</label>'
+      +'<input type="number" step="any" id="or-'+f[0]+'" class="tk-in orf" value="'+f[2]+'"></div>';
+  }).join("");
+  Array.prototype.forEach.call(document.querySelectorAll(".orf"),function(x){
+    x.addEventListener("input",run)});
+  run();
+}
+function g(k){var e=$("or-"+k);return e?parseFloat(e.value):NaN}
+function za(a){ // iki y\u00f6nl\u00fc
+  var cl=100-a;
+  return Z[Math.round(cl)]|| (Math.abs(cl-90)<Math.abs(cl-95)?Z[90]:Z[95]);
+}
+function zp(p){return ZP[Math.round(p)]||ZP[80]}
+function run(){
+  var m=$("or-mode").value,n,exp,sent,lbl="gereken \u00f6rneklem";
+  if(m==="survey"){
+    var N=g("N"),p=g("p"),d=g("d"),cl=g("cl"),z=Z[Math.round(cl)]||Z[95];
+    if(!(p>0&&p<1)||!(d>0&&d<1)){$("or-n").textContent="\u2014";return}
+    var n0=z*z*p*(1-p)/(d*d);
+    n=(N&&N>0)?(N*n0)/(n0+N-1):n0;
+    n=Math.ceil(n);
+    exp="Form\u00fcl  n = z\u00b2\u00b7p\u00b7(1\u2212p) / d\u00b2"+(N>0?"  (sonlu evren d\u00fczeltmesiyle)":"")
+      +"\nz       "+z.toFixed(4)+"   (%"+cl+" g\u00fcven)"
+      +"\np       "+p+"\nd       "+d
+      +(N>0?"\nN       "+N:"\nN       sonsuz varsay\u0131ld\u0131")
+      +"\n\nD\u00fczeltilmemi\u015f n\u2080 = "+Math.ceil(n0);
+    sent="Evreni "+(N>0?N+" ki\u015fi olan":"b\u00fcy\u00fckl\u00fc\u011f\u00fc bilinmeyen")+" ara\u015ft\u0131rmada, %"+cl
+      +" g\u00fcven d\u00fczeyi ve \u00b1"+(d*100).toFixed(0)+" hata pay\u0131 ile ula\u015f\u0131lmas\u0131 gereken "
+      +"en az \u00f6rneklem b\u00fcy\u00fckl\u00fc\u011f\u00fc "+n+" olarak hesaplanm\u0131\u015ft\u0131r.";
+  }else if(m==="ttest"||m==="paired"){
+    var es=g("es"),a=g("a"),pw=g("pw");
+    if(!(es>0)){$("or-n").textContent="\u2014";return}
+    var k=Math.pow(za(a)+zp(pw),2);
+    // Normal yakla\u015f\u0131m t da\u011f\u0131l\u0131m\u0131n\u0131 hafife al\u0131r; z\u00b2/4 d\u00fczeltmesi G*Power ile
+    // ayn\u0131 sonucu verir (d=0.5, \u03b1=.05, g\u00fc\u00e7=.80 \u2192 64).
+    var corr2=Math.pow(za(a),2)/4;
+    if(m==="ttest"){
+      n=Math.ceil(2*k/(es*es)+corr2);
+      lbl="her grup i\u00e7in";
+      exp="Form\u00fcl  n(grup) = 2\u00b7(z\u2081\u208b\u03b1/\u2082 + z\u2081\u208b\u03b2)\u00b2 / d\u00b2"
+        +"\nd       "+es+"\n\u03b1       "+a+"%   z = "+za(a).toFixed(4)
+        +"\nG\u00fc\u00e7     "+pw+"%   z = "+zp(pw).toFixed(4)
+        +"\n\nToplam gereken kat\u0131l\u0131mc\u0131: "+(n*2)
+        +"\n\n(t da\u011f\u0131l\u0131m\u0131 i\u00e7in z\u00b2/4 d\u00fczeltmesi uyguland\u0131; sonu\u00e7 G*Power ile ayn\u0131d\u0131r)";
+      sent="Cohen d = "+es+" etki b\u00fcy\u00fckl\u00fc\u011f\u00fc, \u03b1 = 0,"+String(a).padStart(2,"0")
+        +" ve %"+pw+" g\u00fc\u00e7 i\u00e7in yap\u0131lan g\u00fc\u00e7 analizinde her grup i\u00e7in en az "+n
+        +" (toplam "+(n*2)+") kat\u0131l\u0131mc\u0131ya ula\u015f\u0131lmas\u0131 gerekti\u011fi belirlenmi\u015ftir.";
+    }else{
+      n=Math.ceil(k/(es*es)+corr2)+1;
+      exp="Form\u00fcl  n = (z\u2081\u208b\u03b1/\u2082 + z\u2081\u208b\u03b2)\u00b2 / d\u00b2  + 1"
+        +"\nd       "+es+"\n\u03b1       "+a+"%\nG\u00fc\u00e7     "+pw+"%";
+      sent="E\u015fle\u015ftirilmi\u015f \u00f6l\u00e7\u00fcmler i\u00e7in Cohen d = "+es+", \u03b1 = 0,"
+        +String(a).padStart(2,"0")+" ve %"+pw+" g\u00fc\u00e7 ko\u015fulunda en az "+n
+        +" kat\u0131l\u0131mc\u0131 gerekti\u011fi hesaplanm\u0131\u015ft\u0131r.";
+    }
+  }else if(m==="corr"){
+    var r=g("es"),a2=g("a"),pw2=g("pw");
+    if(!(Math.abs(r)>0&&Math.abs(r)<1)){$("or-n").textContent="\u2014";return}
+    var C=0.5*Math.log((1+r)/(1-r));
+    n=Math.ceil(Math.pow((za(a2)+zp(pw2))/C,2))+3;
+    exp="Fisher z d\u00f6n\u00fc\u015f\u00fcm\u00fc ile\nC = \u00bd\u00b7ln((1+r)/(1\u2212r)) = "+C.toFixed(4)
+      +"\nn = ((z\u2081\u208b\u03b1/\u2082 + z\u2081\u208b\u03b2)/C)\u00b2 + 3"
+      +"\nr       "+r+"\n\u03b1       "+a2+"%\nG\u00fc\u00e7     "+pw2+"%";
+    sent="r = "+r+" b\u00fcy\u00fckl\u00fc\u011f\u00fcnde bir ili\u015fkiyi \u03b1 = 0,"+String(a2).padStart(2,"0")
+      +" d\u00fczeyinde ve %"+pw2+" g\u00fc\u00e7le saptayabilmek i\u00e7in en az "+n
+      +" kat\u0131l\u0131mc\u0131ya ula\u015f\u0131lmas\u0131 gerekmektedir.";
+  }else{
+    var f=g("es"),kk=g("k"),a3=g("a"),pw3=g("pw");
+    if(!(f>0)||!(kk>=2)){$("or-n").textContent="\u2014";return}
+    var lam=Math.pow(za(a3)+zp(pw3),2);
+    var per=Math.ceil(lam/(f*f)/kk + kk);
+    n=per;lbl="her grup i\u00e7in";
+    exp="Yakla\u015f\u0131k g\u00fc\u00e7 hesab\u0131 (\u03bb = N\u00b7f\u00b2)"
+      +"\nf       "+f+"\nGrup    "+kk+"\n\u03b1       "+a3+"%\nG\u00fc\u00e7     "+pw3+"%"
+      +"\n\nToplam gereken kat\u0131l\u0131mc\u0131: "+(per*kk)
+      +"\n\nNot: ANOVA i\u00e7in bu bir yakla\u015f\u0131md\u0131r; kesin sonu\u00e7 i\u00e7in G*Power kullan\u0131n.";
+    sent="Cohen f = "+f+" etki b\u00fcy\u00fckl\u00fc\u011f\u00fc, "+kk+" grup, \u03b1 = 0,"
+      +String(a3).padStart(2,"0")+" ve %"+pw3+" g\u00fc\u00e7 i\u00e7in her grupta en az "+per
+      +" (toplam "+(per*kk)+") kat\u0131l\u0131mc\u0131 gerekmektedir.";
+  }
+  $("or-n").textContent=n;
+  $("or-lbl").textContent=lbl;
+  $("or-exp").textContent=exp;
+  $("or-sent").textContent=sent;
+}
+$("or-mode").addEventListener("change",build);
+$("or-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("or-sent").textContent).then(function(){
+    $("or-msg").textContent="kopyaland\u0131"})});
+build();
+})();
+//]]></script>

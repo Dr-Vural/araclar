@@ -1,0 +1,121 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Önizleme — damalı alan şeffaflıktır</p>
+  <div class="tk-prev" id="tp-prev"><p class="tk-blank">Görseli bırakın, sonra silmek istediğiniz rengin üzerine tıklayın.</p></div>
+</div>
+
+<div>
+  <div class="tk-drop" id="tp-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z M4 12h16 M12 4v16"/></svg>
+    <strong>Görsel bırakın</strong>
+    <span>Düz zeminli logo ve ürün fotoğrafları için</span>
+  </div>
+  <input type="file" id="tp-file" class="tk-hidden" accept="image/*">
+
+  <div class="tk-panel">
+    <p class="tk-h">Silinecek renk</p>
+    <div class="tk-field"><label for="tp-col">Renk — önizlemeye tıklayarak da seçebilirsiniz</label>
+      <input type="color" id="tp-col" class="tk-in" value="#ffffff" style="height:44px;padding:4px"></div>
+    <div class="tk-field"><label for="tp-tol">Tolerans — <span class="tk-val" id="tp-tv">32</span></label>
+      <input type="range" id="tp-tol" class="tk-range" min="0" max="160" value="32"></div>
+    <div class="tk-field"><label for="tp-fea">Kenar yumuşatma — <span class="tk-val" id="tp-fv">12</span></label>
+      <input type="range" id="tp-fea" class="tk-range" min="0" max="60" value="12"></div>
+    <div class="tk-checks">
+      <label><input type="checkbox" id="tp-edge">
+        <span>Yalnız kenardan bağlantılı alanı sil<em>Nesnenin içindeki aynı renk korunur — logolar için</em></span></label>
+    </div>
+    <div class="tk-acts">
+      <a class="tk-btn" id="tp-dl" style="display:none;text-decoration:none">PNG indir</a>
+      <span class="tk-msg" id="tp-msg">dosya bekleniyor</span>
+    </div>
+    <p class="tk-note">Tolerans, seçilen renge ne kadar benzeyen piksellerin silineceğini
+       belirler. JPEG kaynaklarda sıkıştırma gürültüsü yüzünden 30–60 arası gerekir.</p>
+  </div>
+</div>
+</div>
+
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var drop=$("tp-drop"),inp=$("tp-file"),prev=$("tp-prev"),msg=$("tp-msg"),dl=$("tp-dl");
+var img=null,src=null,name="gorsel",t=null;
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files[0])});
+inp.addEventListener("change",function(e){take(e.target.files[0])});
+["tp-col","tp-tol","tp-fea","tp-edge"].forEach(function(id){
+  $(id).addEventListener("input",function(){
+    if(id==="tp-tol")$("tp-tv").textContent=this.value;
+    if(id==="tp-fea")$("tp-fv").textContent=this.value;
+    clearTimeout(t);t=setTimeout(run,90);
+  });
+});
+function take(f){
+  if(!f||!/^image\//.test(f.type)){msg.textContent="g\u00f6rsel bulunamad\u0131";msg.className="tk-msg err";return}
+  msg.className="tk-msg";name=f.name.replace(/\.[^.]+$/,"");
+  var u=URL.createObjectURL(f),im=new Image();
+  im.onload=function(){
+    img=im;URL.revokeObjectURL(u);
+    var c=document.createElement("canvas");c.width=im.naturalWidth;c.height=im.naturalHeight;
+    c.getContext("2d").drawImage(im,0,0);
+    src=c.getContext("2d").getImageData(0,0,c.width,c.height);
+    // en s\u0131k g\u00f6r\u00fclen k\u00f6\u015fe rengini varsay\u0131lan yap
+    var p=src.data,i=0;$("tp-col").value=rgbHex(p[0],p[1],p[2]);
+    run();
+  };
+  im.src=u;
+}
+function rgbHex(r,g,b){return "#"+[r,g,b].map(function(v){return ("0"+v.toString(16)).slice(-2)}).join("")}
+function hex(h){return [parseInt(h.substr(1,2),16),parseInt(h.substr(3,2),16),parseInt(h.substr(5,2),16)]}
+
+function run(){
+  if(!src)return;
+  var w=src.width,h=src.height,tol=+$("tp-tol").value,fea=+$("tp-fea").value;
+  var tc=hex($("tp-col").value),only=$("tp-edge").checked;
+  var out=new ImageData(new Uint8ClampedArray(src.data),w,h),d=out.data;
+  var near=new Uint8Array(w*h);
+  var lim=tol*tol*3, soft=(tol+fea)*(tol+fea)*3, n=0;
+  for(var i=0,k=0;i<d.length;i+=4,k++){
+    var dr=d[i]-tc[0],dg=d[i+1]-tc[1],db=d[i+2]-tc[2];
+    var dist=dr*dr+dg*dg+db*db;
+    if(dist<=lim)near[k]=2;
+    else if(fea&&dist<=soft)near[k]=1;
+  }
+  if(only){
+    // kenardan ta\u015fk\u0131n doldurma: yaln\u0131z d\u0131\u015far\u0131ya ba\u011fl\u0131 alan silinir
+    var keep=new Uint8Array(w*h),st=[];
+    for(var x=0;x<w;x++){st.push(x);st.push((h-1)*w+x)}
+    for(var y=0;y<h;y++){st.push(y*w);st.push(y*w+w-1)}
+    while(st.length){
+      var p=st.pop();
+      if(keep[p]||!near[p])continue;
+      keep[p]=1;
+      var px=p%w,py=(p-px)/w;
+      if(px>0)st.push(p-1); if(px<w-1)st.push(p+1);
+      if(py>0)st.push(p-w); if(py<h-1)st.push(p+w);
+    }
+    near=keep.map(function(v,i){return v?near[i]:0});
+  }
+  for(var k2=0;k2<near.length;k2++){
+    if(near[k2]===2){d[k2*4+3]=0;n++}
+    else if(near[k2]===1){d[k2*4+3]=Math.round(d[k2*4+3]*0.35);n++}
+  }
+  var c=document.createElement("canvas");c.width=w;c.height=h;
+  c.getContext("2d").putImageData(out,0,0);
+  prev.innerHTML="";prev.appendChild(c);
+  c.addEventListener("click",function(e){
+    var r=c.getBoundingClientRect();
+    var px=Math.floor((e.clientX-r.left)*w/r.width),py=Math.floor((e.clientY-r.top)*h/r.height);
+    var o=(py*w+px)*4;
+    $("tp-col").value=rgbHex(src.data[o],src.data[o+1],src.data[o+2]);run();
+  });
+  c.toBlob(function(b){
+    dl.href=URL.createObjectURL(b);dl.download=name+"-seffaf.png";dl.style.display="inline-block";
+    msg.textContent=Math.round(n*100/(w*h))+"% piksel \u015feffafla\u015ft\u0131r\u0131ld\u0131";
+  },"image/png");
+}
+})();
+//]]></script>

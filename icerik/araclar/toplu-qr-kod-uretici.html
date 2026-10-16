@@ -1,0 +1,127 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Liste — her satır bir QR kod</p>
+  <div class="tk-field"><label for="tq-in">Biçim: <code>dosya adı ; içerik</code> — noktalı virgül yoksa satırın tamamı içerik sayılır</label>
+    <textarea id="tq-in" class="tk-area" spellcheck="false" placeholder="masa-01 ; https://menu.vumatech.net/?m=1&#10;masa-02 ; https://menu.vumatech.net/?m=2&#10;https://vumatech.net"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="tq-go">Üret</button>
+    <button class="tk-btn ghost" id="tq-demo">Örnek yükle</button>
+    <span class="tk-msg" id="tq-msg"></span>
+  </div>
+  <div id="tq-out"></div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Ayar</p>
+  <div class="tk-field"><label for="tq-size">Boyut (px)</label>
+    <input type="number" id="tq-size" class="tk-in" value="600" min="128" max="1600" step="64"></div>
+  <div class="tk-field"><label for="tq-ec">Hata düzeltme</label>
+    <select id="tq-ec" class="tk-sel"><option value="L">L — %7</option>
+    <option value="M">M — %15</option><option value="Q" selected>Q — %25</option>
+    <option value="H">H — %30</option></select></div>
+  <div class="tk-two">
+    <div class="tk-field"><label for="tq-fg">Kod rengi</label>
+      <input type="color" id="tq-fg" class="tk-in" value="#15171a" style="height:44px;padding:4px"></div>
+    <div class="tk-field"><label for="tq-bg">Zemin</label>
+      <input type="color" id="tq-bg" class="tk-in" value="#ffffff" style="height:44px;padding:4px"></div>
+  </div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="tq-label" checked><span>Kodun altına adı yaz<em>Masa numarası gibi ayırt edici bilgi</em></span></label>
+  </div>
+  <div class="tk-stats" style="margin-top:16px">
+    <div class="tk-stat"><b id="tq-n">0</b><span>satır</span></div>
+    <div class="tk-stat ok"><b id="tq-d">0</b><span>üretilen</span></div>
+  </div>
+  <p class="tk-note">Restoran masaları, etkinlik yaka kartları, envanter etiketleri
+     ve kütüphane raf kodları için tasarlandı. Baskıya gidecekse hata düzeltmeyi
+     Q ya da H bırakın — kodun bir kısmı lekelense bile okunur.</p>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var msg=$("tq-msg"),out=$("tq-out");
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function safe(s){return s.replace(/[^\p{L}\p{N}._-]+/gu,"-").replace(/^-+|-+$/g,"").slice(0,60)||"qr"}
+function parse(){
+  return $("tq-in").value.split("\n").map(function(l){return l.trim()}).filter(Boolean)
+    .map(function(l,i){
+      var k=l.indexOf(";");
+      if(k>0)return {n:safe(l.slice(0,k).trim()),v:l.slice(k+1).trim()};
+      return {n:"qr-"+String(i+1).padStart(3,"0"),v:l};
+    }).filter(function(o){return o.v});
+}
+$("tq-in").addEventListener("input",function(){$("tq-n").textContent=parse().length});
+$("tq-demo").addEventListener("click",function(){
+  $("tq-in").value="masa-01 ; https://menu.vumatech.net/?m=1\n"
+    +"masa-02 ; https://menu.vumatech.net/?m=2\n"
+    +"masa-03 ; https://menu.vumatech.net/?m=3\n"
+    +"wifi ; WIFI:T:WPA;S:Kafe;P:parola123;;";
+  $("tq-n").textContent=parse().length;
+});
+function draw(item,size,label){
+  return new Promise(function(res,rej){
+    var holder=document.createElement("div");
+    try{
+      new QRCode(holder,{text:item.v,width:size,height:size,
+        colorDark:$("tq-fg").value,colorLight:$("tq-bg").value,
+        correctLevel:QRCode.CorrectLevel[$("tq-ec").value]});
+    }catch(e){return rej(new Error(item.n+": i\u00e7erik \u00e7ok uzun"))}
+    setTimeout(function(){
+      var qc=holder.querySelector("canvas");
+      if(!qc)return rej(new Error(item.n+": \u00e7izilemedi"));
+      var pad=Math.round(size*0.06),lh=label?Math.round(size*0.13):0;
+      var c=document.createElement("canvas");
+      c.width=size+pad*2;c.height=size+pad*2+lh;
+      var x=c.getContext("2d");
+      x.fillStyle=$("tq-bg").value;x.fillRect(0,0,c.width,c.height);
+      x.drawImage(qc,pad,pad);
+      if(label){
+        x.fillStyle=$("tq-fg").value;
+        x.font="600 "+Math.round(size*0.075)+'px "IBM Plex Mono", monospace';
+        x.textAlign="center";x.textBaseline="middle";
+        x.fillText(item.n,c.width/2,size+pad+lh/2);
+      }
+      c.toBlob(function(b){res({n:item.n,blob:b})},"image/png");
+    },40);
+  });
+}
+$("tq-go").addEventListener("click",function(){
+  if(typeof QRCode==="undefined"){msg.className="tk-msg err";msg.textContent="QR k\u00fct\u00fcphanesi y\u00fcklenemedi";return}
+  var items=parse();
+  if(!items.length){msg.className="tk-msg err";msg.textContent="liste bo\u015f";return}
+  if(items.length>250){msg.className="tk-msg err";msg.textContent="en fazla 250 sat\u0131r";return}
+  msg.className="tk-msg";msg.textContent="\u00fcretiliyor\u2026";
+  var size=Math.min(1600,Math.max(128,+$("tq-size").value||600));
+  var label=$("tq-label").checked,done=[];
+  var chain=Promise.resolve();
+  items.forEach(function(it,i){
+    chain=chain.then(function(){
+      msg.textContent="\u00fcretiliyor\u2026 "+(i+1)+" / "+items.length;
+      return draw(it,size,label).then(function(r){done.push(r);$("tq-d").textContent=done.length});
+    });
+  });
+  chain.then(function(){
+    var rows=done.map(function(r){
+      return '<li><span class="nm"><a class="tk-dl" href="'+URL.createObjectURL(r.blob)
+        +'" download="'+esc(r.n)+'.png">'+esc(r.n)+'.png</a></span>'
+        +'<span class="sz">'+(r.blob.size/1024).toFixed(0)+' KB</span></li>';
+    }).join("");
+    out.innerHTML='<p class="tk-h2">Kodlar</p><ul class="tk-list" style="max-height:300px;overflow:auto">'+rows+'</ul>';
+    if(typeof JSZip!=="undefined"){
+      var z=new JSZip();
+      done.forEach(function(r){z.file(r.n+".png",r.blob)});
+      return z.generateAsync({type:"blob"}).then(function(zb){
+        out.innerHTML+='<div class="tk-acts"><a class="tk-btn" style="text-decoration:none" href="'
+          +URL.createObjectURL(zb)+'" download="qr-kodlar.zip">Hepsini zip olarak indir ('
+          +(zb.size/1048576).toFixed(1)+' MB)</a></div>';
+      });
+    }
+  }).then(function(){
+    msg.textContent=done.length+" kod \u00fcretildi";
+  }).catch(function(e){msg.className="tk-msg err";msg.textContent=e.message});
+});
+})();
+//]]></script>

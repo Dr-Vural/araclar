@@ -1,0 +1,130 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Gizlenecek alanları sürükleyerek çizin</p>
+  <div class="tk-prev" id="cs-prev" style="user-select:none">
+    <p class="tk-blank">Görsel bırakın; yüz, isim, adres gibi alanların üzerini çizin.</p></div>
+</div>
+<div>
+  <div class="tk-drop" id="cs-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M3 5h18v14H3z"/><path d="M7 9h4v4H7z M13 11h4v5h-4z"/></svg>
+    <strong>Görsel bırakın</strong><span>Ekran görüntüsü ve fotoğraflar için</span>
+  </div>
+  <input type="file" id="cs-file" class="tk-hidden" accept="image/*">
+  <div class="tk-panel">
+    <p class="tk-h">Yöntem</p>
+    <div class="tk-field"><label for="cs-mode">Gizleme</label>
+      <select id="cs-mode" class="tk-sel">
+        <option value="pixel">Pikselleştir</option>
+        <option value="blur">Bulanıklaştır</option>
+        <option value="black">Düz renkle kapat</option>
+      </select></div>
+    <div class="tk-field"><label for="cs-str">Şiddet — <span class="tk-val" id="cs-sv">14</span></label>
+      <input type="range" id="cs-str" class="tk-range" min="4" max="50" value="14"></div>
+    <div class="tk-field"><label for="cs-col">Kapatma rengi</label>
+      <input type="color" id="cs-col" class="tk-in" value="#15171a" style="height:44px;padding:4px"></div>
+    <div class="tk-acts">
+      <button class="tk-btn" id="cs-go" disabled>PNG indir</button>
+      <button class="tk-btn ghost" id="cs-undo">Son alanı geri al</button>
+      <button class="tk-btn ghost" id="cs-reset">Sıfırla</button>
+      <span class="tk-msg" id="cs-msg">dosya bekleniyor</span>
+    </div>
+    <p class="tk-note">Pikselleştirme ve bulanıklaştırma <strong>geri
+       döndürülemez biçimde</strong> uygulanır — çıktı dosyasında özgün
+       pikseller kalmaz. Yine de hassas belgelerde düz renkle kapatmak
+       en güvenlisidir; zayıf bir bulanıklık bazı durumlarda tahmin edilebilir.</p>
+  </div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var drop=$("cs-drop"),inp=$("cs-file"),prev=$("cs-prev"),msg=$("cs-msg"),go=$("cs-go");
+var img=null,name="gorsel",cv=null,ctx=null,rects=[],drag=null,scale=1;
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files[0])});
+inp.addEventListener("change",function(e){take(e.target.files[0])});
+$("cs-str").addEventListener("input",function(){$("cs-sv").textContent=this.value;redraw()});
+["cs-mode","cs-col"].forEach(function(id){$(id).addEventListener("input",redraw);
+  $(id).addEventListener("change",redraw)});
+function take(f){
+  if(!f||!/^image\//.test(f.type)){msg.className="tk-msg err";msg.textContent="g\u00f6rsel bulunamad\u0131";return}
+  msg.className="tk-msg";name=f.name.replace(/\.[^.]+$/,"");
+  var u=URL.createObjectURL(f),im=new Image();
+  im.onload=function(){img=im;URL.revokeObjectURL(u);rects=[];setup();go.disabled=false;
+    msg.textContent=im.naturalWidth+"\u00d7"+im.naturalHeight};
+  im.src=u;
+}
+function setup(){
+  prev.innerHTML="";
+  cv=document.createElement("canvas");
+  scale=Math.min(1,560/img.naturalWidth);
+  cv.width=img.naturalWidth*scale;cv.height=img.naturalHeight*scale;
+  ctx=cv.getContext("2d");cv.style.cursor="crosshair";
+  prev.appendChild(cv);redraw();
+  cv.addEventListener("pointerdown",function(e){
+    var r=cv.getBoundingClientRect();
+    drag={x:e.clientX-r.left,y:e.clientY-r.top,cx:0,cy:0};
+    cv.setPointerCapture(e.pointerId);
+  });
+  cv.addEventListener("pointermove",function(e){
+    if(!drag)return;
+    var r=cv.getBoundingClientRect();
+    drag.cx=e.clientX-r.left;drag.cy=e.clientY-r.top;redraw(true);
+  });
+  ["pointerup","pointercancel"].forEach(function(v){
+    cv.addEventListener(v,function(){
+      if(drag&&Math.abs(drag.cx-drag.x)>3&&Math.abs(drag.cy-drag.y)>3){
+        rects.push({x:Math.min(drag.x,drag.cx)/scale,y:Math.min(drag.y,drag.cy)/scale,
+          w:Math.abs(drag.cx-drag.x)/scale,h:Math.abs(drag.cy-drag.y)/scale});
+      }
+      drag=null;redraw();
+    });
+  });
+}
+function apply(x2,s,list){
+  var mode=$("cs-mode").value,str=+$("cs-str").value,col=$("cs-col").value;
+  list.forEach(function(r){
+    var x=r.x*s,y=r.y*s,w=r.w*s,h=r.h*s;
+    if(w<1||h<1)return;
+    if(mode==="black"){x2.fillStyle=col;x2.fillRect(x,y,w,h);return}
+    var f=Math.max(2,Math.round(str*s));
+    var tmp=document.createElement("canvas");
+    tmp.width=Math.max(1,Math.round(w/f));tmp.height=Math.max(1,Math.round(h/f));
+    var t=tmp.getContext("2d");
+    if(mode==="blur")t.filter="blur(1px)";
+    t.drawImage(x2.canvas,x,y,w,h,0,0,tmp.width,tmp.height);
+    x2.imageSmoothingEnabled=(mode==="blur");
+    x2.drawImage(tmp,0,0,tmp.width,tmp.height,x,y,w,h);
+    x2.imageSmoothingEnabled=true;
+  });
+}
+function redraw(live){
+  if(!cv)return;
+  ctx.drawImage(img,0,0,cv.width,cv.height);
+  apply(ctx,scale,rects);
+  if(live&&drag){
+    ctx.strokeStyle="#0d6357";ctx.lineWidth=2;
+    ctx.strokeRect(Math.min(drag.x,drag.cx),Math.min(drag.y,drag.cy),
+      Math.abs(drag.cx-drag.x),Math.abs(drag.cy-drag.y));
+  }
+  msg.textContent=rects.length+" alan gizlendi";
+}
+$("cs-undo").addEventListener("click",function(){rects.pop();redraw()});
+$("cs-reset").addEventListener("click",function(){rects=[];redraw()});
+go.addEventListener("click",function(){
+  var c=document.createElement("canvas");
+  c.width=img.naturalWidth;c.height=img.naturalHeight;
+  var x=c.getContext("2d");x.drawImage(img,0,0);
+  apply(x,1,rects);
+  c.toBlob(function(b){
+    var a=document.createElement("a");a.href=URL.createObjectURL(b);
+    a.download=name+"-sansurlu.png";a.click();
+    msg.textContent="indirildi";
+  },"image/png");
+});
+})();
+//]]></script>

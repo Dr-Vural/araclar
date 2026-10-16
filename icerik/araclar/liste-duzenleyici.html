@@ -1,0 +1,82 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Liste</p>
+  <div class="tk-field"><label for="ls-in">Girdi — her satır bir öğe</label>
+    <textarea id="ls-in" class="tk-area" placeholder="Çankaya&#10;İzmir&#10;Şile&#10;Ankara&#10;İzmir"></textarea></div>
+  <div class="tk-field"><label for="ls-out">Sonuç</label>
+    <textarea id="ls-out" class="tk-area" readonly></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="ls-go">Uygula</button>
+    <button class="tk-btn ghost" id="ls-copy">Kopyala</button>
+    <button class="tk-btn ghost" id="ls-swap">Sonucu girdiye al</button>
+    <span class="tk-msg" id="ls-msg"></span>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">İşlemler</p>
+  <div class="tk-field"><label for="ls-sort">Sıralama</label>
+    <select id="ls-sort" class="tk-sel">
+      <option value="">Dokunma</option>
+      <option value="az">A → Z (Türkçe alfabe)</option>
+      <option value="za">Z → A</option>
+      <option value="len">Kısadan uzuna</option>
+      <option value="rand">Karıştır</option>
+      <option value="rev">Ters çevir</option>
+    </select></div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="ls-dup"><span>Tekrarları sil<em>İlk görülen kalır</em></span></label>
+    <label><input type="checkbox" id="ls-empty" checked><span>Boş satırları at</span></label>
+    <label><input type="checkbox" id="ls-trim" checked><span>Baş ve son boşlukları kırp</span></label>
+    <label><input type="checkbox" id="ls-case"><span>Karşılaştırmada büyük/küçük ayırma</span></label>
+  </div>
+  <p class="tk-h2">Satır başına / sonuna ekle</p>
+  <div class="tk-two">
+    <div class="tk-field"><label for="ls-pre">Önek</label><input type="text" id="ls-pre" class="tk-in" placeholder="&lt;li&gt;"></div>
+    <div class="tk-field"><label for="ls-suf">Sonek</label><input type="text" id="ls-suf" class="tk-in" placeholder="&lt;/li&gt;"></div>
+  </div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="ls-num"><span>Numaralandır<em>1. 2. 3. biçiminde</em></span></label>
+  </div>
+  <div class="tk-stats" style="margin-top:16px">
+    <div class="tk-stat"><b id="ls-a">0</b><span>girdi</span></div>
+    <div class="tk-stat ok"><b id="ls-b">0</b><span>çıktı</span></div>
+  </div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+function run(){
+  var raw=$("ls-in").value.split("\n"),L=raw.slice();
+  if($("ls-trim").checked)L=L.map(function(x){return x.trim()});
+  if($("ls-empty").checked)L=L.filter(function(x){return x.trim()!==""});
+  if($("ls-dup").checked){
+    var seen={},o=[];
+    L.forEach(function(x){
+      var k=$("ls-case").checked?x.toLocaleLowerCase("tr"):x;
+      if(!seen[k]){seen[k]=1;o.push(x)}});
+    L=o;
+  }
+  var s=$("ls-sort").value;
+  if(s==="az")L.sort(function(a,b){return a.localeCompare(b,"tr")});
+  else if(s==="za")L.sort(function(a,b){return b.localeCompare(a,"tr")});
+  else if(s==="len")L.sort(function(a,b){return a.length-b.length});
+  else if(s==="rev")L.reverse();
+  else if(s==="rand"){for(var i=L.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=L[i];L[i]=L[j];L[j]=t}}
+  var pre=$("ls-pre").value,suf=$("ls-suf").value,num=$("ls-num").checked;
+  var outL=L.map(function(x,i){return (num?(i+1)+". ":"")+pre+x+suf});
+  $("ls-out").value=outL.join("\n");
+  $("ls-a").textContent=raw.filter(function(x){return x.trim()}).length;
+  $("ls-b").textContent=L.length;
+  $("ls-msg").textContent=raw.length-L.length>0?(raw.length-L.length)+" sat\u0131r elendi":"";
+}
+$("ls-go").addEventListener("click",run);
+["ls-in","ls-pre","ls-suf"].forEach(function(id){$(id).addEventListener("input",run)});
+["ls-sort","ls-dup","ls-empty","ls-trim","ls-case","ls-num"].forEach(function(id){
+  $(id).addEventListener("change",run)});
+$("ls-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("ls-out").value).then(function(){$("ls-msg").textContent="kopyaland\u0131"})});
+$("ls-swap").addEventListener("click",function(){$("ls-in").value=$("ls-out").value;run()});
+})();
+//]]></script>

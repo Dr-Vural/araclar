@@ -1,0 +1,108 @@
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Renk</p>
+  <div class="tk-field"><label for="cl-pick">Seçici</label>
+    <input type="color" id="cl-pick" class="tk-in" value="#0d6357" style="height:56px;padding:4px"></div>
+  <div class="tk-field"><label for="cl-in">HEX · RGB · HSL yazabilirsiniz</label>
+    <input type="text" id="cl-in" class="tk-in" value="#0d6357" placeholder="#0d6357 · rgb(13,99,87) · hsl(173,77%,22%)"></div>
+  <div class="tk-out" id="cl-vals">—</div>
+  <p class="tk-h2">Kontrast denetimi (WCAG)</p>
+  <div class="tk-field"><label for="cl-vs">Karşı renk</label>
+    <input type="color" id="cl-vs" class="tk-in" value="#ffffff" style="height:44px;padding:4px"></div>
+  <div class="tk-stats">
+    <div class="tk-stat"><b id="cl-cr">—</b><span>oran</span></div>
+    <div class="tk-stat"><b id="cl-aa">—</b><span>AA · normal</span></div>
+    <div class="tk-stat"><b id="cl-aaa">—</b><span>AAA · normal</span></div>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Ton merdiveni</p>
+  <div id="cl-scale"></div>
+  <p class="tk-h2">Uyumlu renkler</p>
+  <div id="cl-harm"></div>
+  <p class="tk-note">Metin ve zemin arasındaki kontrast oranı normal boyutlu yazı için
+     en az 4.5, büyük başlıklar için 3.0 olmalıdır. Altındaki değerler görme
+     güçlüğü olan kullanıcılar için okunmaz kabul edilir.</p>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+function parse(s){
+  s=s.trim();
+  var m=s.match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if(m){var h=m[1];if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    return [parseInt(h.substr(0,2),16),parseInt(h.substr(2,2),16),parseInt(h.substr(4,2),16)]}
+  m=s.match(/rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)/i);
+  if(m)return [+m[1],+m[2],+m[3]];
+  m=s.match(/hsla?\(\s*(\d+)[\s,]+(\d+)%?[\s,]+(\d+)%?/i);
+  if(m)return hsl2rgb(+m[1],+m[2]/100,+m[3]/100);
+  return null;
+}
+function hex(r){return "#"+r.map(function(v){return ("0"+Math.round(v).toString(16)).slice(-2)}).join("")}
+function rgb2hsl(r,g,b){
+  r/=255;g/=255;b/=255;
+  var mx=Math.max(r,g,b),mn=Math.min(r,g,b),h,s,l=(mx+mn)/2,d=mx-mn;
+  if(!d){h=s=0}else{
+    s=l>.5?d/(2-mx-mn):d/(mx+mn);
+    h=mx===r?((g-b)/d+(g<b?6:0)):mx===g?((b-r)/d+2):((r-g)/d+4);h*=60;
+  }
+  return [Math.round(h),Math.round(s*100),Math.round(l*100)];
+}
+function hsl2rgb(h,s,l){
+  h=((h%360)+360)%360/360;
+  var q=l<.5?l*(1+s):l+s-l*s,p=2*l-q;
+  function t(x){x<0&&(x+=1);x>1&&(x-=1);
+    return x<1/6?p+(q-p)*6*x:x<1/2?q:x<2/3?p+(q-p)*(2/3-x)*6:p}
+  return [t(h+1/3)*255,t(h)*255,t(h-1/3)*255].map(Math.round);
+}
+function lum(c){return c.map(function(v){v/=255;
+  return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)})
+  .reduce(function(a,v,i){return a+v*[.2126,.7152,.0722][i]},0)}
+function swatches(el,arr){
+  el.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:8px">'+arr.map(function(o){
+    return '<div style="text-align:center"><div style="width:64px;height:52px;border-radius:7px;'
+      +'border:1px solid #e3e1dc;background:'+o.h+'"></div>'
+      +'<div style="font:11px var(--mono);color:var(--ink-3);margin-top:4px">'+o.h+'</div>'
+      +'<div style="font:10px var(--mono);color:var(--ink-3)">'+o.n+'</div></div>';
+  }).join("")+'</div>';
+}
+function run(src){
+  var c=parse(src==="pick"?$("cl-pick").value:$("cl-in").value);
+  if(!c){$("cl-vals").textContent="okunamad\u0131";return}
+  var h=hex(c),hs=rgb2hsl(c[0],c[1],c[2]);
+  $("cl-pick").value=h; if(src!=="in")$("cl-in").value=h;
+  $("cl-vals").textContent=
+    "HEX   "+h+"\nRGB   rgb("+c.join(", ")+")\nHSL   hsl("+hs[0]+", "+hs[1]+"%, "+hs[2]+"%)"
+    +"\nCMYK  "+cmyk(c).join(", ");
+  var sc=[];
+  [90,80,70,60,50,40,30,20,10].forEach(function(l){
+    sc.push({h:hex(hsl2rgb(hs[0],hs[1]/100,l/100)),n:l})});
+  swatches($("cl-scale"),sc);
+  swatches($("cl-harm"),[
+    {h:h,n:"ana"},
+    {h:hex(hsl2rgb(hs[0]+180,hs[1]/100,hs[2]/100)),n:"t\u00fcmleyen"},
+    {h:hex(hsl2rgb(hs[0]+120,hs[1]/100,hs[2]/100)),n:"\u00fc\u00e7l\u00fc 1"},
+    {h:hex(hsl2rgb(hs[0]-120,hs[1]/100,hs[2]/100)),n:"\u00fc\u00e7l\u00fc 2"},
+    {h:hex(hsl2rgb(hs[0]+30,hs[1]/100,hs[2]/100)),n:"kom\u015fu"}]);
+  var o=parse($("cl-vs").value)||[255,255,255];
+  var l1=lum(c),l2=lum(o),cr=(Math.max(l1,l2)+.05)/(Math.min(l1,l2)+.05);
+  $("cl-cr").textContent=cr.toFixed(2);
+  $("cl-aa").textContent=cr>=4.5?"ge\u00e7er":"kal\u0131r";
+  $("cl-aa").parentNode.className="tk-stat "+(cr>=4.5?"ok":"warn");
+  $("cl-aaa").textContent=cr>=7?"ge\u00e7er":"kal\u0131r";
+  $("cl-aaa").parentNode.className="tk-stat "+(cr>=7?"ok":"warn");
+}
+function cmyk(c){
+  var r=c[0]/255,g=c[1]/255,b=c[2]/255,k=1-Math.max(r,g,b);
+  if(k===1)return [0,0,0,100];
+  return [Math.round((1-r-k)/(1-k)*100),Math.round((1-g-k)/(1-k)*100),
+          Math.round((1-b-k)/(1-k)*100),Math.round(k*100)];
+}
+$("cl-pick").addEventListener("input",function(){run("pick")});
+$("cl-in").addEventListener("input",function(){run("in")});
+$("cl-vs").addEventListener("input",function(){run("vs")});
+run("pick");
+})();
+//]]></script>

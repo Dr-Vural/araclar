@@ -1,0 +1,190 @@
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Makale bilgileri</p>
+  <div class="tk-field"><label for="tb-authors">Yazarlar — her satıra bir kişi</label>
+    <textarea id="tb-authors" class="tk-area" style="min-height:100px" placeholder="Mahmut Vural&#10;Nasikat Alieva"></textarea></div>
+  <div class="tk-field"><label for="tb-type">Çalışma türü</label>
+    <select id="tb-type" class="tk-sel">
+      <option value="survey">Anket, mülakat, gözlem veya deney — insandan veri toplanıyor</option>
+      <option value="retro">Geriye dönük (retrospektif) veri incelemesi</option>
+      <option value="animal">Hayvan denemesi</option>
+      <option value="clinical">İnsanlar üzerinde klinik araştırma</option>
+      <option value="case">Olgu sunumu</option>
+      <option value="none">Derleme, kuramsal çalışma veya ikincil veri — etik kurul gerekmiyor</option>
+    </select></div>
+  <div id="tb-ethics">
+    <div class="tk-two">
+      <div class="tk-field"><label for="tb-board">Etik kurul adı</label>
+        <input type="text" id="tb-board" class="tk-in" placeholder="KTMÜ Sosyal ve Beşeri Bilimler Etik Kurulu"></div>
+      <div class="tk-field"><label for="tb-date">Karar tarihi</label>
+        <input type="date" id="tb-date" class="tk-in"></div>
+    </div>
+    <div class="tk-field"><label for="tb-no">Karar / toplantı sayısı</label>
+      <input type="text" id="tb-no" class="tk-in" placeholder="2026/03-12"></div>
+  </div>
+  <p class="tk-h2">Ek beyanlar</p>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="tb-scale"><span>Başkasına ait ölçek / anket kullanıldı ve izin alındı</span></label>
+    <label><input type="checkbox" id="tb-consent"><span>Katılımcılardan aydınlatılmış onam alındı</span></label>
+    <label><input type="checkbox" id="tb-fund"><span>Çalışma bir kurum tarafından desteklendi</span></label>
+  </div>
+  <div class="tk-field" id="tb-fw" style="display:none"><label for="tb-funder">Destekleyen kurum ve proje numarası</label>
+    <input type="text" id="tb-funder" class="tk-in" placeholder="TÜBİTAK 1002, proje no 123K456"></div>
+  <div class="tk-field"><label for="tb-thanks">Teşekkür (boş bırakılabilir)</label>
+    <input type="text" id="tb-thanks" class="tk-in" placeholder="Veri toplama aşamasındaki katkıları için…"></div>
+  <div class="tk-field"><label for="tb-split">Katkı oranı</label>
+    <select id="tb-split" class="tk-sel">
+      <option value="equal">Yazarlar eşit katkı sağladı</option>
+      <option value="credit">Rol bazlı (CRediT) — aşağıdan seçin</option>
+      <option value="pct">Yüzdeyle belirt</option>
+    </select></div>
+  <div class="tk-field" id="tb-pw" style="display:none"><label for="tb-pcts">Yüzdeler — yazar sırasına göre, virgülle</label>
+    <input type="text" id="tb-pcts" class="tk-in" placeholder="60, 40"></div>
+  <div id="tb-cw" style="display:none"></div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Türkçe beyan bloğu</p>
+  <div class="tk-out" id="tb-tr" style="max-height:340px">—</div>
+  <div class="tk-acts"><button class="tk-btn ghost" id="tb-ctr">Kopyala</button></div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">İngilizce beyan bloğu</p>
+  <div class="tk-out" id="tb-en" style="max-height:340px">—</div>
+  <div class="tk-acts"><button class="tk-btn ghost" id="tb-cen">Kopyala</button>
+    <span class="tk-msg" id="tb-msg"></span></div>
+  <p class="tk-note">Bu metinler ULAKBİM TR Dizin'in yazarlardan istediği beyanları
+     karşılamak üzere hazırlanır: etik kurul izni, katkı oranı, çıkar çatışması,
+     destek ve teşekkür. Dergiler ifadeyi biraz farklı isteyebilir; kendi
+     yazım kılavuzunuzla karşılaştırın. Etik kurul izni gerekip gerekmediği
+     nihai olarak derginin ve kurumunuzun kararıdır.</p>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var ROLES=[["Kavramsalla\u015ft\u0131rma","Conceptualization"],["Y\u00f6ntem","Methodology"],
+["Veri toplama","Data collection"],["Analiz","Formal analysis"],
+["Yaz\u0131m \u2014 ilk taslak","Writing \u2014 original draft"],
+["Yaz\u0131m \u2014 g\u00f6zden ge\u00e7irme","Writing \u2014 review & editing"],["Denetim","Supervision"]];
+function authors(){
+  return $("tb-authors").value.split("\n").map(function(x){return x.trim()}).filter(Boolean);
+}
+function buildCredit(){
+  var A=authors();
+  $("tb-cw").innerHTML=A.length?('<p class="tk-h2">Roller</p>'+A.map(function(a,i){
+    return '<div class="tk-field"><label>'+a+'</label><select class="tk-sel crx" multiple size="4" data-i="'+i+'">'
+      +ROLES.map(function(r,k){return '<option value="'+k+'"'+(k<2?" selected":"")+'>'+r[0]+'</option>'}).join("")
+      +'</select></div>';
+  }).join("")):"";
+  Array.prototype.forEach.call(document.querySelectorAll(".crx"),function(n){
+    n.addEventListener("change",run)});
+}
+function trDate(v){
+  if(!v)return "\u2026\u2026";
+  var p=v.split("-");return p[2]+"."+p[1]+"."+p[0];
+}
+function enDate(v){
+  if(!v)return "\u2026\u2026";
+  var M=["January","February","March","April","May","June","July","August",
+    "September","October","November","December"];
+  var p=v.split("-");return M[+p[1]-1]+" "+(+p[2])+", "+p[0];
+}
+function run(){
+  var A=authors(),t=$("tb-type").value;
+  var needs=t!=="none";
+  $("tb-ethics").style.display=needs?"":"none";
+  $("tb-fw").style.display=$("tb-fund").checked?"":"none";
+  $("tb-pw").style.display=$("tb-split").value==="pct"?"":"none";
+  $("tb-cw").style.display=$("tb-split").value==="credit"?"":"none";
+
+  var board=$("tb-board").value.trim()||"\u2026\u2026",no=$("tb-no").value.trim()||"\u2026\u2026";
+  var TR=[],EN=[];
+
+  TR.push("Etik Beyan");
+  EN.push("Ethical Statement");
+  if(needs){
+    TR.push("Bu \u00e7al\u0131\u015fma i\u00e7in "+board+"'nun "+trDate($("tb-date").value)
+      +" tarihli ve "+no+" say\u0131l\u0131 karar\u0131 ile etik kurul izni al\u0131nm\u0131\u015ft\u0131r. "
+      +"\u0130zin bilgileri y\u00f6ntem b\u00f6l\u00fcm\u00fcnde de belirtilmi\u015ftir.");
+    EN.push("Ethics committee approval for this study was obtained from the "+board
+      +" (decision dated "+enDate($("tb-date").value)+", no. "+no+"). "
+      +"Approval details are also stated in the method section.");
+  }else{
+    TR.push("Bu \u00e7al\u0131\u015fma insan veya hayvan \u00fczerinde veri toplamay\u0131 gerektirmedi\u011finden "
+      +"etik kurul izni gerektirmemektedir. Ara\u015ft\u0131rma ve yay\u0131n eti\u011fi kurallar\u0131na "
+      +"uyulmu\u015ftur.");
+    EN.push("This study does not require ethics committee approval as it does not "
+      +"involve data collection from humans or animals. Research and publication "
+      +"ethics have been observed.");
+  }
+  if($("tb-consent").checked){
+    TR.push("Ara\u015ft\u0131rmaya kat\u0131lan b\u00fct\u00fcn kat\u0131l\u0131mc\u0131lardan ayd\u0131nlat\u0131lm\u0131\u015f onam al\u0131nm\u0131\u015ft\u0131r.");
+    EN.push("Informed consent was obtained from all participants in the study.");
+  }
+  if($("tb-scale").checked){
+    TR.push("\u00c7al\u0131\u015fmada kullan\u0131lan ve ba\u015fkalar\u0131na ait olan \u00f6l\u00e7ek/anket i\u00e7in "
+      +"telif sahiplerinden gerekli izin al\u0131nm\u0131\u015ft\u0131r.");
+    EN.push("Permission was obtained from the copyright holders for the scale/"
+      +"questionnaire used in the study.");
+  }
+  TR.push("");EN.push("");
+  TR.push("Yazar Katk\u0131 Oran\u0131 Beyan\u0131");
+  EN.push("Author Contribution Statement");
+  var sp=$("tb-split").value;
+  if(!A.length){TR.push("(\u00f6nce yazar adlar\u0131n\u0131 girin)");EN.push("(enter author names first)")}
+  else if(sp==="equal"){
+    TR.push("Yazarlar \u00e7al\u0131\u015fmaya e\u015fit oranda katk\u0131 sa\u011flam\u0131\u015ft\u0131r.");
+    EN.push("The authors contributed equally to the study.");
+  }else if(sp==="pct"){
+    var p=$("tb-pcts").value.split(",").map(function(x){return x.trim()});
+    TR.push(A.map(function(a,i){return a+": %"+(p[i]||"\u2026")}).join(" \u00b7 "));
+    EN.push(A.map(function(a,i){return a+": "+(p[i]||"\u2026")+"%"}).join(" \u00b7 "));
+    var tot=p.reduce(function(s,x){return s+(parseFloat(x)||0)},0);
+    if(A.length&&Math.abs(tot-100)>0.5)
+      TR.push("[uyar\u0131: y\u00fczdelerin toplam\u0131 "+tot+", 100 olmal\u0131]");
+  }else{
+    var sel=document.querySelectorAll(".crx");
+    A.forEach(function(a,i){
+      var n=sel[i],rs=[];
+      if(n)Array.prototype.forEach.call(n.selectedOptions,function(o){rs.push(+o.value)});
+      TR.push(a+": "+(rs.map(function(k){return ROLES[k][0]}).join(", ")||"\u2026"));
+      EN.push(a+": "+(rs.map(function(k){return ROLES[k][1]}).join(", ")||"\u2026"));
+    });
+  }
+  TR.push("");EN.push("");
+  TR.push("\u00c7at\u0131\u015fma Beyan\u0131");
+  EN.push("Conflict of Interest Statement");
+  TR.push("Yazarlar aras\u0131nda ve/veya \u00fc\u00e7\u00fcnc\u00fc taraflarla herhangi bir \u00e7\u0131kar \u00e7at\u0131\u015fmas\u0131 "
+    +"bulunmamaktad\u0131r.");
+  EN.push("The authors declare no conflict of interest with any party.");
+  TR.push("");EN.push("");
+  TR.push("Destek ve Te\u015fekk\u00fcr Beyan\u0131");
+  EN.push("Funding and Acknowledgement Statement");
+  var f=$("tb-funder").value.trim();
+  if($("tb-fund").checked&&f){
+    TR.push("Bu \u00e7al\u0131\u015fma "+f+" taraf\u0131ndan desteklenmi\u015ftir.");
+    EN.push("This study was supported by "+f+".");
+  }else{
+    TR.push("Bu \u00e7al\u0131\u015fma i\u00e7in herhangi bir kurum veya kurulu\u015ftan mali destek al\u0131nmam\u0131\u015ft\u0131r.");
+    EN.push("No financial support was received from any institution for this study.");
+  }
+  var th=$("tb-thanks").value.trim();
+  if(th){TR.push(th);EN.push(th)}
+  $("tb-tr").textContent=TR.join("\n");
+  $("tb-en").textContent=EN.join("\n");
+  $("tb-msg").textContent=A.length+" yazar";
+}
+$("tb-authors").addEventListener("input",function(){buildCredit();run()});
+["tb-type","tb-board","tb-date","tb-no","tb-scale","tb-consent","tb-fund",
+ "tb-funder","tb-thanks","tb-split","tb-pcts"].forEach(function(id){
+  $(id).addEventListener("input",run);$(id).addEventListener("change",run)});
+$("tb-ctr").addEventListener("click",function(){
+  navigator.clipboard.writeText($("tb-tr").textContent).then(function(){$("tb-msg").textContent="T\u00fcrk\u00e7e blok kopyaland\u0131"})});
+$("tb-cen").addEventListener("click",function(){
+  navigator.clipboard.writeText($("tb-en").textContent).then(function(){$("tb-msg").textContent="\u0130ngilizce blok kopyaland\u0131"})});
+buildCredit();run();
+})();
+//]]></script>

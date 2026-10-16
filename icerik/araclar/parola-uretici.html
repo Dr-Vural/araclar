@@ -1,0 +1,95 @@
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Kurallar</p>
+  <div class="tk-field"><label for="pw-len">Uzunluk — <span class="tk-val" id="pw-lv">20</span></label>
+    <input type="range" id="pw-len" class="tk-range" min="8" max="64" value="20"></div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="pw-lo" checked><span>Küçük harf — abc</span></label>
+    <label><input type="checkbox" id="pw-up" checked><span>Büyük harf — ABC</span></label>
+    <label><input type="checkbox" id="pw-nu" checked><span>Rakam — 123</span></label>
+    <label><input type="checkbox" id="pw-sy" checked><span>Simge — !@#$%</span></label>
+    <label><input type="checkbox" id="pw-amb" checked><span>Karışan karakterleri çıkar<em>0 O o 1 l I | gibi ayırt edilmesi zor olanlar</em></span></label>
+  </div>
+  <div class="tk-field" style="margin-top:15px"><label for="pw-n">Kaç adet</label>
+    <input type="number" id="pw-n" class="tk-in" value="5" min="1" max="50"></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="pw-go">Üret</button>
+    <button class="tk-btn ghost" id="pw-copy">Hepsini kopyala</button>
+    <span class="tk-msg" id="pw-msg"></span>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Güç</p>
+  <div class="tk-stats">
+    <div class="tk-stat"><b id="pw-e">—</b><span>bit entropi</span></div>
+    <div class="tk-stat"><b id="pw-a">—</b><span>alfabe</span></div>
+    <div class="tk-stat ok"><b id="pw-t">—</b><span>kırılma süresi</span></div>
+  </div>
+  <p class="tk-note">Süre tahmini saniyede 100 milyar deneme yapan bir saldırganı
+     varsayar. 80 bitin üzeri bugünün donanımıyla pratikte kırılamaz kabul edilir.
+     Parolalar cihazınızda <code>crypto.getRandomValues</code> ile üretilir.</p>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Parolalar</p>
+  <div class="tk-out" id="pw-out" style="max-height:300px"><span class="tk-blank">“Üret”e basın.</span></div>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var LO="abcdefghijklmnopqrstuvwxyz",UP="ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+NU="0123456789",SY="!@#$%^&*()-_=+[]{};:,.?",AMB="0O1lI|`'\"{}[]()/\\";
+function pool(){
+  var p="";
+  if($("pw-lo").checked)p+=LO; if($("pw-up").checked)p+=UP;
+  if($("pw-nu").checked)p+=NU; if($("pw-sy").checked)p+=SY;
+  if($("pw-amb").checked)p=p.split("").filter(function(c){return AMB.indexOf(c)<0}).join("");
+  return p;
+}
+function pick(p,n){
+  var a=new Uint32Array(n),s="";
+  crypto.getRandomValues(a);
+  var lim=Math.floor(4294967296/p.length)*p.length;
+  for(var i=0;i<n;i++){
+    var v=a[i];
+    while(v>=lim){var t=new Uint32Array(1);crypto.getRandomValues(t);v=t[0]}
+    s+=p[v%p.length];
+  }
+  return s;
+}
+function human(sec){
+  if(sec<60)return "saniyeler";
+  var u=[[60,"dakika"],[3600,"saat"],[86400,"g\u00fcn"],[31536000,"y\u0131l"]];
+  if(sec<3600)return Math.round(sec/60)+" dakika";
+  if(sec<86400)return Math.round(sec/3600)+" saat";
+  if(sec<31536000)return Math.round(sec/86400)+" g\u00fcn";
+  var y=sec/31536000;
+  if(y<1e3)return Math.round(y)+" y\u0131l";
+  if(y<1e6)return Math.round(y/1e3)+" bin y\u0131l";
+  if(y<1e9)return Math.round(y/1e6)+" milyon y\u0131l";
+  if(y<1e15)return Math.round(y/1e9)+" milyar y\u0131l";
+  return "evren ya\u015f\u0131ndan uzun";
+}
+function run(){
+  var p=pool(),n=parseInt($("pw-len").value,10),c=parseInt($("pw-n").value,10)||1;
+  $("pw-lv").textContent=n;
+  if(!p){$("pw-out").innerHTML='<span class="tk-mark">En az bir karakter k\u00fcmesi se\u00e7in.</span>';return}
+  var ent=n*Math.log2(p.length);
+  $("pw-e").textContent=Math.round(ent);
+  $("pw-a").textContent=p.length;
+  $("pw-t").textContent=human(Math.pow(2,ent-1)/1e11);
+  var list=[];for(var i=0;i<Math.min(c,50);i++)list.push(pick(p,n));
+  $("pw-out").textContent=list.join("\n");
+  $("pw-msg").textContent=list.length+" parola \u00fcretildi";
+}
+$("pw-go").addEventListener("click",run);
+["pw-len","pw-n"].forEach(function(id){$(id).addEventListener("input",run)});
+["pw-lo","pw-up","pw-nu","pw-sy","pw-amb"].forEach(function(id){$(id).addEventListener("change",run)});
+$("pw-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("pw-out").textContent).then(function(){$("pw-msg").textContent="kopyaland\u0131"})});
+run();
+})();
+//]]></script>

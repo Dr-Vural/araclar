@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="tr" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f4f3f0">
+<title>Görsel Boyutlandırma — VuMaTech Tools</title>
+<meta name="description" content="Genişlik ve yükseklik verin, en-boy oranını koruyarak yeniden boyutlandırın. Birden çok dosyayı aynı anda işleyin.">
+<link rel="canonical" href="https://tools.vumatech.net/araclar/gorsel-boyutlandirma/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="VuMaTech Tools">
+<meta property="og:title" content="Görsel Boyutlandırma — VuMaTech Tools">
+<meta property="og:description" content="Genişlik ve yükseklik verin, en-boy oranını koruyarak yeniden boyutlandırın. Birden çok dosyayı aynı anda işleyin.">
+<meta property="og:url" content="https://tools.vumatech.net/araclar/gorsel-boyutlandirma/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/assets/kit.css">
+<script>
+/* Tema, sayfa çizilmeden uygulanır; yoksa karanlık temada bir an beyaz parlama olur.
+   Kayıtlı tercih yoksa işletim sistemi ayarı kullanılır. */
+(function(){try{
+  var t=localStorage.getItem("vmt_theme");
+  if(t!=="dark"&&t!=="light"){
+    t=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";
+  }
+  document.documentElement.setAttribute("data-theme",t);
+  var m=document.querySelector('meta[name="theme-color"]');
+  if(m)m.setAttribute("content", t==="dark"?"#0d1014":"#f4f3f0");
+}catch(e){document.documentElement.setAttribute("data-theme","light");}})();
+</script>
+</head>
+<body>
+<div class="shell">
+  <div class='crest'>
+    <a class='name' href="/">VuMaTech <b>Tools</b></a>
+    <span class='crest-right'>
+<div class='langpick' id='langpick' role='group' aria-label='Dil'>
+        <button class='langbtn' data-lang='tr' title='Türkçe' aria-label='Türkçe'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e30a17'/><circle cx='11.5' cy='10' r='5' fill='#fff'/><circle cx='13' cy='10' r='4' fill='#e30a17'/><path fill='#fff' d='M17.5 10l4.2-1.4-2.6 3.6v-4.4l2.6 3.6z'/></svg></button>
+        <button class='langbtn' data-lang='ky' title='Кыргызча' aria-label='Кыргызча'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e8112d'/><circle cx='15' cy='10' r='4.2' fill='#ffef00'/><circle cx='15' cy='10' r='2.4' fill='none' stroke='#e8112d' stroke-width='.5'/><g stroke='#ffef00' stroke-width='.5'><path d='M15 4v12M9 10h12M10.6 5.6l8.8 8.8M19.4 5.6l-8.8 8.8'/></g></svg></button>
+        <button class='langbtn' data-lang='ru' title='Русский' aria-label='Русский'><svg viewBox='0 0 30 20'><rect width='30' height='6.67' fill='#fff'/><rect y='6.67' width='30' height='6.67' fill='#0039a6'/><rect y='13.33' width='30' height='6.67' fill='#d52b1e'/></svg></button>
+        <button class='langbtn' data-lang='en' title='English' aria-label='English'><svg viewBox='0 0 30 20'><clipPath id='uk'><rect width='30' height='20'/></clipPath><g clip-path='url(#uk)'><rect width='30' height='20' fill='#012169'/><path d='M0 0l30 20M30 0L0 20' stroke='#fff' stroke-width='4'/><path d='M0 0l30 20M30 0L0 20' stroke='#c8102e' stroke-width='2'/><path d='M15 0v20M0 10h30' stroke='#fff' stroke-width='6'/><path d='M15 0v20M0 10h30' stroke='#c8102e' stroke-width='3.5'/></g></svg></button>
+      </div>
+      <button class='themebtn' id='themebtn' aria-label='Tema'>
+        <svg class='i-moon' viewBox='0 0 24 24'><path d='M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z'/></svg>
+        <svg class='i-sun' viewBox='0 0 24 24'><circle cx='12' cy='12' r='4.2'/><path d='M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8'/></svg>
+      </button>
+      <a class='up' href='https://vumatech.net'>vumatech.net</a>
+    </span>
+  </div>
+
+
+<a class="back" href="/" data-i18n="back">← bütün araçlar</a>
+<h1 class="view">Görsel Boyutlandırma</h1>
+<p class="priv"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> <span data-i18n="priv">Bu araç tamamen tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</span></p>
+<div class="tk">
+<div class="tk-cols">
+<div>
+  <div class="tk-drop" id="rz-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4M4 20h16"/></svg>
+    <strong>Görselleri bırakın</strong>
+    <span>PNG · JPEG · WebP · GIF &nbsp;·&nbsp; birden çok dosya olabilir</span>
+  </div>
+  <input type="file" id="rz-file" class="tk-hidden" multiple accept="image/*">
+
+  <div class="tk-panel">
+    <p class="tk-h">Hedef boyut</p>
+    <div class="tk-two">
+      <div class="tk-field"><label for="rz-w">Genişlik (px)</label>
+        <input type="number" id="rz-w" class="tk-in" min="1" placeholder="1200"></div>
+      <div class="tk-field"><label for="rz-h">Yükseklik (px)</label>
+        <input type="number" id="rz-h" class="tk-in" min="1" placeholder="otomatik"></div>
+    </div>
+    <div class="tk-checks">
+      <label><input type="checkbox" id="rz-lock" checked>
+        <span>En-boy oranını koru<em>Tek kenar verirseniz diğeri kendiliğinden hesaplanır</em></span></label>
+      <label><input type="checkbox" id="rz-noup" checked>
+        <span>Büyütme yapma<em>Küçük görseller olduğu boyutta kalır, bulanıklaşmaz</em></span></label>
+    </div>
+    <div class="tk-field" style="margin-top:15px"><label for="rz-fmt">Çıktı biçimi</label>
+      <select id="rz-fmt" class="tk-sel">
+        <option value="keep">Kaynakla aynı</option>
+        <option value="image/jpeg">JPEG</option>
+        <option value="image/png">PNG</option>
+        <option value="image/webp">WebP</option>
+      </select></div>
+    <div class="tk-field"><label for="rz-q">JPEG / WebP kalitesi — <span class="tk-val" id="rz-qv">88</span></label>
+      <input type="range" id="rz-q" class="tk-range" min="40" max="100" value="88"></div>
+    <div class="tk-acts">
+      <button class="tk-btn" id="rz-go" disabled>Boyutlandır</button>
+      <span class="tk-msg" id="rz-msg">dosya bekleniyor</span>
+    </div>
+  </div>
+</div>
+
+<div class="tk-panel">
+  <p class="tk-h">Sonuç</p>
+  <div id="rz-out"><p class="tk-blank">Görsel bırakın, hedef genişliği yazın ve “Boyutlandır”a basın. İşlem cihazınızda yapılır.</p></div>
+</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var drop=$("rz-drop"),inp=$("rz-file"),msg=$("rz-msg"),go=$("rz-go"),out=$("rz-out");
+var files=[];
+function kb(n){return n<1024?n+" B":n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB"}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files)});
+inp.addEventListener("change",function(e){take(e.target.files)});
+$("rz-q").addEventListener("input",function(){$("rz-qv").textContent=this.value});
+
+function take(fl){
+  files=Array.prototype.filter.call(fl,function(f){return /^image\//.test(f.type)});
+  go.disabled=!files.length;
+  msg.textContent=files.length?files.length+" görsel hazır":"görsel bulunamadı";
+  out.innerHTML='<ul class="tk-list">'+files.map(function(f){
+    return '<li><span class="nm">'+esc(f.name)+'</span><span class="sz">'+kb(f.size)+'</span></li>';
+  }).join("")+"</ul>";
+}
+
+function load(f){return new Promise(function(res,rej){
+  var u=URL.createObjectURL(f),im=new Image();
+  im.onload=function(){res({im:im,url:u})};
+  im.onerror=function(){URL.revokeObjectURL(u);rej(new Error("açılamadı"))};
+  im.src=u;
+});}
+
+go.addEventListener("click",function(){
+  var tw=parseInt($("rz-w").value,10)||0, th=parseInt($("rz-h").value,10)||0;
+  if(!tw&&!th){msg.textContent="en az bir kenar girin";msg.className="tk-msg err";return}
+  msg.className="tk-msg"; msg.textContent="işleniyor…"; go.disabled=true;
+  var lock=$("rz-lock").checked, noup=$("rz-noup").checked;
+  var fmt=$("rz-fmt").value, q=parseInt($("rz-q").value,10)/100;
+  var rows=[], done=0;
+
+  files.forEach(function(f,idx){
+    load(f).then(function(o){
+      var iw=o.im.naturalWidth, ih=o.im.naturalHeight, w=tw, h=th;
+      if(lock){
+        if(tw&&!th){w=tw;h=Math.round(ih*tw/iw)}
+        else if(th&&!tw){h=th;w=Math.round(iw*th/ih)}
+        else{var s=Math.min(tw/iw,th/ih);w=Math.round(iw*s);h=Math.round(ih*s)}
+      }else{w=tw||iw;h=th||ih}
+      if(noup&&(w>iw||h>ih)){w=iw;h=ih}
+      var c=document.createElement("canvas");c.width=w;c.height=h;
+      var x=c.getContext("2d");x.imageSmoothingQuality="high";
+      var type=fmt==="keep"?(f.type==="image/gif"?"image/png":f.type):fmt;
+      if(type==="image/jpeg"){x.fillStyle="#fff";x.fillRect(0,0,w,h)}
+      x.drawImage(o.im,0,0,w,h);
+      URL.revokeObjectURL(o.url);
+      c.toBlob(function(b){
+        var ext=type.split("/")[1].replace("jpeg","jpg");
+        var nm=f.name.replace(/\.[^.]+$/,"")+"-"+w+"x"+h+"."+ext;
+        var d=b.size-f.size, sign=d<0?"−":"+";
+        rows[idx]='<li><span class="nm"><a class="tk-dl" href="'+URL.createObjectURL(b)
+          +'" download="'+esc(nm)+'">'+esc(nm)+'</a></span>'
+          +'<span class="sz">'+iw+'×'+ih+' → '+w+'×'+h+'</span>'
+          +'<span class="sz">'+kb(b.size)+' ('+sign+kb(Math.abs(d))+')</span></li>';
+        if(++done===files.length){
+          out.innerHTML='<ul class="tk-list">'+rows.join("")+'</ul>'
+            +'<p class="tk-note">Dosya adlarına tıklayarak indirin. '
+            +'Kaynak dosyalarınız değiştirilmedi.</p>';
+          msg.textContent=done+" görsel boyutlandırıldı"; go.disabled=false;
+        }
+      },type,q);
+    }).catch(function(){
+      rows[idx]='<li><span class="nm">'+esc(f.name)+'</span><span class="sz">açılamadı</span></li>';
+      if(++done===files.length){out.innerHTML='<ul class="tk-list">'+rows.join("")+'</ul>';go.disabled=false}
+    });
+  });
+});
+})();
+</script>
+</div>
+  <div class='adzone'>
+    <span class='lbl'>reklam</span>
+    <!-- AdSense birimi: Google'dan aldığınız data-ad-slot değerini yazıp
+         aşağıdaki iki satırın yorumunu kaldırın.
+    <script async='async' src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5193342573714090' crossorigin='anonymous'/>
+    <ins class='adsbygoogle' style='display:block' data-ad-client='ca-pub-5193342573714090' data-ad-slot='XXXXXXXXXX' data-ad-format='auto' data-full-width-responsive='true'/>
+    -->
+  </div>
+
+  <div class='promo'>
+    <p class='kicker' data-i18n='promo_kicker'>VuMaTech Studio · Bişkek</p>
+    <h2><span data-i18n='promo_h2_a'>Bu araçları yapan ekip </span><em data-i18n='promo_h2_b'>sizin sitenizi de yapar</em></h2>
+    <p class='lead' data-i18n='promo_lead'>Kurumsal siteden dijital menüye, akademik dergi sistemlerinden oyun portalına kadar. Tasarım, kurulum ve yıllık bakım tek elden.</p>
+    <div class='svcs'>
+      <a class='svc' href='https://web.vumatech.net'>
+        <b data-i18n='svc_web'>Web Tasarım</b><span data-i18n='svc_web_d'>Kurumsal site, portfolyo, tanıtım sayfası</span></a>
+      <a class='svc' href='https://menu.vumatech.net'>
+        <b data-i18n='svc_menu'>QR Dijital Menü</b><span data-i18n='svc_menu_d'>Çok dilli menü, anlık güncelleme, baskı maliyeti yok</span></a>
+      <a class='svc' href='https://academy.vumatech.net'>
+        <b data-i18n='svc_acad'>Akademik Web</b><span data-i18n='svc_acad_d'>Akademisyen sitesi, özgeçmiş, yayın listesi</span></a>
+      <a class='svc' href='https://ojs.vumatech.net'>
+        <b data-i18n='svc_ojs'>OJS Dergi Sistemi</b><span data-i18n='svc_ojs_d'>Kurulum, tema, hakem süreci yönetimi</span></a>
+    </div>
+    <div class='cta'>
+      <a class='btn' id='tg-btn' href='https://t.me/vumatech' target='_blank' rel='noopener'><svg viewBox='0 0 24 24'><path d='M9.8 15.3l-.4 4c.5 0 .8-.2 1.1-.5l2.6-2.4 5.4 3.9c1 .5 1.7.3 2-1l3.6-16.8c.3-1.2-.5-1.8-1.4-1.4L1.3 9.9c-1.2.5-1.2 1.1-.2 1.4l5.3 1.6L18.6 5c.6-.4 1.1-.2.7.2z'/></svg>
+        <span data-i18n='promo_wa'>Telegram: @vumatech</span></a>
+      <a class='btn line' href='https://vumatech.net' data-i18n='promo_all'>Tüm hizmetler</a>
+    </div>
+  </div>
+
+  <div class='foot'>
+    <div class='cols'>
+      <div>
+        <a class='brand' href='https://vumatech.net'>VuMaTech <b>Studio</b></a>
+        <p data-i18n='foot_about'>Bişkek merkezli web tasarım ve dijital hizmet atölyesi. Türkiye ve Kırgızistan'da çalışır.</p>
+        <p data-i18n='foot_about2'>Bu sayfadaki bütün araçlar ücretsizdir ve tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</p>
+      </div>
+      <div>
+        <h3 data-i18n='foot_services'>Hizmetler</h3>
+        <ul>
+          <li><a href='https://web.vumatech.net'>Web tasarım</a></li>
+          <li><a href='https://menu.vumatech.net'>QR dijital menü</a></li>
+          <li><a href='https://academy.vumatech.net'>Akademik web</a></li>
+          <li><a href='https://ojs.vumatech.net'>OJS dergi sistemi</a></li>
+          <li><a href='https://game.vumatech.net'>Oyun portalı</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n='foot_contact'>İletişim</h3>
+        <ul>
+          <li><a id='tg-foot' href='https://t.me/vumatech'>Telegram · @vumatech</a></li>
+          <li><a href='mailto:vumatechnet@gmail.com'>vumatechnet@gmail.com</a></li>
+          <li><a href='https://vumatech.net'>vumatech.net</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class='base'>
+      <span>© VuMaTech Studio · Bişkek</span>
+      <span><a href="/hakkinda/">Hakkında</a> · <a href="/gizlilik-ve-kvkk/">Gizlilik ve KVKK</a> · </span><span><a href="/">araç dizini</a> · <a href='https://vumatech.net'>VuMaTech</a></span>
+    </div>
+  </div>
+
+</div>
+
+
+</div>
+<script src="/assets/site.js"></script>
+
+</body>
+</html>

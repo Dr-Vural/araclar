@@ -1,0 +1,112 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<div class="tk-cols">
+<div>
+  <div class="tk-drop" id="pg-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6v20h12V8z M14 2v6h4"/><path d="M8 14l2-2 2 2 2-3"/></svg>
+    <strong>PDF bırakın</strong><span>Her sayfa ayrı görsel olarak çıkar</span>
+  </div>
+  <input type="file" id="pg-file" class="tk-hidden" accept="application/pdf,.pdf">
+  <div class="tk-panel">
+    <p class="tk-h">Çıktı</p>
+    <div class="tk-field"><label for="pg-dpi">Çözünürlük</label>
+      <select id="pg-dpi" class="tk-sel">
+        <option value="1">Ekran — 72 dpi</option>
+        <option value="2" selected>Standart — 150 dpi</option>
+        <option value="4">Baskı — 300 dpi</option>
+        <option value="8">Yüksek — 600 dpi</option>
+      </select></div>
+    <div class="tk-field"><label for="pg-fmt">Biçim</label>
+      <select id="pg-fmt" class="tk-sel">
+        <option value="image/png">PNG — kayıpsız</option>
+        <option value="image/jpeg" selected>JPEG — küçük dosya</option>
+        <option value="image/webp">WebP</option>
+      </select></div>
+    <div class="tk-field"><label for="pg-range">Sayfalar (boş = hepsi)</label>
+      <input type="text" id="pg-range" class="tk-in" placeholder="1-5, 8"></div>
+    <div class="tk-acts">
+      <button class="tk-btn" id="pg-go" disabled>Çıkar</button>
+      <span class="tk-msg" id="pg-msg">dosya bekleniyor</span>
+    </div>
+    <p class="tk-note">600 dpi'de A4 sayfa yaklaşık 35 megapiksel olur; mobil
+       tarayıcılar bu boyutta yetersiz bellek verebilir. Baskı için 300 dpi yeterlidir.</p>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Sayfalar</p>
+  <div id="pg-out"><p class="tk-blank">PDF bırakın.</p></div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var drop=$("pg-drop"),inp=$("pg-file"),msg=$("pg-msg"),go=$("pg-go"),out=$("pg-out");
+var buf=null,name="belge",total=0;
+function kb(n){return n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB"}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files[0])});
+inp.addEventListener("change",function(e){take(e.target.files[0])});
+function take(f){
+  if(!f)return;
+  if(typeof pdfjsLib==="undefined"){msg.className="tk-msg err";msg.textContent="pdf.js y\u00fcklenemedi";return}
+  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  name=f.name.replace(/\.pdf$/i,"");
+  f.arrayBuffer().then(function(b){buf=b;return pdfjsLib.getDocument({data:b.slice(0)}).promise})
+   .then(function(d){total=d.numPages;go.disabled=false;msg.className="tk-msg";
+     msg.textContent=total+" sayfa \u00b7 "+kb(f.size)})
+   .catch(function(){msg.className="tk-msg err";msg.textContent="okunamad\u0131"});
+}
+function parseRange(s,n){
+  if(!s.trim()){var a=[];for(var i=1;i<=n;i++)a.push(i);return a}
+  var idx=[];
+  s.split(",").forEach(function(p){
+    p=p.trim().toLocaleLowerCase("tr").replace(/son/g,String(n));
+    var m=p.match(/^(\d+)\s*-\s*(\d+)$/);
+    if(m){for(var i=+m[1];i<=+m[2];i++)if(i>=1&&i<=n)idx.push(i)}
+    else{var v=parseInt(p,10);if(v>=1&&v<=n)idx.push(v)}
+  });
+  return idx;
+}
+go.addEventListener("click",function(){
+  msg.className="tk-msg";msg.textContent="\u00e7iziliyor\u2026";go.disabled=true;
+  var scale=+$("pg-dpi").value,type=$("pg-fmt").value;
+  var ext=type.split("/")[1].replace("jpeg","jpg");
+  pdfjsLib.getDocument({data:buf.slice(0)}).promise.then(function(doc){
+    var want=parseRange($("pg-range").value,doc.numPages);
+    if(!want.length)throw new Error("ge\u00e7erli sayfa girin");
+    if(want.length>80)throw new Error("80'den fazla sayfa \u2014 aral\u0131k daralt\u0131n");
+    var rows=[],chain=Promise.resolve();
+    want.forEach(function(n,k){
+      chain=chain.then(function(){
+        msg.textContent="sayfa "+n+" / "+want[want.length-1];
+        return doc.getPage(n).then(function(p){
+          var v=p.getViewport({scale:scale});
+          var c=document.createElement("canvas");c.width=v.width;c.height=v.height;
+          return p.render({canvasContext:c.getContext("2d"),viewport:v}).promise.then(function(){
+            return new Promise(function(res){
+              c.toBlob(function(b){
+                var nm=name+"-"+String(n).padStart(3,"0")+"."+ext;
+                rows.push('<li><span class="nm"><a class="tk-dl" href="'+URL.createObjectURL(b)
+                  +'" download="'+esc(nm)+'">'+esc(nm)+'</a></span>'
+                  +'<span class="sz">'+Math.round(v.width)+'\u00d7'+Math.round(v.height)+'</span>'
+                  +'<span class="sz">'+kb(b.size)+'</span></li>');
+                out.innerHTML='<ul class="tk-list">'+rows.join("")+'</ul>';
+                res();
+              },type,0.9);
+            });
+          });
+        });
+      });
+    });
+    return chain.then(function(){return want.length});
+  }).then(function(n){
+    out.innerHTML+='<p class="tk-note">Adlara t\u0131klayarak indirin.</p>';
+    msg.textContent=n+" sayfa \u00e7\u0131kar\u0131ld\u0131";go.disabled=false;
+  }).catch(function(e){msg.className="tk-msg err";msg.textContent=e.message;go.disabled=false});
+});
+})();
+//]]></script>

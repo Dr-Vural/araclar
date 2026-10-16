@@ -1,0 +1,175 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">DOI listesi — her satıra bir tane</p>
+  <div class="tk-field"><label for="dk-in">Girdi</label>
+    <textarea id="dk-in" class="tk-area" spellcheck="false" placeholder="10.1038/nature12373&#10;https://doi.org/10.1016/j.cose.2021.102248"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="dk-go">Kaynakça üret</button>
+    <button class="tk-btn ghost" id="dk-copy">Kopyala</button>
+    <span class="tk-msg" id="dk-msg"></span>
+  </div>
+  <p class="tk-h2">Kaynakça</p>
+  <div class="tk-out" id="dk-out" style="max-height:420px"><span class="tk-blank">DOI yapıştırın. Veriler Crossref'ten çekilir.</span></div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Biçim</p>
+  <div class="tk-field"><label for="dk-style">Atıf stili</label>
+    <select id="dk-style" class="tk-sel">
+      <option value="apa">APA 7</option>
+      <option value="van">Vancouver</option>
+      <option value="gost">GOST R 7.0.5-2008</option>
+      <option value="mla">MLA 9</option>
+      <option value="chi">Chicago (yazar-tarih)</option>
+      <option value="bib">BibTeX</option>
+      <option value="ris">RIS — EndNote / Mendeley</option>
+    </select></div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="dk-sort" checked><span>Alfabetik sırala<em>BibTeX ve RIS dışında</em></span></label>
+    <label><input type="checkbox" id="dk-num"><span>Numaralandır</span></label>
+  </div>
+  <div class="tk-stats" style="margin-top:16px">
+    <div class="tk-stat"><b id="dk-ok">0</b><span>bulundu</span></div>
+    <div class="tk-stat warn"><b id="dk-no">0</b><span>bulunamadı</span></div>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Not</p>
+  <p class="tk-note">Kayıtlar Crossref veri tabanından gelir; yayıncının girdiği
+     üstveri eksikse kaynakça da eksik olur. Özellikle sayfa aralığı ve sayı
+     numarası sık eksiktir — çıktıyı dergi şablonunuza karşı gözden geçirin.
+     Kitap ve tez gibi DOI'siz kaynaklar bu araçla üretilemez.</p>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var out=$("dk-out"),msg=$("dk-msg"),records=[];
+function ini(g){return (g||"").split(/[\s\-]+/).filter(Boolean).map(function(w){return w[0].toLocaleUpperCase("tr")+"."}).join(" ")}
+function iniTight(g){return (g||"").split(/[\s\-]+/).filter(Boolean).map(function(w){return w[0].toLocaleUpperCase("tr")}).join("")}
+function yr(m){try{return m.issued["date-parts"][0][0]||""}catch(e){return ""}}
+function T(m){return (m.title&&m.title[0])||"[ba\u015fl\u0131ks\u0131z]"}
+function C(m){return (m["container-title"]&&m["container-title"][0])||""}
+function A(m){return m.author||[]}
+
+function apa(m){
+  var a=A(m),n=a.map(function(x){return (x.family||x.name||"")+", "+ini(x.given)});
+  var au=n.length===0?"":n.length===1?n[0]:
+    n.length<=20?n.slice(0,-1).join(", ")+", & "+n[n.length-1]:
+    n.slice(0,19).join(", ")+", \u2026 "+n[n.length-1];
+  var s=au+" ("+yr(m)+"). "+T(m)+".";
+  if(C(m))s+=" "+C(m);
+  if(m.volume)s+=", "+m.volume;
+  if(m.issue)s+="("+m.issue+")";
+  if(m.page)s+=", "+m.page;
+  s+=". https://doi.org/"+m.DOI;
+  return s;
+}
+function van(m){
+  var a=A(m).map(function(x){return (x.family||"")+" "+iniTight(x.given)});
+  var au=a.length>6?a.slice(0,6).join(", ")+", et al":a.join(", ");
+  var s=au+". "+T(m)+". "+(C(m)||"")+". "+yr(m);
+  if(m.volume)s+=";"+m.volume;
+  if(m.issue)s+="("+m.issue+")";
+  if(m.page)s+=":"+m.page;
+  return s+". doi:"+m.DOI;
+}
+function gost(m){
+  var a=A(m),first=a[0]?((a[0].family||"")+" "+ini(a[0].given)):"";
+  var all=a.map(function(x){return ini(x.given)+" "+(x.family||"")}).join(", ");
+  var s=(first?first+" ":"")+T(m)+" / "+all+" // "+(C(m)||"")+". \u2014 "+yr(m)+".";
+  if(m.volume)s+=" \u2014 \u0422. "+m.volume+".";
+  if(m.issue)s+=" \u2014 \u2116 "+m.issue+".";
+  if(m.page)s+=" \u2014 \u0421. "+m.page+".";
+  return s+" \u2014 DOI "+m.DOI+".";
+}
+function mla(m){
+  var a=A(m),au="";
+  if(a.length===1)au=(a[0].family||"")+", "+(a[0].given||"");
+  else if(a.length===2)au=(a[0].family||"")+", "+(a[0].given||"")+", and "+(a[1].given||"")+" "+(a[1].family||"");
+  else if(a.length>2)au=(a[0].family||"")+", "+(a[0].given||"")+", et al";
+  var s=(au?au+". ":"")+'"'+T(m)+'." '+(C(m)||"");
+  if(m.volume)s+=", vol. "+m.volume;
+  if(m.issue)s+=", no. "+m.issue;
+  s+=", "+yr(m);
+  if(m.page)s+=", pp. "+m.page;
+  return s+", https://doi.org/"+m.DOI+".";
+}
+function chi(m){
+  var a=A(m),n=a.map(function(x,i){return i===0?(x.family||"")+", "+(x.given||""):(x.given||"")+" "+(x.family||"")});
+  var au=n.length<=1?n.join(""):n.slice(0,-1).join(", ")+", and "+n[n.length-1];
+  var s=(au?au+". ":"")+yr(m)+'. "'+T(m)+'." '+(C(m)||"");
+  if(m.volume)s+=" "+m.volume;
+  if(m.issue)s+=" ("+m.issue+")";
+  if(m.page)s+=": "+m.page;
+  return s+". https://doi.org/"+m.DOI+".";
+}
+function key(m){
+  var a=A(m)[0];
+  return ((a&&a.family)||"kaynak").toLowerCase().replace(/[^a-z]/g,"")+(yr(m)||"");
+}
+function bib(m){
+  var f=[["author",A(m).map(function(x){return (x.family||"")+", "+(x.given||"")}).join(" and ")],
+    ["title",T(m)],["journal",C(m)],["year",yr(m)],["volume",m.volume],
+    ["number",m.issue],["pages",(m.page||"").replace("-","--")],
+    ["publisher",m.publisher],["doi",m.DOI]];
+  return "@article{"+key(m)+",\n"+f.filter(function(x){return x[1]})
+    .map(function(x){return "  "+x[0]+" = {"+x[1]+"}"}).join(",\n")+"\n}";
+}
+function ris(m){
+  var L=["TY  - JOUR"];
+  A(m).forEach(function(x){L.push("AU  - "+(x.family||"")+", "+(x.given||""))});
+  L.push("TI  - "+T(m));
+  if(C(m))L.push("JO  - "+C(m));
+  if(yr(m))L.push("PY  - "+yr(m));
+  if(m.volume)L.push("VL  - "+m.volume);
+  if(m.issue)L.push("IS  - "+m.issue);
+  if(m.page){var p=String(m.page).split("-");L.push("SP  - "+p[0]);if(p[1])L.push("EP  - "+p[1])}
+  L.push("DO  - "+m.DOI);L.push("UR  - https://doi.org/"+m.DOI);L.push("ER  - ");
+  return L.join("\n");
+}
+var FN={apa:apa,van:van,gost:gost,mla:mla,chi:chi,bib:bib,ris:ris};
+
+function render(){
+  if(!records.length){out.innerHTML='<span class="tk-blank">DOI yap\u0131\u015ft\u0131r\u0131n. Veriler Crossref\'ten \u00e7ekilir.</span>';return}
+  var st=$("dk-style").value,fn=FN[st];
+  var rs=records.slice();
+  if($("dk-sort").checked&&st!=="bib"&&st!=="ris")
+    rs.sort(function(a,b){return fn(a).localeCompare(fn(b),"tr")});
+  var sep=(st==="bib"||st==="ris")?"\n\n":"\n\n";
+  out.textContent=rs.map(function(m,i){
+    return ($("dk-num").checked&&st!=="bib"&&st!=="ris"?(i+1)+". ":"")+fn(m)}).join(sep);
+}
+$("dk-style").addEventListener("change",render);
+$("dk-sort").addEventListener("change",render);
+$("dk-num").addEventListener("change",render);
+$("dk-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText(out.textContent).then(function(){msg.textContent="kopyaland\u0131"})});
+
+$("dk-go").addEventListener("click",function(){
+  var dois=$("dk-in").value.split("\n").map(function(l){
+    return l.trim().replace(/^https?:\/\/(dx\.)?doi\.org\//i,"").replace(/^doi:\s*/i,"");
+  }).filter(function(d){return /^10\.\d{4,9}\//.test(d)});
+  if(!dois.length){msg.className="tk-msg err";msg.textContent="ge\u00e7erli DOI bulunamad\u0131";return}
+  if(dois.length>40){msg.className="tk-msg err";msg.textContent="en fazla 40 DOI";return}
+  msg.className="tk-msg";msg.textContent="Crossref sorgulan\u0131yor\u2026";
+  records=[];var miss=0,done=0;
+  dois.forEach(function(d){
+    fetch("https://api.crossref.org/works/"+encodeURIComponent(d)
+      +"?mailto=vumatechnet@gmail.com")
+      .then(function(r){if(!r.ok)throw 0;return r.json()})
+      .then(function(j){records.push(j.message)})
+      .catch(function(){miss++})
+      .then(function(){
+        if(++done===dois.length){
+          $("dk-ok").textContent=records.length;$("dk-no").textContent=miss;
+          msg.textContent=records.length+" kay\u0131t geldi"+(miss?", "+miss+" bulunamad\u0131":"");
+          render();
+        }
+      });
+  });
+});
+})();
+//]]></script>

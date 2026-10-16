@@ -1,0 +1,106 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Metin</p>
+  <div class="tk-field"><label for="mc-in">Girdi — sayfa, e-posta, PDF metni, ne olursa</label>
+    <textarea id="mc-in" class="tk-area" spellcheck="false" placeholder="Uzun metni buraya yapıştırın…"></textarea></div>
+  <div class="tk-field"><label for="mc-out">Bulunanlar</label>
+    <textarea id="mc-out" class="tk-area" readonly spellcheck="false"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="mc-go">Çıkar</button>
+    <button class="tk-btn ghost" id="mc-copy">Kopyala</button>
+    <span class="tk-msg" id="mc-msg"></span>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Ne aranacak</p>
+  <div class="tk-checks" id="mc-list"></div>
+  <p class="tk-h2">Çıktı</p>
+  <div class="tk-field"><label for="mc-fmt">Biçim</label>
+    <select id="mc-fmt" class="tk-sel">
+      <option value="line">Her satıra bir tane</option>
+      <option value="comma">Virgülle ayrılmış</option>
+      <option value="semi">Noktalı virgülle (Outlook)</option>
+      <option value="group">Türe göre gruplanmış</option>
+    </select></div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="mc-uniq" checked><span>Tekrarları sil</span></label>
+    <label><input type="checkbox" id="mc-sort" checked><span>Sırala</span></label>
+  </div>
+  <div class="tk-out" id="mc-sum" style="margin-top:14px">—</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var P=[
+ ["mail","E-posta adresi",/[\w.+-]+@[\w-]+\.[\w.-]{2,}/g,1],
+ ["url","Ba\u011flant\u0131 (URL)",/\bhttps?:\/\/[^\s<>"')\]]+/g,1],
+ ["dom","Alan ad\u0131",/\b(?:[a-z0-9-]+\.)+(?:com|net|org|edu|gov|info|biz|tr|kg|ru|com\.tr|edu\.tr|org\.tr|gov\.tr)\b/gi,0],
+ ["tel","Telefon numaras\u0131",/(?:\+?\d{1,3}[\s.-]?)?(?:\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{2}[\s.-]?\d{2}\b/g,1],
+ ["doi","DOI",/\b10\.\d{4,9}\/[^\s"'<>,;)\]]+/g,1],
+ ["isbn","ISBN",/\b97[89][\s-]?\d{1,5}[\s-]?\d{1,7}[\s-]?\d{1,7}[\s-]?[\dX]\b/gi,0],
+ ["issn","ISSN",/\b\d{4}-\d{3}[\dX]\b/gi,0],
+ ["orcid","ORCID",/\b\d{4}-\d{4}-\d{4}-\d{3}[\dX]\b/g,0],
+ ["iban","IBAN",/\b[A-Z]{2}\d{2}[\sA-Z0-9]{11,30}\b/g,0],
+ ["tckn","TC kimlik numaras\u0131",/\b[1-9]\d{10}\b/g,0],
+ ["ip","IP adresi",/\b(?:\d{1,3}\.){3}\d{1,3}\b/g,0],
+ ["hash","Hash / uzun kimlik",/\b[0-9a-f]{32,64}\b/gi,0],
+ ["date","Tarih",/\b\d{1,2}[.\/-]\d{1,2}[.\/-]\d{2,4}\b/g,0],
+ ["num","Say\u0131",/-?\b\d+(?:[.,]\d+)?\b/g,0],
+ ["hashtag","Etiket (#) ve anma (@)",/[#@][\w\u00e7\u011f\u0131\u00f6\u015f\u00fc\u00c7\u011e\u0130\u00d6\u015e\u00dc]{2,}/g,0],
+ ["quote","T\u0131rnak i\u00e7indeki metin",/["\u201c]([^"\u201d]{3,120})["\u201d]/g,0],
+ ["cap","B\u00fcy\u00fck harfle ba\u015flayan s\u00f6zc\u00fck \u00f6be\u011fi",/\b[A-Z\u00c7\u011e\u0130\u00d6\u015e\u00dc][a-z\u00e7\u011f\u0131\u00f6\u015f\u00fc]+(?:\s+[A-Z\u00c7\u011e\u0130\u00d6\u015e\u00dc][a-z\u00e7\u011f\u0131\u00f6\u015f\u00fc]+)+/g,0]
+];
+$("mc-list").innerHTML=P.map(function(p){
+  return '<label><input type="checkbox" class="mcx" data-k="'+p[0]+'"'+(p[3]?" checked":"")
+    +'><span>'+p[1]+'</span></label>';
+}).join("");
+function tcknValid(s){
+  if(!/^[1-9]\d{10}$/.test(s))return false;
+  var d=s.split("").map(Number),odd=d[0]+d[2]+d[4]+d[6]+d[8],even=d[1]+d[3]+d[5]+d[7];
+  if((odd*7-even)%10!==d[9])return false;
+  return d.slice(0,10).reduce(function(a,b){return a+b},0)%10===d[10];
+}
+function run(){
+  var t=$("mc-in").value;
+  if(!t.trim()){$("mc-out").value="";$("mc-sum").textContent="\u2014";return}
+  var want={};
+  Array.prototype.forEach.call(document.querySelectorAll(".mcx"),function(n){
+    if(n.checked)want[n.getAttribute("data-k")]=1});
+  var groups=[],total=0;
+  P.forEach(function(p){
+    if(!want[p[0]])return;
+    var m=t.match(p[2])||[];
+    if(p[0]==="tckn")m=m.filter(tcknValid);
+    if(p[0]==="quote")m=m.map(function(x){return x.replace(/^["\u201c]|["\u201d]$/g,"")});
+    if($("mc-uniq").checked){
+      var seen={},o=[];
+      m.forEach(function(x){if(!seen[x]){seen[x]=1;o.push(x)}});
+      m=o;
+    }
+    if($("mc-sort").checked)m.sort(function(a,b){return a.localeCompare(b,"tr")});
+    if(m.length){groups.push([p[1],m]);total+=m.length}
+  });
+  var fmt=$("mc-fmt").value,out;
+  if(fmt==="group")
+    out=groups.map(function(g){return g[0]+" ("+g[1].length+")\n"
+      +g[1].map(function(x){return "  "+x}).join("\n")}).join("\n\n");
+  else{
+    var all=[];groups.forEach(function(g){all=all.concat(g[1])});
+    out=all.join(fmt==="comma"?", ":fmt==="semi"?"; ":"\n");
+  }
+  $("mc-out").value=out;
+  $("mc-sum").textContent=groups.length
+    ? groups.map(function(g){return g[0].padEnd(34)+g[1].length}).join("\n")
+    : "Secili turlerden hicbiri bulunamadi.";
+  $("mc-msg").textContent=total+" kayit bulundu";
+}
+$("mc-go").addEventListener("click",run);
+$("mc-in").addEventListener("input",run);
+["mc-fmt","mc-uniq","mc-sort"].forEach(function(id){$(id).addEventListener("change",run)});
+$("mc-list").addEventListener("change",run);
+$("mc-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("mc-out").value).then(function(){$("mc-msg").textContent="kopyalandi"})});
+})();
+//]]></script>

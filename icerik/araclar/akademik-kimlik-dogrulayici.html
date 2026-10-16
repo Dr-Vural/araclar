@@ -1,0 +1,88 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Numaralar — her satıra bir tane</p>
+  <div class="tk-field"><label for="ad-in">ISBN · ISSN · DOI · ORCID karışık olabilir</label>
+    <textarea id="ad-in" class="tk-area" spellcheck="false" placeholder="978-975-6467-19-0&#10;1300-1949&#10;10.1038/nature12373&#10;0000-0002-1825-0097"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="ad-go">Denetle</button>
+    <button class="tk-btn ghost" id="ad-demo">Örnek yükle</button>
+    <span class="tk-msg" id="ad-msg"></span>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Sonuç</p>
+  <div class="tk-out" id="ad-out" style="max-height:380px"><span class="tk-blank">Numaraları yapıştırıp “Denetle”ye basın.</span></div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Nasıl denetlenir</p>
+  <p class="tk-note">ISBN, ISSN ve ORCID numaralarının son hanesi bir kontrol
+     basamağıdır; matematiksel olarak doğrulanabilir. Bu araç o hesabı yapar —
+     yani numaranın <em>biçimsel olarak geçerli</em> olduğunu söyler, kaydın
+     gerçekten var olduğunu değil. DOI için biçim denetimi yapılır; varlığını
+     doğrulamak için DOI Kaynakça Üretici'yi kullanın.</p>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+function clean(s){return s.replace(/[\s\-\u2013\u2014]/g,"").toUpperCase()}
+function isbn(raw){
+  var s=clean(raw);
+  if(/^\d{9}[\dX]$/.test(s)){
+    var t=0;for(var i=0;i<10;i++)t+=(s[i]==="X"?10:+s[i])*(10-i);
+    return {ok:t%11===0,tip:"ISBN-10"};
+  }
+  if(/^\d{13}$/.test(s)){
+    var u=0;for(var j=0;j<13;j++)u+=+s[j]*(j%2?3:1);
+    return {ok:u%10===0,tip:"ISBN-13"};
+  }
+  return null;
+}
+function issn(raw){
+  var s=clean(raw);
+  if(!/^\d{7}[\dX]$/.test(s))return null;
+  var t=0;for(var i=0;i<7;i++)t+=+s[i]*(8-i);
+  var r=(11-t%11)%11;
+  var c=r===10?"X":String(r);
+  return {ok:c===s[7],tip:"ISSN",dogru:s.slice(0,4)+"-"+s.slice(4,7)+c};
+}
+function orcid(raw){
+  var s=clean(raw).replace(/^HTTPS?:\/\/ORCID\.ORG\//,"");
+  if(!/^\d{15}[\dX]$/.test(s))return null;
+  var t=0;for(var i=0;i<15;i++)t=(t+ +s[i])*2;
+  var r=(12-t%11)%11;
+  var c=r===10?"X":String(r);
+  return {ok:c===s[15],tip:"ORCID"};
+}
+function doi(raw){
+  var s=raw.trim().replace(/^https?:\/\/(dx\.)?doi\.org\//i,"").replace(/^doi:\s*/i,"");
+  if(!/^10\.\d{4,9}\/\S+$/.test(s))return null;
+  return {ok:true,tip:"DOI",not:"bi\u00e7im ge\u00e7erli \u2014 varl\u0131\u011f\u0131 sorgulanmad\u0131"};
+}
+function check(line){
+  return isbn(line)||issn(line)||orcid(line)||doi(line);
+}
+$("ad-go").addEventListener("click",function(){
+  var lines=$("ad-in").value.split("\n").map(function(l){return l.trim()}).filter(Boolean);
+  if(!lines.length){$("ad-msg").className="tk-msg err";$("ad-msg").textContent="girdi bo\u015f";return}
+  $("ad-msg").className="tk-msg";
+  var ok=0,bad=0,un=0;
+  var rows=lines.map(function(l){
+    var r=check(l);
+    if(!r){un++;return l.padEnd(26).slice(0,26)+"  ?         tan\u0131nmayan bi\u00e7im"}
+    if(r.ok){ok++;return l.padEnd(26).slice(0,26)+"  GE\u00c7ERL\u0130   "+r.tip+(r.not?" \u2014 "+r.not:"")}
+    bad++;
+    return l.padEnd(26).slice(0,26)+"  HATALI    "+r.tip+" kontrol basama\u011f\u0131 tutmuyor"
+      +(r.dogru?" (do\u011frusu "+r.dogru+" olabilir)":"");
+  });
+  $("ad-out").textContent=rows.join("\n");
+  $("ad-msg").textContent=ok+" ge\u00e7erli \u00b7 "+bad+" hatal\u0131"+(un?" \u00b7 "+un+" tan\u0131nmad\u0131":"");
+});
+$("ad-demo").addEventListener("click",function(){
+  $("ad-in").value="978-975-6467-19-0\n1300-1949\n10.1038/nature12373\n0000-0002-1825-0097\n978-975-6467-19-1";
+});
+})();
+//]]></script>

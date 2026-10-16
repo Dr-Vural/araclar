@@ -1,0 +1,96 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"></script>
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Barkod</p>
+  <div class="tk-field"><label for="bc-type">Standart</label>
+    <select id="bc-type" class="tk-sel">
+      <option value="EAN13">EAN-13 — perakende ürün (13 hane)</option>
+      <option value="EAN8">EAN-8 — küçük ambalaj (8 hane)</option>
+      <option value="UPC">UPC-A — Kuzey Amerika (12 hane)</option>
+      <option value="CODE128" selected>Code 128 — genel amaçlı, harf içerebilir</option>
+      <option value="CODE39">Code 39 — envanter, eski sistemler</option>
+      <option value="ITF14">ITF-14 — koli / dış ambalaj</option>
+      <option value="MSI">MSI — depo raf kodu</option>
+      <option value="pharmacode">Pharmacode — ilaç</option>
+    </select></div>
+  <div class="tk-field"><label for="bc-val">Değer</label>
+    <input type="text" id="bc-val" class="tk-in" value="VUMATECH-0001"></div>
+  <div class="tk-two">
+    <div class="tk-field"><label for="bc-w">Çubuk kalınlığı — <span class="tk-val" id="bc-wv">2</span></label>
+      <input type="range" id="bc-w" class="tk-range" min="1" max="6" step="0.5" value="2"></div>
+    <div class="tk-field"><label for="bc-h">Yükseklik — <span class="tk-val" id="bc-hv">100</span></label>
+      <input type="range" id="bc-h" class="tk-range" min="30" max="220" value="100"></div>
+  </div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="bc-text" checked><span>Değeri altına yaz</span></label>
+  </div>
+  <div class="tk-acts">
+    <a class="tk-btn" id="bc-png" style="display:none;text-decoration:none">PNG indir</a>
+    <a class="tk-btn ghost" id="bc-svg" style="display:none;text-decoration:none">SVG indir</a>
+    <span class="tk-msg" id="bc-msg"></span>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Önizleme</p>
+  <div class="tk-prev" id="bc-prev" style="background:#fff"></div>
+  <p class="tk-note">EAN-13'te son hane kontrol basamağıdır. 12 hane yazarsanız
+     araç 13'üncüyü kendisi hesaplar. Perakendede kullanacağınız numaraların
+     GS1 tarafından tahsis edilmiş olması gerekir; rastgele üretilen bir barkod
+     mağaza kasasında başka bir ürüne düşebilir.</p>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var prev=$("bc-prev"),msg=$("bc-msg"),t=null;
+function queue(){clearTimeout(t);t=setTimeout(draw,150)}
+["bc-type","bc-val","bc-w","bc-h","bc-text"].forEach(function(id){
+  $(id).addEventListener("input",function(){
+    if(id==="bc-w")$("bc-wv").textContent=this.value;
+    if(id==="bc-h")$("bc-hv").textContent=this.value;
+    queue();
+  });
+  $(id).addEventListener("change",queue);
+});
+function draw(){
+  if(typeof JsBarcode==="undefined"){msg.className="tk-msg err";
+    msg.textContent="barkod k\u00fct\u00fcphanesi y\u00fcklenemedi";return}
+  var type=$("bc-type").value,val=$("bc-val").value.trim();
+  if(!val){prev.innerHTML='<p class="tk-blank">De\u011fer girin.</p>';
+    $("bc-png").style.display=$("bc-svg").style.display="none";return}
+  prev.innerHTML="";
+  var svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  prev.appendChild(svg);
+  try{
+    JsBarcode(svg,val,{format:type,width:+$("bc-w").value,height:+$("bc-h").value,
+      displayValue:$("bc-text").checked,font:"IBM Plex Mono",fontSize:16,margin:12,
+      background:"#ffffff",lineColor:"#15171a"});
+    msg.className="tk-msg";msg.textContent=type+" \u00b7 "+val.length+" karakter";
+    var xml=new XMLSerializer().serializeToString(svg);
+    $("bc-svg").href=URL.createObjectURL(new Blob([xml],{type:"image/svg+xml"}));
+    $("bc-svg").download="barkod-"+val.replace(/[^\w-]/g,"")+".svg";
+    $("bc-svg").style.display="inline-block";
+    var im=new Image();
+    im.onload=function(){
+      var c=document.createElement("canvas");
+      c.width=im.width*2;c.height=im.height*2;
+      var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);
+      x.drawImage(im,0,0,c.width,c.height);
+      $("bc-png").href=c.toDataURL("image/png");
+      $("bc-png").download="barkod-"+val.replace(/[^\w-]/g,"")+".png";
+      $("bc-png").style.display="inline-block";
+    };
+    im.src="data:image/svg+xml;base64,"+btoa(unescape(encodeURIComponent(xml)));
+  }catch(e){
+    prev.innerHTML='<p class="tk-blank">Bu de\u011fer '+type+' ile \u00fcretilemiyor.</p>';
+    msg.className="tk-msg err";
+    msg.textContent=({EAN13:"13 (veya 12) hane rakam gerekir",EAN8:"8 hane rakam gerekir",
+      UPC:"12 hane rakam gerekir",ITF14:"14 hane rakam gerekir",
+      pharmacode:"3 ile 131070 aras\u0131 say\u0131"})[type]||"ge\u00e7ersiz de\u011fer";
+    $("bc-png").style.display=$("bc-svg").style.display="none";
+  }
+}
+draw();
+})();
+//]]></script>

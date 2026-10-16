@@ -1,0 +1,76 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Metin</p>
+  <div class="tk-field"><label for="ur-in">Girdi</label>
+    <textarea id="ur-in" class="tk-area" spellcheck="false" placeholder="https://vumatech.net/ara?q=şeffaf png yapıcı"></textarea></div>
+  <div class="tk-field"><label for="ur-out">Çıktı</label>
+    <textarea id="ur-out" class="tk-area" readonly spellcheck="false"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="ur-enc">Kodla</button>
+    <button class="tk-btn ghost" id="ur-dec">Çöz</button>
+    <button class="tk-btn ghost" id="ur-copy">Kopyala</button>
+    <span class="tk-msg" id="ur-msg"></span>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Kapsam</p>
+  <div class="tk-field"><label for="ur-mode">Kodlama</label>
+    <select id="ur-mode" class="tk-sel">
+      <option value="comp">Bileşen — encodeURIComponent<em>Parametre değeri için</em></option>
+      <option value="full">Tam adres — encodeURI</option>
+    </select></div>
+  <p class="tk-note">Bileşen kodlaması <code>? &amp; = /</code> karakterlerini de
+     kaçırır; bir adresi parametre olarak başka adrese gömerken bunu kullanın.
+     Tam adres kodlaması yalnız boşluk ve Türkçe harfleri kaçırır, adresin
+     yapısını bozmaz.</p>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Adres çözümlemesi</p>
+  <div class="tk-out" id="ur-parts" style="max-height:280px"><span class="tk-blank">Geçerli bir adres girin; parçalarına ayrılıp gösterilir.</span></div>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var msg=$("ur-msg");
+function enc(){
+  var s=$("ur-in").value;
+  try{
+    $("ur-out").value=$("ur-mode").value==="comp"?encodeURIComponent(s):encodeURI(s);
+    msg.className="tk-msg";msg.textContent="kodland\u0131";
+  }catch(e){msg.className="tk-msg err";msg.textContent="kodlanamad\u0131"}
+}
+function dec(){
+  try{
+    $("ur-out").value=decodeURIComponent($("ur-in").value.replace(/\+/g," "));
+    msg.className="tk-msg";msg.textContent="\u00e7\u00f6z\u00fcld\u00fc";
+  }catch(e){msg.className="tk-msg err";msg.textContent="ge\u00e7ersiz ka\u00e7\u0131\u015f dizisi"}
+}
+function parts(){
+  var s=$("ur-in").value.trim();
+  var box=$("ur-parts");
+  if(!s){box.innerHTML='<span class="tk-blank">Ge\u00e7erli bir adres girin; par\u00e7alar\u0131na ayr\u0131l\u0131p g\u00f6sterilir.</span>';return}
+  var u;
+  try{u=new URL(s)}catch(e){
+    box.innerHTML='<span class="tk-blank">Bu bir adres de\u011fil ya da \u015fema (https://) eksik.</span>';return}
+  var L=[["\u015fema",u.protocol.replace(":","")],["sunucu",u.hostname]];
+  if(u.port)L.push(["kap\u0131",u.port]);
+  L.push(["yol",u.pathname]);
+  if(u.hash)L.push(["\u00e7apa",u.hash]);
+  var out=L.map(function(x){return x[0].padEnd(12)+decodeURIComponent(x[1])}).join("\n");
+  var ps=[];
+  u.searchParams.forEach(function(v,k){ps.push("  "+k.padEnd(18)+v)});
+  if(ps.length)out+="\n\nparametreler\n"+ps.join("\n");
+  box.textContent=out;
+}
+$("ur-enc").addEventListener("click",enc);
+$("ur-dec").addEventListener("click",dec);
+$("ur-in").addEventListener("input",parts);
+$("ur-mode").addEventListener("change",enc);
+$("ur-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("ur-out").value).then(function(){msg.textContent="kopyaland\u0131"})});
+})();
+//]]></script>

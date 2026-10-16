@@ -1,0 +1,490 @@
+{
+ "araclar": [
+  {
+   "baslik": "Akademik Kimlik Doğrulayıcı",
+   "slug": "akademik-kimlik-dogrulayici",
+   "kategori": "Akademik",
+   "aciklama": "ISBN, ISSN, ORCID ve DOI numaralarının kontrol basamağını denetler.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "Atıf ve Kaynakça Uyuşmazlık Denetçisi",
+   "slug": "atif-ve-kaynakca-uyusmazlik-denetcisi",
+   "kategori": "Akademik",
+   "aciklama": "Metindeki atıflarla kaynakçayı karşılaştırır; eksik ve kullanılmayan kaynakları listeler. Hakem düzeltmelerinin en sık konusu.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "Betimsel İstatistik ve Normallik",
+   "slug": "betimsel-istatistik-ve-normallik",
+   "kategori": "Akademik",
+   "aciklama": "Ortalama, ortanca, ss, çarpıklık ve basıklık; normallik yorumu ve APA cümlesiyle. SPSS ile uyumlu.",
+   "ikon": "calc"
+  },
+  {
+   "baslik": "BibTeX RIS Kaynak Dönüştürücü",
+   "slug": "bibtex-ris-kaynak-donusturucu",
+   "kategori": "Akademik",
+   "aciklama": "BibTeX ve RIS arasında çevirir; APA ve CSV çıktısı da verir. Zotero'dan Mendeley'e taşırken.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "Cronbach Alfa ve Madde Analizi",
+   "slug": "cronbach-alfa-ve-madde-analizi",
+   "kategori": "Akademik",
+   "aciklama": "Excel'den yapıştırın; iç tutarlılık katsayısı, madde-toplam korelasyonu ve madde silinirse alfa.",
+   "ikon": "calc"
+  },
+  {
+   "baslik": "DOI Kaynakça Üretici",
+   "slug": "doi-kaynakca-uretici",
+   "kategori": "Akademik",
+   "aciklama": "DOI listesinden APA 7, Vancouver, GOST, MLA, Chicago, BibTeX ve RIS kaynakçası üretir.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "Etki Büyüklüğü Dönüştürücü",
+   "slug": "etki-buyuklugu-donusturucu",
+   "kategori": "Akademik",
+   "aciklama": "Cohen d, r, eta kare, f, Hedges g ve odds ratio arasında dönüştürür. Meta-analiz için.",
+   "ikon": "calc"
+  },
+  {
+   "baslik": "ISBN Kitap Künyesi",
+   "slug": "isbn-kitap-kunyesi",
+   "kategori": "Akademik",
+   "aciklama": "ISBN numaralarından kitap künyesi çeker; APA, GOST, Chicago, BibTeX ve CSV olarak verir.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "Kaynakça Sıralayıcı ve Denetçi",
+   "slug": "kaynakca-siralayici-ve-denetci",
+   "kategori": "Akademik",
+   "aciklama": "Kaynakçayı Türkçe alfabeye göre sıralar, tekrarları siler, yıl ve nokta eksiklerini işaretler.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "Korelasyon Hesaplayıcı",
+   "slug": "korelasyon-hesaplayici",
+   "kategori": "Akademik",
+   "aciklama": "Pearson ve Spearman korelasyon matrisi, anlamlılık yıldızları ve ikili ilişki için APA cümlesi.",
+   "ikon": "calc"
+  },
+  {
+   "baslik": "Kör Hakemlik Anonimleştirici",
+   "slug": "kor-hakemlik-anonimlestirici",
+   "kategori": "Akademik",
+   "aciklama": "Yazar ve kurum adlarını gizler, kendi atıflarınızı ve birinci şahıs ifadelerini işaretler. Çift kör başvurular için.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "ORCID Yayın Listesi Çekici",
+   "slug": "orcid-yayin-listesi-cekici",
+   "kategori": "Akademik",
+   "aciklama": "ORCID kimliğinizden yayınlarınızı çeker; APA, GOST, BibTeX veya özgeçmiş listesi olarak verir.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "t Testi Hesaplayıcı",
+   "slug": "t-testi-hesaplayici",
+   "kategori": "Akademik",
+   "aciklama": "Bağımsız, eşleştirilmiş ve tek örneklem t testi; Welch düzeltmesi, Cohen d ve APA raporu.",
+   "ikon": "calc"
+  },
+  {
+   "baslik": "TR Dizin Beyan Bloğu Üretici",
+   "slug": "tr-dizin-beyan-blogu-uretici",
+   "kategori": "Akademik",
+   "aciklama": "Etik kurul, katkı oranı, çıkar çatışması ve destek beyanlarını Türkçe ve İngilizce olarak hazırlar.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "Türkçe Okunabilirlik Ölçer",
+   "slug": "turkce-okunabilirlik-olcer",
+   "kategori": "Akademik",
+   "aciklama": "Ateşman ve Bezirci-Yılmaz formülleriyle metnin okunabilirliğini ölçer, en uzun cümleleri gösterir.",
+   "ikon": "text"
+  },
+  {
+   "baslik": "Örneklem Büyüklüğü Hesaplayıcı",
+   "slug": "orneklem-buyuklugu-hesaplayici",
+   "kategori": "Akademik",
+   "aciklama": "Anket, t testi, korelasyon ve ANOVA için gereken katılımcı sayısı. Yöntem bölümüne hazır cümleyle birlikte.",
+   "ikon": "calc"
+  },
+  {
+   "baslik": "Görselden PDF Yapma",
+   "slug": "gorselden-pdf-yapma",
+   "kategori": "Belge",
+   "aciklama": "Fotoğraf ve taramaları tek PDF'te toplayın. A4, A5, Letter veya görselin kendi boyutu.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "PDF Birleştirme",
+   "slug": "pdf-birlestirme",
+   "kategori": "Belge",
+   "aciklama": "Birden çok PDF'i tek dosyada toplayın. Sırayı sürükleyip bırakmadan, tek tıkla değiştirin.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "PDF Bölme ve Sayfa Çıkarma",
+   "slug": "pdf-bolme-ve-sayfa-cikarma",
+   "kategori": "Belge",
+   "aciklama": "Belirli sayfaları çıkarın, her N sayfada bir bölün ya da her sayfayı ayrı dosya yapın.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "PDF Filigran Ekleme",
+   "slug": "pdf-filigran-ekleme",
+   "kategori": "Belge",
+   "aciklama": "Bütün sayfalara metin filigranı basın. Türkçe karakterler sorunsuz görünür.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "PDF Sayfa Düzenleyici",
+   "slug": "pdf-sayfa-duzenleyici",
+   "kategori": "Belge",
+   "aciklama": "Sayfaları küçük resim olarak görün; silin, döndürün, sırasını değiştirin, sonra kaydedin.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "PDF Sayfa Numarası Ekleme",
+   "slug": "pdf-sayfa-numarasi-ekleme",
+   "kategori": "Belge",
+   "aciklama": "Konum, biçim, başlangıç numarası ve atlanacak sayfa seçimiyle numaralandırma. Roma rakamı desteği.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "PDF Sıkıştırma",
+   "slug": "pdf-sikistirma",
+   "kategori": "Belge",
+   "aciklama": "Taranmış belgelerin boyutunu ciddi biçimde düşürün. Metin katmanı kaybolur — araç uyarır.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "PDF Üstveri Düzenleyici",
+   "slug": "pdf-ustveri-duzenleyici",
+   "kategori": "Belge",
+   "aciklama": "PDF'in içindeki yazar, üretici ve tarih bilgisini gösterir; düzenler ya da tümüyle siler.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "PDF'ten Görsel Çıkarma",
+   "slug": "pdf-ten-gorsel-cikarma",
+   "kategori": "Belge",
+   "aciklama": "Her sayfayı PNG, JPEG veya WebP olarak alın. 72'den 600 dpi'ye kadar çözünürlük.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "PDF'ten Metin Çıkarma",
+   "slug": "pdf-ten-metin-cikarma",
+   "kategori": "Belge",
+   "aciklama": "PDF'in metin katmanını çıkarır; satır kırılmalarını ve tire ile bölünmüş kelimeleri onarır.",
+   "ikon": "doc"
+  },
+  {
+   "baslik": "Favicon Paketi Üretici",
+   "slug": "favicon-paketi-uretici",
+   "kategori": "Görsel",
+   "aciklama": "Tek görselden 16'dan 512 piksele kadar bütün favicon boyutlarını ve HTML kodunu üretin.",
+   "ikon": "img"
+  },
+  {
+   "baslik": "Görsel Base64 Dönüştürücü",
+   "slug": "gorsel-base64-donusturucu",
+   "kategori": "Görsel",
+   "aciklama": "Görseli data URI'ye çevirip CSS veya HTML içine gömülecek kodu alın.",
+   "ikon": "code"
+  },
+  {
+   "baslik": "Görsel Boyutlandırma",
+   "slug": "gorsel-boyutlandirma",
+   "kategori": "Görsel",
+   "aciklama": "Genişlik ve yükseklik verin, en-boy oranını koruyarak yeniden boyutlandırın. Birden çok dosyayı aynı anda işleyin.",
+   "ikon": "img"
+  },
+  {
+   "baslik": "Görsel Format Dönüştürücü",
+   "slug": "gorsel-format-donusturucu",
+   "kategori": "Görsel",
+   "aciklama": "PNG, JPEG ve WebP arasında dönüştürün. Şeffaflığı koruyun ya da beyaz zemine düzleştirin.",
+   "ikon": "img"
+  },
+  {
+   "baslik": "Görsel Kırpma",
+   "slug": "gorsel-kirpma",
+   "kategori": "Görsel",
+   "aciklama": "Fareyle alan seçin ya da sayı girin; oran kilidiyle Instagram, 16:9 ve kare kırpma.",
+   "ikon": "img"
+  },
+  {
+   "baslik": "Görsel Sansürleme",
+   "slug": "gorsel-sansurleme",
+   "kategori": "Görsel",
+   "aciklama": "Fotoğraftaki yüzleri ve bilgileri fare ile seçip pikselleştirin, bulanıklaştırın ya da kapatın.",
+   "ikon": "img"
+  },
+  {
+   "baslik": "Görsel Sıkıştırma",
+   "slug": "gorsel-sikistirma",
+   "kategori": "Görsel",
+   "aciklama": "Kalite kaydırıcısıyla dosya boyutunu düşürün; önce ve sonrayı yan yana karşılaştırın.",
+   "ikon": "img"
+  },
+  {
+   "baslik": "Sosyal Medya Görsel Boyutlandırıcı",
+   "slug": "sosyal-medya-gorsel-boyutlandirici",
+   "kategori": "Görsel",
+   "aciklama": "Tek görselden 20 platform boyutunu birden üretir — Instagram, LinkedIn, YouTube, Open Graph.",
+   "ikon": "img"
+  },
+  {
+   "baslik": "Vesikalık ve Biyometrik Fotoğraf",
+   "slug": "vesikalik-ve-biyometrik-fotograf",
+   "kategori": "Görsel",
+   "aciklama": "Fotoğrafı pasaport ve vize ölçülerine kırpar, arka planı temizler, baş oranını biyometrik kılavuza göre denetler. Baskı sayfası üretir.",
+   "ikon": "img"
+  },
+  {
+   "baslik": "Şeffaf PNG Yapıcı",
+   "slug": "seffaf-png-yapici",
+   "kategori": "Görsel",
+   "aciklama": "Bir rengi seçin, tolerans verin, arka planı şeffaflaştırıp PNG olarak indirin.",
+   "ikon": "img"
+  },
+  {
+   "baslik": "Bozuk Türkçe Karakter Onarımı",
+   "slug": "bozuk-turkce-karakter-onarimi",
+   "kategori": "Metin",
+   "aciklama": "Ã§ ÄŸ Ã¼ gibi bozulmuş kodlamayı ç ğ ü haline geri getirir. Eski veritabanı ve CSV dosyaları için.",
+   "ikon": "text"
+  },
+  {
+   "baslik": "Görünmez Karakter Denetçisi",
+   "slug": "gorunmez-karakter-denetcisi",
+   "kategori": "Metin",
+   "aciklama": "Metne yapışmış sıfır genişlikli ve yön denetim karakterlerini bulur, gösterir ve temizler.",
+   "ikon": "text"
+  },
+  {
+   "baslik": "Kelime ve Karakter Sayacı",
+   "slug": "kelime-ve-karakter-sayaci",
+   "kategori": "Metin",
+   "aciklama": "Kelime, karakter, cümle, paragraf ve okuma süresi. Dergi özeti sınırlarını denetleyen mod dahil.",
+   "ikon": "text"
+  },
+  {
+   "baslik": "Latin Kiril Çevirici",
+   "slug": "latin-kiril-cevirici",
+   "kategori": "Metin",
+   "aciklama": "Kırgızca ve Rusça metni Latin ile Kiril arasında çevirir; Türkçe metni Rusça Kiril'e sesletimle aktarır. Dört sistem.",
+   "ikon": "text"
+  },
+  {
+   "baslik": "Liste Düzenleyici",
+   "slug": "liste-duzenleyici",
+   "kategori": "Metin",
+   "aciklama": "Satırları sıralayın, tekrarları silin, karıştırın, önüne arkasına metin ekleyin.",
+   "ikon": "text"
+  },
+  {
+   "baslik": "Lorem Ipsum Üretici",
+   "slug": "lorem-ipsum-uretici",
+   "kategori": "Metin",
+   "aciklama": "Türkçe, Latince veya Rusça yer tutucu metin. Türkçe seçeneği gerçek harf dağılımını taklit eder.",
+   "ikon": "text"
+  },
+  {
+   "baslik": "Metin Karşılaştırma",
+   "slug": "metin-karsilastirma",
+   "kategori": "Metin",
+   "aciklama": "İki sürümü satır satır kıyaslar; eklenen ve silinen satırları renkle gösterir.",
+   "ikon": "text"
+  },
+  {
+   "baslik": "Metin Temizleyici",
+   "slug": "metin-temizleyici",
+   "kategori": "Metin",
+   "aciklama": "Fazla boşluk, tekrarlı satır sonu, sekme ve görünmez karakterleri tek geçişte toplar.",
+   "ikon": "text"
+  },
+  {
+   "baslik": "Metinden Veri Çıkarıcı",
+   "slug": "metinden-veri-cikarici",
+   "kategori": "Metin",
+   "aciklama": "Uzun metinden e-posta, telefon, bağlantı, DOI, ISBN, IBAN ve TC kimlik numarası toplar.",
+   "ikon": "text"
+  },
+  {
+   "baslik": "Toplu Bul ve Değiştir",
+   "slug": "toplu-bul-ve-degistir",
+   "kategori": "Metin",
+   "aciklama": "Sırayla uygulanan çok kurallı değiştirme; düzenli ifade ve tam kelime seçenekleriyle.",
+   "ikon": "text"
+  },
+  {
+   "baslik": "Türkçe Büyük Küçük Harf",
+   "slug": "turkce-buyuk-kucuk-harf",
+   "kategori": "Metin",
+   "aciklama": "i/İ ve ı/I ayrımını doğru yapan dönüştürücü. İngilizce araçların hatalı çevirdiği tek iş.",
+   "ikon": "text"
+  },
+  {
+   "baslik": "Türkçe Slug Üretici",
+   "slug": "turkce-slug-uretici",
+   "kategori": "Metin",
+   "aciklama": "Başlıktan SEO uyumlu URL üretir; ç ğ ı ö ş ü harflerini silmez, karşılığına çevirir.",
+   "ikon": "text"
+  },
+  {
+   "baslik": "Barkod Üretici",
+   "slug": "barkod-uretici",
+   "kategori": "Üretici",
+   "aciklama": "EAN-13, EAN-8, UPC, Code 128, Code 39, ITF-14 ve daha fazlası. PNG ve SVG çıktı.",
+   "ikon": "gen"
+  },
+  {
+   "baslik": "Parola Üretici",
+   "slug": "parola-uretici",
+   "kategori": "Üretici",
+   "aciklama": "Güçlü rastgele parola üretin; entropi hesabı ve kırılma süresi tahminiyle birlikte.",
+   "ikon": "gen"
+  },
+  {
+   "baslik": "QR Kod Üretici",
+   "slug": "qr-kod-uretici",
+   "kategori": "Üretici",
+   "aciklama": "Bağlantı, WiFi, vCard, WhatsApp ve metin için QR kod. Renk, boyut ve hata düzeltme ayarlanabilir.",
+   "ikon": "gen"
+  },
+  {
+   "baslik": "Renk Dönüştürücü",
+   "slug": "renk-donusturucu",
+   "kategori": "Üretici",
+   "aciklama": "HEX, RGB, HSL arasında çevirin; ton merdiveni ve WCAG kontrast denetimi alın.",
+   "ikon": "gen"
+  },
+  {
+   "baslik": "Toplu QR Kod Üretici",
+   "slug": "toplu-qr-kod-uretici",
+   "kategori": "Üretici",
+   "aciklama": "Listeden yüzlerce QR kodu tek seferde üretir, adlandırır ve zip olarak indirir. Masa ve etiket kodları için.",
+   "ikon": "gen"
+  },
+  {
+   "baslik": "Birim Dönüştürücü",
+   "slug": "birim-donusturucu",
+   "kategori": "Hesap",
+   "aciklama": "Uzunluk, ağırlık, alan, hacim, veri, hız, zaman, basınç ve sıcaklık. Dönüm ve okka dahil.",
+   "ikon": "calc"
+  },
+  {
+   "baslik": "KDV Hesaplayıcı",
+   "slug": "kdv-hesaplayici",
+   "kategori": "Hesap",
+   "aciklama": "Türkiye ve Kırgızistan oranları hazır. Dahil ve hariç hesaplama iki yönlü çalışır.",
+   "ikon": "calc"
+  },
+  {
+   "baslik": "Kredi ve Taksit Hesaplayıcı",
+   "slug": "kredi-ve-taksit-hesaplayici",
+   "kategori": "Hesap",
+   "aciklama": "Eşit taksitli kredi hesabı, ay ay ödeme planı ve CSV çıktısı. Vergi payı ayarlanabilir.",
+   "ikon": "calc"
+  },
+  {
+   "baslik": "Tarih Farkı Hesaplayıcı",
+   "slug": "tarih-farki-hesaplayici",
+   "kategori": "Hesap",
+   "aciklama": "İki tarih arasındaki gün, ay, yıl farkı; yaş hesabı ve iş günü sayımı.",
+   "ikon": "calc"
+  },
+  {
+   "baslik": "Yüzde Hesaplayıcı",
+   "slug": "yuzde-hesaplayici",
+   "kategori": "Hesap",
+   "aciklama": "Yüzde alma, yüzde değişim, artırma-azaltma ve geri çözme. Her sonucun işlem adımı gösterilir.",
+   "ikon": "calc"
+  },
+  {
+   "baslik": "Base64 Kodlayıcı",
+   "slug": "base64-kodlayici",
+   "kategori": "Geliştirici",
+   "aciklama": "Metni ve dosyayı Base64'e çevirin ya da çözün. UTF-8 güvenli.",
+   "ikon": "code"
+  },
+  {
+   "baslik": "CSS Gölge ve Gradyan Üretici",
+   "slug": "css-golge-ve-gradyan-uretici",
+   "kategori": "Geliştirici",
+   "aciklama": "Kutu gölgesi, gradyan, köşe yuvarlaklığı ve buzlu cam efekti — canlı önizlemeyle.",
+   "ikon": "code"
+  },
+  {
+   "baslik": "CSV JSON Markdown Tablo Dönüştürücü",
+   "slug": "csv-json-markdown-tablo-donusturucu",
+   "kategori": "Geliştirici",
+   "aciklama": "Excel'den yapıştırın; Markdown, JSON, CSV, HTML, SQL veya APA 7 tablosu olarak alın.",
+   "ikon": "code"
+  },
+  {
+   "baslik": "Hash Üretici",
+   "slug": "hash-uretici",
+   "kategori": "Geliştirici",
+   "aciklama": "SHA-1, SHA-256, SHA-384 ve SHA-512 özetleri. Metin veya dosya için.",
+   "ikon": "code"
+  },
+  {
+   "baslik": "HTML CSS JS Biçimlendirici",
+   "slug": "html-css-js-bicimlendirici",
+   "kategori": "Geliştirici",
+   "aciklama": "Kodu okunur hale getirin ya da küçültün. Dili otomatik algılar.",
+   "ikon": "code"
+  },
+  {
+   "baslik": "JSON Biçimlendirici",
+   "slug": "json-bicimlendirici",
+   "kategori": "Geliştirici",
+   "aciklama": "JSON'u biçimlendirin, küçültün, doğrulayın. Hata satırını ve sütununu gösterir.",
+   "ikon": "code"
+  },
+  {
+   "baslik": "Markdown ve HTML Dönüştürücü",
+   "slug": "markdown-ve-html-donusturucu",
+   "kategori": "Geliştirici",
+   "aciklama": "Markdown'dan HTML'e, HTML'den Markdown veya düz metne. Canlı önizlemeli.",
+   "ikon": "code"
+  },
+  {
+   "baslik": "robots.txt ve Site Haritası Üretici",
+   "slug": "robots-txt-ve-site-haritasi-uretici",
+   "kategori": "Geliştirici",
+   "aciklama": "Hazır kalıplarla robots.txt ve sitemap.xml üretin. Yapay zekâ tarayıcılarını engelleme ayarı dahil.",
+   "ikon": "code"
+  },
+  {
+   "baslik": "URL Kodlayıcı ve Çözücü",
+   "slug": "url-kodlayici-ve-cozucu",
+   "kategori": "Geliştirici",
+   "aciklama": "Adresleri kodlayıp çözün; adres parçalarını ve parametrelerini ayrıştırıp gösterir.",
+   "ikon": "code"
+  },
+  {
+   "baslik": "UUID ve Rastgele Kimlik Üretici",
+   "slug": "uuid-ve-rastgele-kimlik-uretici",
+   "kategori": "Geliştirici",
+   "aciklama": "UUID v4, ULID, Nano ID ve kısa kimlikler. Kriptografik rastgelelikle üretilir.",
+   "ikon": "code"
+  }
+ ],
+ "sayfalar": [
+  {
+   "baslik": "Hakkında",
+   "slug": "hakkinda"
+  },
+  {
+   "baslik": "Gizlilik ve KVKK",
+   "slug": "gizlilik-ve-kvkk"
+  }
+ ]
+}

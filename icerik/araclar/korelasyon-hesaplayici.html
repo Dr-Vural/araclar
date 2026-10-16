@@ -1,0 +1,131 @@
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Veri</p>
+  <div class="tk-field"><label for="kr-in">İki ya da daha çok sütun. Excel'den doğrudan yapıştırın; başlık satırı olabilir.</label>
+    <textarea id="kr-in" class="tk-area" style="min-height:300px" spellcheck="false" placeholder="Kaygı	Başarı	Uyku&#10;12	78	6,5&#10;18	65	5,0&#10;9	88	7,5"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="kr-go">Hesapla</button>
+    <button class="tk-btn ghost" id="kr-demo">Örnek</button>
+    <span class="tk-msg" id="kr-msg"></span>
+  </div>
+  <div class="tk-field" style="margin-top:14px"><label for="kr-type">Katsayı</label>
+    <select id="kr-type" class="tk-sel">
+      <option value="pearson">Pearson r</option>
+      <option value="spearman">Spearman rho (sıra)</option>
+    </select></div>
+  <div class="tk-checks"><label><input type="checkbox" id="kr-head" checked><span>İlk satır başlık</span></label></div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Korelasyon matrisi</p>
+  <div class="tk-out" id="kr-out" style="max-height:300px"><span class="tk-blank">Sütunları yapıştırıp “Hesapla”ya basın.</span></div>
+  <p class="tk-h2">İkili sonuç</p>
+  <div class="tk-out" id="kr-apa" style="font-family:var(--sans);font-size:14px">—</div>
+  <p class="tk-note">Yıldızlar anlamlılık düzeyini gösterir: * p&lt;.05, ** p&lt;.01,
+     *** p&lt;.001. p değeri iki yönlüdür ve t dönüşümüyle hesaplanır. Pearson
+     doğrusal ilişki, Spearman sıralı/tekdüze ilişki ölçer; dağılım normal
+     değilse ya da sıralı veri varsa Spearman tercih edilir. İlişki nedensellik
+     anlamına gelmez.</p>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+function parse(t){
+  var rows=t.split("\n").map(function(l){return l.trim()}).filter(Boolean)
+    .map(function(l){return l.split(/[\t;,]+|\s{2,}/).map(function(x){return x.trim()})});
+  return rows;
+}
+function rank(a){
+  var idx=a.map(function(v,i){return [v,i]}).sort(function(x,y){return x[0]-y[0]});
+  var r=new Array(a.length),i=0;
+  while(i<idx.length){
+    var j=i;while(j<idx.length-1&&idx[j+1][0]===idx[i][0])j++;
+    var avg=(i+j)/2+1;
+    for(var k=i;k<=j;k++)r[idx[k][1]]=avg;
+    i=j+1;
+  }
+  return r;
+}
+function pearson(x,y){
+  var n=x.length,mx=x.reduce(function(a,b){return a+b},0)/n,my=y.reduce(function(a,b){return a+b},0)/n;
+  var sxy=0,sx=0,sy=0;
+  for(var i=0;i<n;i++){var dx=x[i]-mx,dy=y[i]-my;sxy+=dx*dy;sx+=dx*dx;sy+=dy*dy}
+  return (sx&&sy)?sxy/Math.sqrt(sx*sy):0;
+}
+function gammaln(x){var c=[76.18009172947146,-86.50532032941677,24.01409824083091,
+  -1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+  var y=x,t=x+5.5;t-=(x+0.5)*Math.log(t);var s=1.000000000190015;
+  for(var j=0;j<6;j++)s+=c[j]/++y;return -t+Math.log(2.5066282746310005*s/x)}
+function betacf(a,b,x){var M=200,EPS=3e-12,FP=1e-300,qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;
+  if(Math.abs(d)<FP)d=FP;d=1/d;var h=d;
+  for(var m=1;m<=M;m++){var m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));
+    d=1+aa*d;if(Math.abs(d)<FP)d=FP;c=1+aa/c;if(Math.abs(c)<FP)c=FP;d=1/d;h*=d*c;
+    aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));d=1+aa*d;if(Math.abs(d)<FP)d=FP;
+    c=1+aa/c;if(Math.abs(c)<FP)c=FP;d=1/d;var del=d*c;h*=del;if(Math.abs(del-1)<EPS)break}
+  return h}
+function ibeta(x,a,b){if(x<=0)return 0;if(x>=1)return 1;
+  var bt=Math.exp(gammaln(a+b)-gammaln(a)-gammaln(b)+a*Math.log(x)+b*Math.log(1-x));
+  return x<(a+1)/(a+b+2)?bt*betacf(a,b,x)/a:1-bt*betacf(b,a,1-x)/b}
+function pOf(r,n){
+  if(n<3||Math.abs(r)>=1)return 0;
+  var t=r*Math.sqrt((n-2)/(1-r*r)),df=n-2;
+  return ibeta(df/(df+t*t),df/2,0.5);
+}
+function stars(p){return p<0.001?"***":p<0.01?"**":p<0.05?"*":""}
+function run(){
+  var rows=parse($("kr-in").value);
+  if(rows.length<3){err("en az 3 sat\u0131r girin");return}
+  var head=$("kr-head").checked;
+  var names=head?rows[0]:rows[0].map(function(_,i){return "V"+(i+1)});
+  var body=head?rows.slice(1):rows;
+  var k=names.length;
+  var cols=[];
+  for(var j=0;j<k;j++){
+    cols.push(body.map(function(r){return parseFloat((r[j]||"").replace(",","."))})
+      .filter(function(v){return !isNaN(v)}));
+  }
+  var minN=Math.min.apply(null,cols.map(function(c){return c.length}));
+  if(minN<3){err("her s\u00fctunda en az 3 ge\u00e7erli say\u0131 olmal\u0131");return}
+  var spear=$("kr-type").value==="spearman";
+  var data=cols.map(function(c){return spear?rank(c.slice(0,minN)):c.slice(0,minN)});
+  // matris
+  var w=Math.max.apply(null,names.map(function(n){return n.length}));
+  var pad=function(s,n){s=String(s);return s+" ".repeat(Math.max(0,n-s.length))};
+  var head2=pad("",w+2)+names.map(function(n){return pad(n.slice(0,8),10)}).join("");
+  var lines=[head2];
+  for(var a=0;a<k;a++){
+    var row=pad(names[a].slice(0,w),w+2);
+    for(var b=0;b<k;b++){
+      if(b>a){row+=pad("",10);continue}
+      var r=a===b?1:pearson(data[a],data[b]);
+      var p=a===b?0:pOf(r,minN);
+      row+=pad(r.toFixed(2).replace(/^0/,"").replace(/^-0/,"-")+(a===b?"":stars(p)),10);
+    }
+    lines.push(row);
+  }
+  $("kr-out").textContent=lines.join("\n")+"\n\nn = "+minN
+    +"  \u00b7  "+(spear?"Spearman rho":"Pearson r")+"\n* p<.05  ** p<.01  *** p<.001";
+  // ilk iki s\u00fctun i\u00e7in APA
+  if(k>=2){
+    var r=pearson(data[0],data[1]),p=pOf(r,minN);
+    var sz=Math.abs(r)<0.1?"ihmal edilebilir":Math.abs(r)<0.3?"zay\u0131f":
+           Math.abs(r)<0.5?"orta":Math.abs(r)<0.7?"g\u00fc\u00e7l\u00fc":"\u00e7ok g\u00fc\u00e7l\u00fc";
+    var sym=spear?"r_s":"r";
+    $("kr-apa").textContent=names[0]+" ile "+names[1]+" aras\u0131nda "
+      +(r>0?"pozitif":"negatif")+" y\u00f6nde "+sz+" d\u00fczeyde"
+      +(p<0.05?" ve anlaml\u0131":" ancak anlams\u0131z")+" bir ili\u015fki bulunmu\u015ftur, "
+      +sym+"("+(minN-2)+") = "+r.toFixed(2).replace(",",".")
+      +", p "+(p<0.001?"< .001":"= "+p.toFixed(3).replace(/^0/,""))+".";
+  }
+  $("kr-msg").className="tk-msg";$("kr-msg").textContent=k+" de\u011fi\u015fken, n = "+minN;
+}
+function err(m){$("kr-msg").className="tk-msg err";$("kr-msg").textContent=m}
+$("kr-go").addEventListener("click",run);
+["kr-type","kr-head"].forEach(function(id){$(id).addEventListener("change",run)});
+$("kr-demo").addEventListener("click",function(){
+  $("kr-in").value="Kayg\u0131\tBa\u015far\u0131\tUyku\n12\t78\t6,5\n18\t65\t5,0\n9\t88\t7,5\n"
+    +"22\t55\t4,5\n15\t72\t6,0\n7\t91\t8,0\n20\t60\t5,5\n11\t80\t7,0\n"
+    +"25\t50\t4,0\n14\t74\t6,5";run()});
+})();
+//]]></script>

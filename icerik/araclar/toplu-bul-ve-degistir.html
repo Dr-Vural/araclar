@@ -1,0 +1,78 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Metin</p>
+  <div class="tk-field"><label for="bd-in">Girdi</label>
+    <textarea id="bd-in" class="tk-area" spellcheck="false" placeholder="Üzerinde değişiklik yapılacak metni yapıştırın…"></textarea></div>
+  <div class="tk-field"><label for="bd-out">Sonuç</label>
+    <textarea id="bd-out" class="tk-area" readonly spellcheck="false"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn ghost" id="bd-copy">Kopyala</button>
+    <button class="tk-btn ghost" id="bd-swap">Sonucu girdiye al</button>
+    <span class="tk-msg" id="bd-msg"></span>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Kurallar — her satır bir kural</p>
+  <div class="tk-field"><label for="bd-rules">Biçim: <code>aranan =&gt; yerine</code></label>
+    <textarea id="bd-rules" class="tk-area" style="min-height:150px" spellcheck="false" placeholder="eski kelime => yeni kelime&#10;Ltd. Şti. => A.Ş."></textarea></div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="bd-re"><span>Düzenli ifade (regex) kullan<em>Aranan kısım desen olarak yorumlanır; $1 ile yakalama grubu kullanılır</em></span></label>
+    <label><input type="checkbox" id="bd-case"><span>Büyük/küçük harf duyarsız</span></label>
+    <label><input type="checkbox" id="bd-word"><span>Yalnız tam kelime</span></label>
+    <label><input type="checkbox" id="bd-live" checked><span>Yazarken anında uygula</span></label>
+  </div>
+  <div class="tk-acts"><button class="tk-btn" id="bd-go">Uygula</button></div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Rapor</p>
+  <div class="tk-out" id="bd-rep" style="max-height:260px">—</div>
+  <p class="tk-note">Kural satırındaki ayraç <code>=&gt;</code> işaretidir. Sağ taraf
+     boş bırakılırsa aranan metin silinir. Kurallar <strong>yukarıdan aşağı sırayla</strong>
+     uygulanır; bir kuralın çıktısı sonraki kurala girdi olur.</p>
+  <p class="tk-note">Regex kipinde <code>\d</code> rakam, <code>\s</code> boşluk,
+     <code>.</code> herhangi bir karakter, <code>+</code> bir ya da daha çok
+     demektir. Yakalanan grubu sağ tarafta <code>$1</code> ile geri yazarsınız:
+     <code>(\d{4})-(\d{2}) =&gt; $2.$1</code> tarihin sırasını çevirir.</p>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+function esc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}
+function run(){
+  var t=$("bd-in").value,rules=$("bd-rules").value.split("\n");
+  var flags="g"+($("bd-case").checked?"i":"");
+  var rep=[],total=0,errs=0;
+  rules.forEach(function(line,i){
+    if(!line.trim())return;
+    var k=line.indexOf("=>");
+    if(k<0){rep.push("satir "+(i+1)+": ayrac (=>) yok, atlandi");errs++;return}
+    var find=line.slice(0,k).trim(),to=line.slice(k+2);
+    if($("bd-case").checked===false&&!$("bd-re").checked){} // ayar yok
+    if(!find){rep.push("satir "+(i+1)+": aranan bos, atlandi");errs++;return}
+    var pat=$("bd-re").checked?find:esc(find);
+    if($("bd-word").checked)pat="\\b(?:"+pat+")\\b";
+    var re;
+    try{re=new RegExp(pat,flags)}
+    catch(e){rep.push("satir "+(i+1)+": gecersiz desen \u2014 "+e.message);errs++;return}
+    var n=(t.match(re)||[]).length;
+    if(n){t=t.replace(re,$("bd-re").checked?to:to.replace(/\$/g,"$$$$"));total+=n}
+    rep.push((find.length>26?find.slice(0,26)+"\u2026":find).padEnd(30)+n+" kez");
+  });
+  $("bd-out").value=t;
+  $("bd-rep").textContent=rep.length?rep.join("\n"):"Kural girin.";
+  $("bd-msg").className=errs?"tk-msg err":"tk-msg";
+  $("bd-msg").textContent=total+" degisiklik"+(errs?", "+errs+" kural hatali":"");
+}
+$("bd-go").addEventListener("click",run);
+["bd-in","bd-rules"].forEach(function(id){$(id).addEventListener("input",function(){
+  if($("bd-live").checked)run()})});
+["bd-re","bd-case","bd-word"].forEach(function(id){$(id).addEventListener("change",run)});
+$("bd-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("bd-out").value).then(function(){$("bd-msg").textContent="kopyalandi"})});
+$("bd-swap").addEventListener("click",function(){$("bd-in").value=$("bd-out").value;run()});
+})();
+//]]></script>

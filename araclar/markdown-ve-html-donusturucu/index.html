@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="tr" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f4f3f0">
+<title>Markdown ve HTML Dönüştürücü — VuMaTech Tools</title>
+<meta name="description" content="Markdown&#x27;dan HTML&#x27;e, HTML&#x27;den Markdown veya düz metne. Canlı önizlemeli.">
+<link rel="canonical" href="https://tools.vumatech.net/araclar/markdown-ve-html-donusturucu/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="VuMaTech Tools">
+<meta property="og:title" content="Markdown ve HTML Dönüştürücü — VuMaTech Tools">
+<meta property="og:description" content="Markdown&#x27;dan HTML&#x27;e, HTML&#x27;den Markdown veya düz metne. Canlı önizlemeli.">
+<meta property="og:url" content="https://tools.vumatech.net/araclar/markdown-ve-html-donusturucu/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/assets/kit.css">
+<script>
+/* Tema, sayfa çizilmeden uygulanır; yoksa karanlık temada bir an beyaz parlama olur.
+   Kayıtlı tercih yoksa işletim sistemi ayarı kullanılır. */
+(function(){try{
+  var t=localStorage.getItem("vmt_theme");
+  if(t!=="dark"&&t!=="light"){
+    t=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";
+  }
+  document.documentElement.setAttribute("data-theme",t);
+  var m=document.querySelector('meta[name="theme-color"]');
+  if(m)m.setAttribute("content", t==="dark"?"#0d1014":"#f4f3f0");
+}catch(e){document.documentElement.setAttribute("data-theme","light");}})();
+</script>
+</head>
+<body>
+<div class="shell">
+  <div class='crest'>
+    <a class='name' href="/">VuMaTech <b>Tools</b></a>
+    <span class='crest-right'>
+<div class='langpick' id='langpick' role='group' aria-label='Dil'>
+        <button class='langbtn' data-lang='tr' title='Türkçe' aria-label='Türkçe'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e30a17'/><circle cx='11.5' cy='10' r='5' fill='#fff'/><circle cx='13' cy='10' r='4' fill='#e30a17'/><path fill='#fff' d='M17.5 10l4.2-1.4-2.6 3.6v-4.4l2.6 3.6z'/></svg></button>
+        <button class='langbtn' data-lang='ky' title='Кыргызча' aria-label='Кыргызча'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e8112d'/><circle cx='15' cy='10' r='4.2' fill='#ffef00'/><circle cx='15' cy='10' r='2.4' fill='none' stroke='#e8112d' stroke-width='.5'/><g stroke='#ffef00' stroke-width='.5'><path d='M15 4v12M9 10h12M10.6 5.6l8.8 8.8M19.4 5.6l-8.8 8.8'/></g></svg></button>
+        <button class='langbtn' data-lang='ru' title='Русский' aria-label='Русский'><svg viewBox='0 0 30 20'><rect width='30' height='6.67' fill='#fff'/><rect y='6.67' width='30' height='6.67' fill='#0039a6'/><rect y='13.33' width='30' height='6.67' fill='#d52b1e'/></svg></button>
+        <button class='langbtn' data-lang='en' title='English' aria-label='English'><svg viewBox='0 0 30 20'><clipPath id='uk'><rect width='30' height='20'/></clipPath><g clip-path='url(#uk)'><rect width='30' height='20' fill='#012169'/><path d='M0 0l30 20M30 0L0 20' stroke='#fff' stroke-width='4'/><path d='M0 0l30 20M30 0L0 20' stroke='#c8102e' stroke-width='2'/><path d='M15 0v20M0 10h30' stroke='#fff' stroke-width='6'/><path d='M15 0v20M0 10h30' stroke='#c8102e' stroke-width='3.5'/></g></svg></button>
+      </div>
+      <button class='themebtn' id='themebtn' aria-label='Tema'>
+        <svg class='i-moon' viewBox='0 0 24 24'><path d='M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z'/></svg>
+        <svg class='i-sun' viewBox='0 0 24 24'><circle cx='12' cy='12' r='4.2'/><path d='M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8'/></svg>
+      </button>
+      <a class='up' href='https://vumatech.net'>vumatech.net</a>
+    </span>
+  </div>
+
+
+<a class="back" href="/" data-i18n="back">← bütün araçlar</a>
+<h1 class="view">Markdown ve HTML Dönüştürücü</h1>
+<p class="priv"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> <span data-i18n="priv">Bu araç tamamen tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</span></p>
+<div class="tk">
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Kaynak</p>
+  <div class="tk-field"><label for="mh-in">Girdi</label>
+    <textarea id="mh-in" class="tk-area" style="min-height:220px" spellcheck="false" placeholder="# Başlık&#10;&#10;Bir **kalın** ve bir *eğik* sözcük.&#10;&#10;- Madde bir&#10;- Madde iki"></textarea></div>
+  <div class="tk-field"><label for="mh-out">Çıktı</label>
+    <textarea id="mh-out" class="tk-area" style="min-height:180px" readonly spellcheck="false"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn ghost" id="mh-copy">Kopyala</button>
+    <span class="tk-msg" id="mh-msg"></span>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Yön</p>
+  <div class="tk-field"><label for="mh-dir">Dönüşüm</label>
+    <select id="mh-dir" class="tk-sel">
+      <option value="m2h">Markdown → HTML</option>
+      <option value="h2t">HTML → düz metin</option>
+      <option value="h2m">HTML → Markdown</option>
+    </select></div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="mh-live" checked><span>Anında dönüştür</span></label>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Önizleme</p>
+  <div class="body" id="mh-prev" style="max-height:240px;overflow:auto;font-size:14.5px"><span class="tk-blank">HTML çıktısı burada görünür.</span></div>
+  <p class="tk-note">Markdown ayrıştırıcısı başlık, kalın, eğik, bağlantı,
+     görsel, liste, alıntı, kod, yatay çizgi ve tabloyu destekler. Karmaşık
+     ya da gömülü HTML içeren belgelerde tam bir kütüphane (marked, pandoc)
+     gerekebilir; bu araç gündelik metin içindir.</p>
+</div>
+</div>
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function inline(s){
+  return s
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img src="$2" alt="$1">')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2">$1</a>')
+    .replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>")
+    .replace(/(^|[^*])\*([^*]+)\*/g,"$1<em>$2</em>")
+    .replace(/`([^`]+)`/g,"<code>$1</code>");
+}
+function md2html(md){
+  var lines=md.replace(/\r/g,"").split("\n"),out=[],i=0;
+  function flushList(tag){}
+  while(i<lines.length){
+    var l=lines[i];
+    if(/^#{1,6}\s/.test(l)){var n=l.match(/^#+/)[0].length;
+      out.push("<h"+n+">"+inline(esc(l.replace(/^#+\s/,"")))+"</h"+n+">");i++;continue}
+    if(/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(l)){out.push("<hr>");i++;continue}
+    if(/^\s*>/.test(l)){var q=[];
+      while(i<lines.length&&/^\s*>/.test(lines[i])){q.push(esc(lines[i].replace(/^\s*>\s?/,"")));i++}
+      out.push("<blockquote>"+inline(q.join(" "))+"</blockquote>");continue}
+    if(/^```/.test(l)){var c=[];i++;
+      while(i<lines.length&&!/^```/.test(lines[i])){c.push(esc(lines[i]));i++}
+      i++;out.push("<pre><code>"+c.join("\n")+"</code></pre>");continue}
+    if(/^\s*[-*+]\s/.test(l)){var items=[];
+      while(i<lines.length&&/^\s*[-*+]\s/.test(lines[i])){
+        items.push("<li>"+inline(esc(lines[i].replace(/^\s*[-*+]\s/,"")))+"</li>");i++}
+      out.push("<ul>"+items.join("")+"</ul>");continue}
+    if(/^\s*\d+\.\s/.test(l)){var oi=[];
+      while(i<lines.length&&/^\s*\d+\.\s/.test(lines[i])){
+        oi.push("<li>"+inline(esc(lines[i].replace(/^\s*\d+\.\s/,"")))+"</li>");i++}
+      out.push("<ol>"+oi.join("")+"</ol>");continue}
+    if(/^\s*\|.*\|/.test(l)&&i+1<lines.length&&/^\s*\|?[\s:\-|]+\|?\s*$/.test(lines[i+1])){
+      var head=l.replace(/^\||\|$/g,"").split("|").map(function(c){return c.trim()});
+      i+=2;var body=[];
+      while(i<lines.length&&/^\s*\|.*\|/.test(lines[i])){
+        body.push(lines[i].replace(/^\||\|$/g,"").split("|").map(function(c){return c.trim()}));i++}
+      var h="<table><thead><tr>"+head.map(function(c){return "<th>"+inline(esc(c))+"</th>"}).join("")+"</tr></thead>";
+      h+="<tbody>"+body.map(function(r){return "<tr>"+r.map(function(c){return "<td>"+inline(esc(c))+"</td>"}).join("")+"</tr>"}).join("")+"</tbody></table>";
+      out.push(h);continue}
+    if(l.trim()===""){i++;continue}
+    var para=[];
+    while(i<lines.length&&lines[i].trim()!==""&&!/^(#{1,6}\s|\s*[-*+]\s|\s*\d+\.\s|\s*>|```|\s*\|)/.test(lines[i])){
+      para.push(esc(lines[i]));i++}
+    out.push("<p>"+inline(para.join(" "))+"</p>");
+  }
+  return out.join("\n");
+}
+function html2text(h){
+  return h.replace(/<style[\s\S]*?<\/style>/gi,"").replace(/<script[\s\S]*?<\/script>/gi,"")
+    .replace(/<\/(p|div|h[1-6]|li|tr|br)>/gi,"\n").replace(/<br\s*\/?>/gi,"\n")
+    .replace(/<li[^>]*>/gi,"• ").replace(/<[^>]+>/g,"")
+    .replace(/&nbsp;/g," ").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">")
+    .replace(/&quot;/g,'"').replace(/&#39;/g,"'")
+    .replace(/\n{3,}/g,"\n\n").replace(/[ \t]{2,}/g," ").trim();
+}
+function html2md(h){
+  h=h.replace(/<style[\s\S]*?<\/style>/gi,"").replace(/<script[\s\S]*?<\/script>/gi,"");
+  for(var n=1;n<=6;n++)h=h.replace(new RegExp("<h"+n+"[^>]*>([\\s\\S]*?)</h"+n+">","gi"),
+    "\n"+"#".repeat(n)+" $1\n");
+  h=h.replace(/<strong[^>]*>([\s\S]*?)<\/strong>/gi,"**$1**").replace(/<b>([\s\S]*?)<\/b>/gi,"**$1**")
+    .replace(/<em[^>]*>([\s\S]*?)<\/em>/gi,"*$1*").replace(/<i>([\s\S]*?)<\/i>/gi,"*$1*")
+    .replace(/<code[^>]*>([\s\S]*?)<\/code>/gi,"`$1`")
+    .replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi,"[$2]($1)")
+    .replace(/<img[^>]*alt="([^"]*)"[^>]*src="([^"]*)"[^>]*>/gi,"![$1]($2)")
+    .replace(/<img[^>]*src="([^"]*)"[^>]*>/gi,"![]($1)")
+    .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi,"- $1\n")
+    .replace(/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/gi,"> $1\n")
+    .replace(/<hr\s*\/?>/gi,"\n---\n").replace(/<\/p>/gi,"\n\n").replace(/<br\s*\/?>/gi,"\n")
+    .replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">")
+    .replace(/\n{3,}/g,"\n\n").trim();
+  return h;
+}
+function run(){
+  var dir=$("mh-dir").value,t=$("mh-in").value,out;
+  if(dir==="m2h"){out=md2html(t);$("mh-prev").innerHTML=out||'<span class="tk-blank">—</span>'}
+  else if(dir==="h2t"){out=html2text(t);$("mh-prev").textContent=out}
+  else{out=html2md(t);$("mh-prev").textContent=out}
+  $("mh-out").value=out;
+  $("mh-msg").textContent=out.length+" karakter";
+}
+$("mh-dir").addEventListener("change",run);
+$("mh-in").addEventListener("input",function(){if($("mh-live").checked)run()});
+$("mh-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("mh-out").value).then(function(){$("mh-msg").textContent="kopyalandı"})});
+})();
+</script>
+</div>
+  <div class='adzone'>
+    <span class='lbl'>reklam</span>
+    <!-- AdSense birimi: Google'dan aldığınız data-ad-slot değerini yazıp
+         aşağıdaki iki satırın yorumunu kaldırın.
+    <script async='async' src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5193342573714090' crossorigin='anonymous'/>
+    <ins class='adsbygoogle' style='display:block' data-ad-client='ca-pub-5193342573714090' data-ad-slot='XXXXXXXXXX' data-ad-format='auto' data-full-width-responsive='true'/>
+    -->
+  </div>
+
+  <div class='promo'>
+    <p class='kicker' data-i18n='promo_kicker'>VuMaTech Studio · Bişkek</p>
+    <h2><span data-i18n='promo_h2_a'>Bu araçları yapan ekip </span><em data-i18n='promo_h2_b'>sizin sitenizi de yapar</em></h2>
+    <p class='lead' data-i18n='promo_lead'>Kurumsal siteden dijital menüye, akademik dergi sistemlerinden oyun portalına kadar. Tasarım, kurulum ve yıllık bakım tek elden.</p>
+    <div class='svcs'>
+      <a class='svc' href='https://web.vumatech.net'>
+        <b data-i18n='svc_web'>Web Tasarım</b><span data-i18n='svc_web_d'>Kurumsal site, portfolyo, tanıtım sayfası</span></a>
+      <a class='svc' href='https://menu.vumatech.net'>
+        <b data-i18n='svc_menu'>QR Dijital Menü</b><span data-i18n='svc_menu_d'>Çok dilli menü, anlık güncelleme, baskı maliyeti yok</span></a>
+      <a class='svc' href='https://academy.vumatech.net'>
+        <b data-i18n='svc_acad'>Akademik Web</b><span data-i18n='svc_acad_d'>Akademisyen sitesi, özgeçmiş, yayın listesi</span></a>
+      <a class='svc' href='https://ojs.vumatech.net'>
+        <b data-i18n='svc_ojs'>OJS Dergi Sistemi</b><span data-i18n='svc_ojs_d'>Kurulum, tema, hakem süreci yönetimi</span></a>
+    </div>
+    <div class='cta'>
+      <a class='btn' id='tg-btn' href='https://t.me/vumatech' target='_blank' rel='noopener'><svg viewBox='0 0 24 24'><path d='M9.8 15.3l-.4 4c.5 0 .8-.2 1.1-.5l2.6-2.4 5.4 3.9c1 .5 1.7.3 2-1l3.6-16.8c.3-1.2-.5-1.8-1.4-1.4L1.3 9.9c-1.2.5-1.2 1.1-.2 1.4l5.3 1.6L18.6 5c.6-.4 1.1-.2.7.2z'/></svg>
+        <span data-i18n='promo_wa'>Telegram: @vumatech</span></a>
+      <a class='btn line' href='https://vumatech.net' data-i18n='promo_all'>Tüm hizmetler</a>
+    </div>
+  </div>
+
+  <div class='foot'>
+    <div class='cols'>
+      <div>
+        <a class='brand' href='https://vumatech.net'>VuMaTech <b>Studio</b></a>
+        <p data-i18n='foot_about'>Bişkek merkezli web tasarım ve dijital hizmet atölyesi. Türkiye ve Kırgızistan'da çalışır.</p>
+        <p data-i18n='foot_about2'>Bu sayfadaki bütün araçlar ücretsizdir ve tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</p>
+      </div>
+      <div>
+        <h3 data-i18n='foot_services'>Hizmetler</h3>
+        <ul>
+          <li><a href='https://web.vumatech.net'>Web tasarım</a></li>
+          <li><a href='https://menu.vumatech.net'>QR dijital menü</a></li>
+          <li><a href='https://academy.vumatech.net'>Akademik web</a></li>
+          <li><a href='https://ojs.vumatech.net'>OJS dergi sistemi</a></li>
+          <li><a href='https://game.vumatech.net'>Oyun portalı</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n='foot_contact'>İletişim</h3>
+        <ul>
+          <li><a id='tg-foot' href='https://t.me/vumatech'>Telegram · @vumatech</a></li>
+          <li><a href='mailto:vumatechnet@gmail.com'>vumatechnet@gmail.com</a></li>
+          <li><a href='https://vumatech.net'>vumatech.net</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class='base'>
+      <span>© VuMaTech Studio · Bişkek</span>
+      <span><a href="/hakkinda/">Hakkında</a> · <a href="/gizlilik-ve-kvkk/">Gizlilik ve KVKK</a> · </span><span><a href="/">araç dizini</a> · <a href='https://vumatech.net'>VuMaTech</a></span>
+    </div>
+  </div>
+
+</div>
+
+
+</div>
+<script src="/assets/site.js"></script>
+
+</body>
+</html>

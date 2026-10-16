@@ -1,0 +1,175 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Kaynaklar</p>
+  <div class="tk-field"><label for="br-in">Girdi</label>
+    <textarea id="br-in" class="tk-area" style="min-height:240px" spellcheck="false" placeholder="BibTeX, RIS ya da EndNote kaydını yapıştırın…"></textarea></div>
+  <div class="tk-field"><label for="br-out">Çıktı</label>
+    <textarea id="br-out" class="tk-area" style="min-height:200px" readonly spellcheck="false"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="br-go">Dönüştür</button>
+    <button class="tk-btn ghost" id="br-copy">Kopyala</button>
+    <button class="tk-btn ghost" id="br-dl">İndir</button>
+    <button class="tk-btn ghost" id="br-demo">Örnek</button>
+    <span class="tk-msg" id="br-msg"></span>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Biçim</p>
+  <div class="tk-field"><label for="br-from">Girdi</label>
+    <select id="br-from" class="tk-sel">
+      <option value="auto">Otomatik algıla</option>
+      <option value="bibtex">BibTeX</option>
+      <option value="ris">RIS (EndNote, Mendeley, Zotero)</option>
+    </select></div>
+  <div class="tk-field"><label for="br-to">Çıktı</label>
+    <select id="br-to" class="tk-sel">
+      <option value="ris">RIS</option>
+      <option value="bibtex">BibTeX</option>
+      <option value="apa">APA 7 kaynakça</option>
+      <option value="csv">CSV tablo</option>
+    </select></div>
+  <div class="tk-stats" style="margin-top:14px">
+    <div class="tk-stat ok"><b id="br-n">0</b><span>kayıt</span></div>
+  </div>
+  <p class="tk-note">Zotero'dan Mendeley'e, dergiden şablona kaynak taşırken en
+     sık takılınan yer biçim uyumsuzluğudur. Bu araç iki yönde çevirir; tür,
+     yazar, yıl, dergi, cilt, sayı, sayfa ve DOI alanlarını korur. Tanınmayan
+     alanlar atlanır, çıktıyı gözden geçirin.</p>
+  <p class="tk-note">BibTeX yazar biçimi "Soyad, Ad and Soyad2, Ad2"; RIS her
+     yazarı ayrı AU satırına koyar. Araç ikisi arasında doğru çevirir.</p>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var TYPE_B2R={article:"JOUR",book:"BOOK",inbook:"CHAP",incollection:"CHAP",
+  inproceedings:"CONF",conference:"CONF",phdthesis:"THES",mastersthesis:"THES",
+  techreport:"RPRT",misc:"GEN",online:"ELEC"};
+var TYPE_R2B={JOUR:"article",BOOK:"book",CHAP:"incollection",CONF:"inproceedings",
+  THES:"phdthesis",RPRT:"techreport",ELEC:"online",GEN:"misc"};
+function detect(t){
+  if(/^\s*@\w+\s*\{/m.test(t))return "bibtex";
+  if(/^\s*TY\s+-\s+/m.test(t))return "ris";
+  return "bibtex";
+}
+function parseBib(t){
+  var recs=[],re=/@(\w+)\s*\{\s*([^,]*),([\s\S]*?)\n\}/g,m;
+  while((m=re.exec(t))!==null){
+    var r={_type:m[1].toLowerCase(),_key:m[2].trim()},body=m[3];
+    var fr=/(\w+)\s*=\s*(\{([\s\S]*?)\}|"([^"]*)"|(\S+?))\s*,?\s*(?=\n\s*\w+\s*=|\n\s*$|$)/g,fm;
+    while((fm=fr.exec(body))!==null){
+      var v=(fm[3]!==undefined?fm[3]:fm[4]!==undefined?fm[4]:fm[5]||"").replace(/\s+/g," ").trim();
+      r[fm[1].toLowerCase()]=v;
+    }
+    recs.push(r);
+  }
+  return recs;
+}
+function parseRis(t){
+  var recs=[],cur=null;
+  t.split(/\r?\n/).forEach(function(line){
+    var m=line.match(/^([A-Z][A-Z0-9])\s+-\s?(.*)$/);
+    if(!m)return;
+    var tag=m[1],val=m[2].trim();
+    if(tag==="TY"){cur={_type:"article",_ty:val,au:[]};recs.push(cur)}
+    else if(!cur)return;
+    else if(tag==="AU"||tag==="A1")cur.au.push(val);
+    else if(tag==="ER"){}
+    else cur[tag]=val;
+  });
+  return recs;
+}
+function norm(r,fmt){
+  // ortak modele indir
+  if(fmt==="bibtex"){
+    return {type:r._type,key:r._key,
+      authors:(r.author||"").split(/\s+and\s+/).map(function(a){return a.trim()}).filter(Boolean),
+      title:r.title||"",journal:r.journal||r.booktitle||"",year:r.year||"",
+      volume:r.volume||"",number:r.number||r.issue||"",pages:(r.pages||"").replace(/--/g,"-"),
+      publisher:r.publisher||"",doi:r.doi||"",url:r.url||""};
+  }
+  return {type:TYPE_R2B[r._ty]||"article",key:(r.au[0]||"kaynak").split(",")[0].replace(/\W/g,"")+(r.PY||r.Y1||"").slice(0,4),
+    authors:r.au||[],title:r.TI||r.T1||"",journal:r.JO||r.JF||r.T2||"",
+    year:(r.PY||r.Y1||"").slice(0,4),volume:r.VL||"",number:r.IS||"",
+    pages:(r.SP||"")+(r.EP?"-"+r.EP:""),publisher:r.PB||"",doi:r.DO||"",url:r.UR||""};
+}
+function toRis(r){
+  var L=["TY  - "+(TYPE_B2R[r.type]||"JOUR")];
+  r.authors.forEach(function(a){
+    if(a.indexOf(",")<0){var p=a.split(/\s+/);a=p.pop()+", "+p.join(" ")}
+    L.push("AU  - "+a);
+  });
+  if(r.title)L.push("TI  - "+r.title);
+  if(r.journal)L.push("JO  - "+r.journal);
+  if(r.year)L.push("PY  - "+r.year);
+  if(r.volume)L.push("VL  - "+r.volume);
+  if(r.number)L.push("IS  - "+r.number);
+  if(r.pages){var p=r.pages.split("-");L.push("SP  - "+p[0]);if(p[1])L.push("EP  - "+p[1])}
+  if(r.publisher)L.push("PB  - "+r.publisher);
+  if(r.doi)L.push("DO  - "+r.doi);
+  if(r.url)L.push("UR  - "+r.url);
+  L.push("ER  - ");
+  return L.join("\n");
+}
+function toBib(r){
+  var f=[["author",r.authors.map(function(a){
+    if(a.indexOf(",")<0){var p=a.split(/\s+/);return p.pop()+", "+p.join(" ")}return a}).join(" and ")],
+    ["title",r.title],["journal",r.journal],["year",r.year],["volume",r.volume],
+    ["number",r.number],["pages",r.pages.replace("-","--")],["publisher",r.publisher],["doi",r.doi]];
+  return "@"+r.type+"{"+r.key+",\n"+f.filter(function(x){return x[1]})
+    .map(function(x){return "  "+x[0]+" = {"+x[1]+"}"}).join(",\n")+"\n}";
+}
+function ini(g){return g.split(/\s+/).filter(Boolean).map(function(w){return w[0].toLocaleUpperCase("tr")+"."}).join(" ")}
+function toApa(r){
+  var n=r.authors.map(function(a){
+    var p=a.indexOf(",")>-1?a.split(","):[a.split(/\s+/).pop(),a.split(/\s+/).slice(0,-1).join(" ")];
+    return p[0].trim()+", "+ini((p[1]||"").trim());
+  });
+  var au=n.length<=1?n.join(""):n.slice(0,-1).join(", ")+", & "+n[n.length-1];
+  var s=(au?au+" ":"")+"("+(r.year||"t.y.")+"). "+r.title+".";
+  if(r.journal)s+=" "+r.journal;
+  if(r.volume)s+=", "+r.volume;
+  if(r.number)s+="("+r.number+")";
+  if(r.pages)s+=", "+r.pages;
+  s+=".";
+  if(r.doi)s+=" https://doi.org/"+r.doi;
+  return s;
+}
+function toCsv(r){
+  var q=function(v){return '"'+String(v||"").replace(/"/g,'""')+'"'};
+  return [r.type,r.authors.join("; "),r.title,r.journal,r.year,r.volume,r.number,r.pages,r.doi].map(q).join(";");
+}
+function run(){
+  var t=$("br-in").value;if(!t.trim()){err("kaynak yap\u0131\u015ft\u0131r\u0131n");return}
+  var from=$("br-from").value;if(from==="auto")from=detect(t);
+  var raw=from==="bibtex"?parseBib(t):parseRis(t);
+  if(!raw.length){err("kay\u0131t bulunamad\u0131 \u2014 bi\u00e7im do\u011fru mu?");return}
+  var recs=raw.map(function(r){return norm(r,from)});
+  var to=$("br-to").value,out;
+  if(to==="ris")out=recs.map(toRis).join("\n\n");
+  else if(to==="bibtex")out=recs.map(toBib).join("\n\n");
+  else if(to==="apa")out=recs.map(function(r,i){return (i+1)+". "+toApa(r)}).join("\n\n");
+  else out='"t\u00fcr";"yazarlar";"ba\u015fl\u0131k";"dergi";"y\u0131l";"cilt";"say\u0131";"sayfa";"doi"\n'
+    +recs.map(toCsv).join("\n");
+  $("br-out").value=out;$("br-n").textContent=recs.length;
+  $("br-msg").className="tk-msg";$("br-msg").textContent=recs.length+" kay\u0131t d\u00f6n\u00fc\u015ft\u00fcr\u00fcld\u00fc";
+}
+function err(m){$("br-msg").className="tk-msg err";$("br-msg").textContent=m}
+$("br-go").addEventListener("click",run);
+["br-from","br-to"].forEach(function(id){$(id).addEventListener("change",run)});
+$("br-demo").addEventListener("click",function(){
+  $("br-in").value="@article{vural2021,\n  author = {Vural, Mahmut and Alieva, Nasikat},\n"
+    +"  title = {Siber g\u00fcvenlik fark\u0131ndal\u0131\u011f\u0131},\n  journal = {Manas Journal},\n"
+    +"  year = {2021},\n  volume = {9},\n  number = {2},\n  pages = {102--115},\n"
+    +"  doi = {10.1234/mj.2021.09}\n}";
+  $("br-from").value="bibtex";$("br-to").value="ris";run()});
+$("br-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("br-out").value).then(function(){$("br-msg").textContent="kopyaland\u0131"})});
+$("br-dl").addEventListener("click",function(){
+  var to=$("br-to").value,ext={ris:"ris",bibtex:"bib",apa:"txt",csv:"csv"}[to];
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob(["\ufeff"+$("br-out").value],{type:"text/plain;charset=utf-8"}));
+  a.download="kaynaklar."+ext;a.click()});
+})();
+//]]></script>

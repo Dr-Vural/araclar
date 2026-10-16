@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="tr" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f4f3f0">
+<title>Toplu QR Kod Üretici — VuMaTech Tools</title>
+<meta name="description" content="Listeden yüzlerce QR kodu tek seferde üretir, adlandırır ve zip olarak indirir. Masa ve etiket kodları için.">
+<link rel="canonical" href="https://tools.vumatech.net/araclar/toplu-qr-kod-uretici/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="VuMaTech Tools">
+<meta property="og:title" content="Toplu QR Kod Üretici — VuMaTech Tools">
+<meta property="og:description" content="Listeden yüzlerce QR kodu tek seferde üretir, adlandırır ve zip olarak indirir. Masa ve etiket kodları için.">
+<meta property="og:url" content="https://tools.vumatech.net/araclar/toplu-qr-kod-uretici/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/assets/kit.css">
+<script>
+/* Tema, sayfa çizilmeden uygulanır; yoksa karanlık temada bir an beyaz parlama olur.
+   Kayıtlı tercih yoksa işletim sistemi ayarı kullanılır. */
+(function(){try{
+  var t=localStorage.getItem("vmt_theme");
+  if(t!=="dark"&&t!=="light"){
+    t=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";
+  }
+  document.documentElement.setAttribute("data-theme",t);
+  var m=document.querySelector('meta[name="theme-color"]');
+  if(m)m.setAttribute("content", t==="dark"?"#0d1014":"#f4f3f0");
+}catch(e){document.documentElement.setAttribute("data-theme","light");}})();
+</script>
+</head>
+<body>
+<div class="shell">
+  <div class='crest'>
+    <a class='name' href="/">VuMaTech <b>Tools</b></a>
+    <span class='crest-right'>
+<div class='langpick' id='langpick' role='group' aria-label='Dil'>
+        <button class='langbtn' data-lang='tr' title='Türkçe' aria-label='Türkçe'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e30a17'/><circle cx='11.5' cy='10' r='5' fill='#fff'/><circle cx='13' cy='10' r='4' fill='#e30a17'/><path fill='#fff' d='M17.5 10l4.2-1.4-2.6 3.6v-4.4l2.6 3.6z'/></svg></button>
+        <button class='langbtn' data-lang='ky' title='Кыргызча' aria-label='Кыргызча'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e8112d'/><circle cx='15' cy='10' r='4.2' fill='#ffef00'/><circle cx='15' cy='10' r='2.4' fill='none' stroke='#e8112d' stroke-width='.5'/><g stroke='#ffef00' stroke-width='.5'><path d='M15 4v12M9 10h12M10.6 5.6l8.8 8.8M19.4 5.6l-8.8 8.8'/></g></svg></button>
+        <button class='langbtn' data-lang='ru' title='Русский' aria-label='Русский'><svg viewBox='0 0 30 20'><rect width='30' height='6.67' fill='#fff'/><rect y='6.67' width='30' height='6.67' fill='#0039a6'/><rect y='13.33' width='30' height='6.67' fill='#d52b1e'/></svg></button>
+        <button class='langbtn' data-lang='en' title='English' aria-label='English'><svg viewBox='0 0 30 20'><clipPath id='uk'><rect width='30' height='20'/></clipPath><g clip-path='url(#uk)'><rect width='30' height='20' fill='#012169'/><path d='M0 0l30 20M30 0L0 20' stroke='#fff' stroke-width='4'/><path d='M0 0l30 20M30 0L0 20' stroke='#c8102e' stroke-width='2'/><path d='M15 0v20M0 10h30' stroke='#fff' stroke-width='6'/><path d='M15 0v20M0 10h30' stroke='#c8102e' stroke-width='3.5'/></g></svg></button>
+      </div>
+      <button class='themebtn' id='themebtn' aria-label='Tema'>
+        <svg class='i-moon' viewBox='0 0 24 24'><path d='M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z'/></svg>
+        <svg class='i-sun' viewBox='0 0 24 24'><circle cx='12' cy='12' r='4.2'/><path d='M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8'/></svg>
+      </button>
+      <a class='up' href='https://vumatech.net'>vumatech.net</a>
+    </span>
+  </div>
+
+
+<a class="back" href="/" data-i18n="back">← bütün araçlar</a>
+<h1 class="view">Toplu QR Kod Üretici</h1>
+<p class="priv"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> <span data-i18n="priv">Bu araç tamamen tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</span></p>
+<div class="tk">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Liste — her satır bir QR kod</p>
+  <div class="tk-field"><label for="tq-in">Biçim: <code>dosya adı ; içerik</code> — noktalı virgül yoksa satırın tamamı içerik sayılır</label>
+    <textarea id="tq-in" class="tk-area" spellcheck="false" placeholder="masa-01 ; https://menu.vumatech.net/?m=1&#10;masa-02 ; https://menu.vumatech.net/?m=2&#10;https://vumatech.net"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="tq-go">Üret</button>
+    <button class="tk-btn ghost" id="tq-demo">Örnek yükle</button>
+    <span class="tk-msg" id="tq-msg"></span>
+  </div>
+  <div id="tq-out"></div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Ayar</p>
+  <div class="tk-field"><label for="tq-size">Boyut (px)</label>
+    <input type="number" id="tq-size" class="tk-in" value="600" min="128" max="1600" step="64"></div>
+  <div class="tk-field"><label for="tq-ec">Hata düzeltme</label>
+    <select id="tq-ec" class="tk-sel"><option value="L">L — %7</option>
+    <option value="M">M — %15</option><option value="Q" selected>Q — %25</option>
+    <option value="H">H — %30</option></select></div>
+  <div class="tk-two">
+    <div class="tk-field"><label for="tq-fg">Kod rengi</label>
+      <input type="color" id="tq-fg" class="tk-in" value="#15171a" style="height:44px;padding:4px"></div>
+    <div class="tk-field"><label for="tq-bg">Zemin</label>
+      <input type="color" id="tq-bg" class="tk-in" value="#ffffff" style="height:44px;padding:4px"></div>
+  </div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="tq-label" checked><span>Kodun altına adı yaz<em>Masa numarası gibi ayırt edici bilgi</em></span></label>
+  </div>
+  <div class="tk-stats" style="margin-top:16px">
+    <div class="tk-stat"><b id="tq-n">0</b><span>satır</span></div>
+    <div class="tk-stat ok"><b id="tq-d">0</b><span>üretilen</span></div>
+  </div>
+  <p class="tk-note">Restoran masaları, etkinlik yaka kartları, envanter etiketleri
+     ve kütüphane raf kodları için tasarlandı. Baskıya gidecekse hata düzeltmeyi
+     Q ya da H bırakın — kodun bir kısmı lekelense bile okunur.</p>
+</div>
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var msg=$("tq-msg"),out=$("tq-out");
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function safe(s){return s.replace(/[^\p{L}\p{N}._-]+/gu,"-").replace(/^-+|-+$/g,"").slice(0,60)||"qr"}
+function parse(){
+  return $("tq-in").value.split("\n").map(function(l){return l.trim()}).filter(Boolean)
+    .map(function(l,i){
+      var k=l.indexOf(";");
+      if(k>0)return {n:safe(l.slice(0,k).trim()),v:l.slice(k+1).trim()};
+      return {n:"qr-"+String(i+1).padStart(3,"0"),v:l};
+    }).filter(function(o){return o.v});
+}
+$("tq-in").addEventListener("input",function(){$("tq-n").textContent=parse().length});
+$("tq-demo").addEventListener("click",function(){
+  $("tq-in").value="masa-01 ; https://menu.vumatech.net/?m=1\n"
+    +"masa-02 ; https://menu.vumatech.net/?m=2\n"
+    +"masa-03 ; https://menu.vumatech.net/?m=3\n"
+    +"wifi ; WIFI:T:WPA;S:Kafe;P:parola123;;";
+  $("tq-n").textContent=parse().length;
+});
+function draw(item,size,label){
+  return new Promise(function(res,rej){
+    var holder=document.createElement("div");
+    try{
+      new QRCode(holder,{text:item.v,width:size,height:size,
+        colorDark:$("tq-fg").value,colorLight:$("tq-bg").value,
+        correctLevel:QRCode.CorrectLevel[$("tq-ec").value]});
+    }catch(e){return rej(new Error(item.n+": içerik çok uzun"))}
+    setTimeout(function(){
+      var qc=holder.querySelector("canvas");
+      if(!qc)return rej(new Error(item.n+": çizilemedi"));
+      var pad=Math.round(size*0.06),lh=label?Math.round(size*0.13):0;
+      var c=document.createElement("canvas");
+      c.width=size+pad*2;c.height=size+pad*2+lh;
+      var x=c.getContext("2d");
+      x.fillStyle=$("tq-bg").value;x.fillRect(0,0,c.width,c.height);
+      x.drawImage(qc,pad,pad);
+      if(label){
+        x.fillStyle=$("tq-fg").value;
+        x.font="600 "+Math.round(size*0.075)+'px "IBM Plex Mono", monospace';
+        x.textAlign="center";x.textBaseline="middle";
+        x.fillText(item.n,c.width/2,size+pad+lh/2);
+      }
+      c.toBlob(function(b){res({n:item.n,blob:b})},"image/png");
+    },40);
+  });
+}
+$("tq-go").addEventListener("click",function(){
+  if(typeof QRCode==="undefined"){msg.className="tk-msg err";msg.textContent="QR kütüphanesi yüklenemedi";return}
+  var items=parse();
+  if(!items.length){msg.className="tk-msg err";msg.textContent="liste boş";return}
+  if(items.length>250){msg.className="tk-msg err";msg.textContent="en fazla 250 satır";return}
+  msg.className="tk-msg";msg.textContent="üretiliyor…";
+  var size=Math.min(1600,Math.max(128,+$("tq-size").value||600));
+  var label=$("tq-label").checked,done=[];
+  var chain=Promise.resolve();
+  items.forEach(function(it,i){
+    chain=chain.then(function(){
+      msg.textContent="üretiliyor… "+(i+1)+" / "+items.length;
+      return draw(it,size,label).then(function(r){done.push(r);$("tq-d").textContent=done.length});
+    });
+  });
+  chain.then(function(){
+    var rows=done.map(function(r){
+      return '<li><span class="nm"><a class="tk-dl" href="'+URL.createObjectURL(r.blob)
+        +'" download="'+esc(r.n)+'.png">'+esc(r.n)+'.png</a></span>'
+        +'<span class="sz">'+(r.blob.size/1024).toFixed(0)+' KB</span></li>';
+    }).join("");
+    out.innerHTML='<p class="tk-h2">Kodlar</p><ul class="tk-list" style="max-height:300px;overflow:auto">'+rows+'</ul>';
+    if(typeof JSZip!=="undefined"){
+      var z=new JSZip();
+      done.forEach(function(r){z.file(r.n+".png",r.blob)});
+      return z.generateAsync({type:"blob"}).then(function(zb){
+        out.innerHTML+='<div class="tk-acts"><a class="tk-btn" style="text-decoration:none" href="'
+          +URL.createObjectURL(zb)+'" download="qr-kodlar.zip">Hepsini zip olarak indir ('
+          +(zb.size/1048576).toFixed(1)+' MB)</a></div>';
+      });
+    }
+  }).then(function(){
+    msg.textContent=done.length+" kod üretildi";
+  }).catch(function(e){msg.className="tk-msg err";msg.textContent=e.message});
+});
+})();
+</script>
+</div>
+  <div class='adzone'>
+    <span class='lbl'>reklam</span>
+    <!-- AdSense birimi: Google'dan aldığınız data-ad-slot değerini yazıp
+         aşağıdaki iki satırın yorumunu kaldırın.
+    <script async='async' src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5193342573714090' crossorigin='anonymous'/>
+    <ins class='adsbygoogle' style='display:block' data-ad-client='ca-pub-5193342573714090' data-ad-slot='XXXXXXXXXX' data-ad-format='auto' data-full-width-responsive='true'/>
+    -->
+  </div>
+
+  <div class='promo'>
+    <p class='kicker' data-i18n='promo_kicker'>VuMaTech Studio · Bişkek</p>
+    <h2><span data-i18n='promo_h2_a'>Bu araçları yapan ekip </span><em data-i18n='promo_h2_b'>sizin sitenizi de yapar</em></h2>
+    <p class='lead' data-i18n='promo_lead'>Kurumsal siteden dijital menüye, akademik dergi sistemlerinden oyun portalına kadar. Tasarım, kurulum ve yıllık bakım tek elden.</p>
+    <div class='svcs'>
+      <a class='svc' href='https://web.vumatech.net'>
+        <b data-i18n='svc_web'>Web Tasarım</b><span data-i18n='svc_web_d'>Kurumsal site, portfolyo, tanıtım sayfası</span></a>
+      <a class='svc' href='https://menu.vumatech.net'>
+        <b data-i18n='svc_menu'>QR Dijital Menü</b><span data-i18n='svc_menu_d'>Çok dilli menü, anlık güncelleme, baskı maliyeti yok</span></a>
+      <a class='svc' href='https://academy.vumatech.net'>
+        <b data-i18n='svc_acad'>Akademik Web</b><span data-i18n='svc_acad_d'>Akademisyen sitesi, özgeçmiş, yayın listesi</span></a>
+      <a class='svc' href='https://ojs.vumatech.net'>
+        <b data-i18n='svc_ojs'>OJS Dergi Sistemi</b><span data-i18n='svc_ojs_d'>Kurulum, tema, hakem süreci yönetimi</span></a>
+    </div>
+    <div class='cta'>
+      <a class='btn' id='tg-btn' href='https://t.me/vumatech' target='_blank' rel='noopener'><svg viewBox='0 0 24 24'><path d='M9.8 15.3l-.4 4c.5 0 .8-.2 1.1-.5l2.6-2.4 5.4 3.9c1 .5 1.7.3 2-1l3.6-16.8c.3-1.2-.5-1.8-1.4-1.4L1.3 9.9c-1.2.5-1.2 1.1-.2 1.4l5.3 1.6L18.6 5c.6-.4 1.1-.2.7.2z'/></svg>
+        <span data-i18n='promo_wa'>Telegram: @vumatech</span></a>
+      <a class='btn line' href='https://vumatech.net' data-i18n='promo_all'>Tüm hizmetler</a>
+    </div>
+  </div>
+
+  <div class='foot'>
+    <div class='cols'>
+      <div>
+        <a class='brand' href='https://vumatech.net'>VuMaTech <b>Studio</b></a>
+        <p data-i18n='foot_about'>Bişkek merkezli web tasarım ve dijital hizmet atölyesi. Türkiye ve Kırgızistan'da çalışır.</p>
+        <p data-i18n='foot_about2'>Bu sayfadaki bütün araçlar ücretsizdir ve tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</p>
+      </div>
+      <div>
+        <h3 data-i18n='foot_services'>Hizmetler</h3>
+        <ul>
+          <li><a href='https://web.vumatech.net'>Web tasarım</a></li>
+          <li><a href='https://menu.vumatech.net'>QR dijital menü</a></li>
+          <li><a href='https://academy.vumatech.net'>Akademik web</a></li>
+          <li><a href='https://ojs.vumatech.net'>OJS dergi sistemi</a></li>
+          <li><a href='https://game.vumatech.net'>Oyun portalı</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n='foot_contact'>İletişim</h3>
+        <ul>
+          <li><a id='tg-foot' href='https://t.me/vumatech'>Telegram · @vumatech</a></li>
+          <li><a href='mailto:vumatechnet@gmail.com'>vumatechnet@gmail.com</a></li>
+          <li><a href='https://vumatech.net'>vumatech.net</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class='base'>
+      <span>© VuMaTech Studio · Bişkek</span>
+      <span><a href="/hakkinda/">Hakkında</a> · <a href="/gizlilik-ve-kvkk/">Gizlilik ve KVKK</a> · </span><span><a href="/">araç dizini</a> · <a href='https://vumatech.net'>VuMaTech</a></span>
+    </div>
+  </div>
+
+</div>
+
+
+</div>
+<script src="/assets/site.js"></script>
+
+</body>
+</html>

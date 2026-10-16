@@ -1,0 +1,87 @@
+<div class="tk-cols">
+<div>
+  <div class="tk-drop" id="fc-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M4 7h10l-3-3M20 17H10l3 3"/></svg>
+    <strong>Görselleri bırakın</strong>
+    <span>PNG · JPEG · WebP · GIF · BMP · SVG</span>
+  </div>
+  <input type="file" id="fc-file" class="tk-hidden" multiple accept="image/*">
+
+  <div class="tk-panel">
+    <p class="tk-h">Dönüştür</p>
+    <div class="tk-field"><label for="fc-fmt">Hedef biçim</label>
+      <select id="fc-fmt" class="tk-sel">
+        <option value="image/png">PNG — kayıpsız, şeffaflık destekler</option>
+        <option value="image/jpeg">JPEG — küçük dosya, şeffaflık yok</option>
+        <option value="image/webp" selected>WebP — en küçük, şeffaflık destekler</option>
+      </select></div>
+    <div class="tk-field"><label for="fc-q">Kalite — <span class="tk-val" id="fc-qv">90</span></label>
+      <input type="range" id="fc-q" class="tk-range" min="40" max="100" value="90"></div>
+    <div class="tk-field"><label for="fc-bg">Şeffaf alanların zemini (JPEG için)</label>
+      <input type="color" id="fc-bg" class="tk-in" value="#ffffff" style="height:44px;padding:4px"></div>
+    <div class="tk-acts">
+      <button class="tk-btn" id="fc-go" disabled>Dönüştür</button>
+      <span class="tk-msg" id="fc-msg">dosya bekleniyor</span>
+    </div>
+    <p class="tk-note">WebP aynı görüntüyü PNG'ye göre tipik olarak %25–35,
+       JPEG'e göre %20–30 daha küçük tutar. Web için doğru varsayılan budur.</p>
+  </div>
+</div>
+
+<div class="tk-panel">
+  <p class="tk-h">Sonuç</p>
+  <div id="fc-out"><p class="tk-blank">Dönüştürme cihazınızda yapılır; dosyalar hiçbir yere yüklenmez.</p></div>
+</div>
+</div>
+
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var drop=$("fc-drop"),inp=$("fc-file"),msg=$("fc-msg"),go=$("fc-go"),out=$("fc-out"),files=[];
+function kb(n){return n<1024?n+" B":n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB"}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files)});
+inp.addEventListener("change",function(e){take(e.target.files)});
+$("fc-q").addEventListener("input",function(){$("fc-qv").textContent=this.value});
+function take(fl){
+  files=Array.prototype.filter.call(fl,function(f){return /^image\//.test(f.type)});
+  go.disabled=!files.length;
+  msg.textContent=files.length?files.length+" dosya haz\u0131r":"g\u00f6rsel bulunamad\u0131";
+  out.innerHTML='<ul class="tk-list">'+files.map(function(f){
+    return '<li><span class="nm">'+esc(f.name)+'</span><span class="sz">'+kb(f.size)+'</span></li>'}).join("")+'</ul>';
+}
+go.addEventListener("click",function(){
+  var type=$("fc-fmt").value,q=parseInt($("fc-q").value,10)/100,bg=$("fc-bg").value;
+  go.disabled=true;msg.className="tk-msg";msg.textContent="d\u00f6n\u00fc\u015ft\u00fcr\u00fcl\u00fcyor\u2026";
+  var rows=[],done=0;
+  files.forEach(function(f,i){
+    var u=URL.createObjectURL(f),im=new Image();
+    im.onload=function(){
+      var c=document.createElement("canvas");c.width=im.naturalWidth||300;c.height=im.naturalHeight||150;
+      var x=c.getContext("2d");
+      if(type==="image/jpeg"){x.fillStyle=bg;x.fillRect(0,0,c.width,c.height)}
+      x.drawImage(im,0,0);URL.revokeObjectURL(u);
+      c.toBlob(function(b){
+        var ext=type.split("/")[1].replace("jpeg","jpg");
+        var nm=f.name.replace(/\.[^.]+$/,"")+"."+ext;
+        var pct=f.size?Math.round((1-b.size/f.size)*100):0;
+        var lbl=pct>0?'<span class="tk-good">%'+pct+' k\u00fc\u00e7\u00fcld\u00fc</span>':'<span class="tk-mark">%'+Math.abs(pct)+' b\u00fcy\u00fcd\u00fc</span>';
+        rows[i]='<li><span class="nm"><a class="tk-dl" href="'+URL.createObjectURL(b)+'" download="'+esc(nm)+'">'+esc(nm)+'</a></span>'
+          +'<span class="sz">'+kb(f.size)+' \u2192 '+kb(b.size)+'</span><span class="sz">'+lbl+'</span></li>';
+        if(++done===files.length){out.innerHTML='<ul class="tk-list">'+rows.join("")+'</ul>';
+          msg.textContent=done+" dosya d\u00f6n\u00fc\u015ft\u00fcr\u00fcld\u00fc";go.disabled=false}
+      },type,q);
+    };
+    im.onerror=function(){URL.revokeObjectURL(u);
+      rows[i]='<li><span class="nm">'+esc(f.name)+'</span><span class="sz">a\u00e7\u0131lamad\u0131</span></li>';
+      if(++done===files.length){out.innerHTML='<ul class="tk-list">'+rows.join("")+'</ul>';go.disabled=false}};
+    im.src=u;
+  });
+});
+})();
+//]]></script>

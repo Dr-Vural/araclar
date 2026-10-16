@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="tr" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f4f3f0">
+<title>Kredi ve Taksit Hesaplayıcı — VuMaTech Tools</title>
+<meta name="description" content="Eşit taksitli kredi hesabı, ay ay ödeme planı ve CSV çıktısı. Vergi payı ayarlanabilir.">
+<link rel="canonical" href="https://tools.vumatech.net/araclar/kredi-ve-taksit-hesaplayici/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="VuMaTech Tools">
+<meta property="og:title" content="Kredi ve Taksit Hesaplayıcı — VuMaTech Tools">
+<meta property="og:description" content="Eşit taksitli kredi hesabı, ay ay ödeme planı ve CSV çıktısı. Vergi payı ayarlanabilir.">
+<meta property="og:url" content="https://tools.vumatech.net/araclar/kredi-ve-taksit-hesaplayici/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/assets/kit.css">
+<script>
+/* Tema, sayfa çizilmeden uygulanır; yoksa karanlık temada bir an beyaz parlama olur.
+   Kayıtlı tercih yoksa işletim sistemi ayarı kullanılır. */
+(function(){try{
+  var t=localStorage.getItem("vmt_theme");
+  if(t!=="dark"&&t!=="light"){
+    t=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";
+  }
+  document.documentElement.setAttribute("data-theme",t);
+  var m=document.querySelector('meta[name="theme-color"]');
+  if(m)m.setAttribute("content", t==="dark"?"#0d1014":"#f4f3f0");
+}catch(e){document.documentElement.setAttribute("data-theme","light");}})();
+</script>
+</head>
+<body>
+<div class="shell">
+  <div class='crest'>
+    <a class='name' href="/">VuMaTech <b>Tools</b></a>
+    <span class='crest-right'>
+<div class='langpick' id='langpick' role='group' aria-label='Dil'>
+        <button class='langbtn' data-lang='tr' title='Türkçe' aria-label='Türkçe'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e30a17'/><circle cx='11.5' cy='10' r='5' fill='#fff'/><circle cx='13' cy='10' r='4' fill='#e30a17'/><path fill='#fff' d='M17.5 10l4.2-1.4-2.6 3.6v-4.4l2.6 3.6z'/></svg></button>
+        <button class='langbtn' data-lang='ky' title='Кыргызча' aria-label='Кыргызча'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e8112d'/><circle cx='15' cy='10' r='4.2' fill='#ffef00'/><circle cx='15' cy='10' r='2.4' fill='none' stroke='#e8112d' stroke-width='.5'/><g stroke='#ffef00' stroke-width='.5'><path d='M15 4v12M9 10h12M10.6 5.6l8.8 8.8M19.4 5.6l-8.8 8.8'/></g></svg></button>
+        <button class='langbtn' data-lang='ru' title='Русский' aria-label='Русский'><svg viewBox='0 0 30 20'><rect width='30' height='6.67' fill='#fff'/><rect y='6.67' width='30' height='6.67' fill='#0039a6'/><rect y='13.33' width='30' height='6.67' fill='#d52b1e'/></svg></button>
+        <button class='langbtn' data-lang='en' title='English' aria-label='English'><svg viewBox='0 0 30 20'><clipPath id='uk'><rect width='30' height='20'/></clipPath><g clip-path='url(#uk)'><rect width='30' height='20' fill='#012169'/><path d='M0 0l30 20M30 0L0 20' stroke='#fff' stroke-width='4'/><path d='M0 0l30 20M30 0L0 20' stroke='#c8102e' stroke-width='2'/><path d='M15 0v20M0 10h30' stroke='#fff' stroke-width='6'/><path d='M15 0v20M0 10h30' stroke='#c8102e' stroke-width='3.5'/></g></svg></button>
+      </div>
+      <button class='themebtn' id='themebtn' aria-label='Tema'>
+        <svg class='i-moon' viewBox='0 0 24 24'><path d='M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z'/></svg>
+        <svg class='i-sun' viewBox='0 0 24 24'><circle cx='12' cy='12' r='4.2'/><path d='M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8'/></svg>
+      </button>
+      <a class='up' href='https://vumatech.net'>vumatech.net</a>
+    </span>
+  </div>
+
+
+<a class="back" href="/" data-i18n="back">← bütün araçlar</a>
+<h1 class="view">Kredi ve Taksit Hesaplayıcı</h1>
+<p class="priv"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> <span data-i18n="priv">Bu araç tamamen tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</span></p>
+<div class="tk">
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Kredi</p>
+  <div class="tk-field"><label for="kr-amt">Anapara</label>
+    <input type="number" id="kr-amt" class="tk-in" value="500000" min="0" step="1000"></div>
+  <div class="tk-two">
+    <div class="tk-field"><label for="kr-rate">Aylık faiz (%)</label>
+      <input type="number" id="kr-rate" class="tk-in" value="3.5" step="0.01" min="0"></div>
+    <div class="tk-field"><label for="kr-n">Vade (ay)</label>
+      <input type="number" id="kr-n" class="tk-in" value="24" min="1" max="480"></div>
+  </div>
+  <div class="tk-field"><label for="kr-cur">Para birimi</label>
+    <select id="kr-cur" class="tk-sel"><option value="₺">₺ TL</option>
+    <option value="сом">сом KGS</option><option value="$">$ USD</option>
+    <option value="€">€ EUR</option></select></div>
+  <div class="tk-field"><label for="kr-tax">Vergi ve masraf (%) — <span class="tk-val" id="kr-tv">15</span></label>
+    <input type="range" id="kr-tax" class="tk-range" min="0" max="30" step="0.5" value="15">
+    <span class="tk-msg">Türkiye'de faiz üzerinden BSMV + KKDF toplamı</span></div>
+  <p class="tk-note">Bu hesap eşit taksitli (anüite) yöntemi kullanır. Bankaların
+     ilan ettiği yıllık maliyet oranı dosya masrafı, sigorta ve tahsis ücreti
+     içerebilir; buradaki sonuç bağlayıcı bir teklif değildir.</p>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Sonuç</p>
+  <div class="tk-stats">
+    <div class="tk-stat ok"><b id="kr-pay">—</b><span>aylık taksit</span></div>
+    <div class="tk-stat"><b id="kr-tot">—</b><span>toplam ödeme</span></div>
+    <div class="tk-stat warn"><b id="kr-int">—</b><span>toplam faiz</span></div>
+  </div>
+  <div class="tk-out" id="kr-sum">—</div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Ödeme planı</p>
+  <div class="tk-out" id="kr-plan" style="max-height:340px;font-size:12.5px">—</div>
+  <div class="tk-acts"><button class="tk-btn ghost" id="kr-csv">CSV indir</button></div>
+</div>
+</div>
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var rows=[];
+function f(n,c){return new Intl.NumberFormat("tr-TR",{minimumFractionDigits:2,
+  maximumFractionDigits:2}).format(n)+" "+c}
+function run(){
+  var P=+$("kr-amt").value||0,r=(+$("kr-rate").value||0)/100,n=+$("kr-n").value||1;
+  var tax=(+$("kr-tax").value||0)/100,c=$("kr-cur").value;
+  $("kr-tv").textContent=$("kr-tax").value;
+  var re=r*(1+tax);
+  var pay=re>0?P*re*Math.pow(1+re,n)/(Math.pow(1+re,n)-1):P/n;
+  var tot=pay*n,intr=tot-P;
+  $("kr-pay").textContent=f(pay,c);
+  $("kr-tot").textContent=f(tot,c);
+  $("kr-int").textContent=f(intr,c);
+  $("kr-sum").textContent=
+    "Anapara       "+f(P,c)+"\n"+
+    "Aylık faiz    %"+$("kr-rate").value+"  (vergiyle %"+(re*100).toFixed(3)+")\n"+
+    "Vade          "+n+" ay\n"+
+    "Yıllık maliyet %"+((Math.pow(1+re,12)-1)*100).toFixed(2)+"\n"+
+    "─".repeat(34)+"\n"+
+    "Faiz / anapara oranı  %"+(P?(intr/P*100).toFixed(1):0);
+  rows=[];var bal=P;
+  for(var i=1;i<=n;i++){
+    var fz=bal*re,ana=pay-fz;bal-=ana;
+    if(i===n)bal=0;
+    rows.push([i,pay,fz,ana,Math.max(0,bal)]);
+  }
+  var head="Ay".padEnd(5)+"Taksit".padStart(14)+"Faiz".padStart(14)
+    +"Anapara".padStart(14)+"Kalan".padStart(15);
+  var body=rows.slice(0,240).map(function(x){
+    return String(x[0]).padEnd(5)
+      +f(x[1],"").trim().padStart(14)+f(x[2],"").trim().padStart(14)
+      +f(x[3],"").trim().padStart(14)+f(x[4],"").trim().padStart(15);
+  }).join("\n");
+  $("kr-plan").textContent=head+"\n"+"─".repeat(62)+"\n"+body;
+}
+["kr-amt","kr-rate","kr-n","kr-tax"].forEach(function(id){$(id).addEventListener("input",run)});
+$("kr-cur").addEventListener("change",run);
+$("kr-csv").addEventListener("click",function(){
+  var csv="Ay;Taksit;Faiz;Anapara;Kalan\n"+rows.map(function(x){
+    return x[0]+";"+x[1].toFixed(2)+";"+x[2].toFixed(2)+";"+x[3].toFixed(2)+";"+x[4].toFixed(2);
+  }).join("\n");
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));
+  a.download="odeme-plani.csv";a.click();
+});
+run();
+})();
+</script>
+</div>
+  <div class='adzone'>
+    <span class='lbl'>reklam</span>
+    <!-- AdSense birimi: Google'dan aldığınız data-ad-slot değerini yazıp
+         aşağıdaki iki satırın yorumunu kaldırın.
+    <script async='async' src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5193342573714090' crossorigin='anonymous'/>
+    <ins class='adsbygoogle' style='display:block' data-ad-client='ca-pub-5193342573714090' data-ad-slot='XXXXXXXXXX' data-ad-format='auto' data-full-width-responsive='true'/>
+    -->
+  </div>
+
+  <div class='promo'>
+    <p class='kicker' data-i18n='promo_kicker'>VuMaTech Studio · Bişkek</p>
+    <h2><span data-i18n='promo_h2_a'>Bu araçları yapan ekip </span><em data-i18n='promo_h2_b'>sizin sitenizi de yapar</em></h2>
+    <p class='lead' data-i18n='promo_lead'>Kurumsal siteden dijital menüye, akademik dergi sistemlerinden oyun portalına kadar. Tasarım, kurulum ve yıllık bakım tek elden.</p>
+    <div class='svcs'>
+      <a class='svc' href='https://web.vumatech.net'>
+        <b data-i18n='svc_web'>Web Tasarım</b><span data-i18n='svc_web_d'>Kurumsal site, portfolyo, tanıtım sayfası</span></a>
+      <a class='svc' href='https://menu.vumatech.net'>
+        <b data-i18n='svc_menu'>QR Dijital Menü</b><span data-i18n='svc_menu_d'>Çok dilli menü, anlık güncelleme, baskı maliyeti yok</span></a>
+      <a class='svc' href='https://academy.vumatech.net'>
+        <b data-i18n='svc_acad'>Akademik Web</b><span data-i18n='svc_acad_d'>Akademisyen sitesi, özgeçmiş, yayın listesi</span></a>
+      <a class='svc' href='https://ojs.vumatech.net'>
+        <b data-i18n='svc_ojs'>OJS Dergi Sistemi</b><span data-i18n='svc_ojs_d'>Kurulum, tema, hakem süreci yönetimi</span></a>
+    </div>
+    <div class='cta'>
+      <a class='btn' id='tg-btn' href='https://t.me/vumatech' target='_blank' rel='noopener'><svg viewBox='0 0 24 24'><path d='M9.8 15.3l-.4 4c.5 0 .8-.2 1.1-.5l2.6-2.4 5.4 3.9c1 .5 1.7.3 2-1l3.6-16.8c.3-1.2-.5-1.8-1.4-1.4L1.3 9.9c-1.2.5-1.2 1.1-.2 1.4l5.3 1.6L18.6 5c.6-.4 1.1-.2.7.2z'/></svg>
+        <span data-i18n='promo_wa'>Telegram: @vumatech</span></a>
+      <a class='btn line' href='https://vumatech.net' data-i18n='promo_all'>Tüm hizmetler</a>
+    </div>
+  </div>
+
+  <div class='foot'>
+    <div class='cols'>
+      <div>
+        <a class='brand' href='https://vumatech.net'>VuMaTech <b>Studio</b></a>
+        <p data-i18n='foot_about'>Bişkek merkezli web tasarım ve dijital hizmet atölyesi. Türkiye ve Kırgızistan'da çalışır.</p>
+        <p data-i18n='foot_about2'>Bu sayfadaki bütün araçlar ücretsizdir ve tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</p>
+      </div>
+      <div>
+        <h3 data-i18n='foot_services'>Hizmetler</h3>
+        <ul>
+          <li><a href='https://web.vumatech.net'>Web tasarım</a></li>
+          <li><a href='https://menu.vumatech.net'>QR dijital menü</a></li>
+          <li><a href='https://academy.vumatech.net'>Akademik web</a></li>
+          <li><a href='https://ojs.vumatech.net'>OJS dergi sistemi</a></li>
+          <li><a href='https://game.vumatech.net'>Oyun portalı</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n='foot_contact'>İletişim</h3>
+        <ul>
+          <li><a id='tg-foot' href='https://t.me/vumatech'>Telegram · @vumatech</a></li>
+          <li><a href='mailto:vumatechnet@gmail.com'>vumatechnet@gmail.com</a></li>
+          <li><a href='https://vumatech.net'>vumatech.net</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class='base'>
+      <span>© VuMaTech Studio · Bişkek</span>
+      <span><a href="/hakkinda/">Hakkında</a> · <a href="/gizlilik-ve-kvkk/">Gizlilik ve KVKK</a> · </span><span><a href="/">araç dizini</a> · <a href='https://vumatech.net'>VuMaTech</a></span>
+    </div>
+  </div>
+
+</div>
+
+
+</div>
+<script src="/assets/site.js"></script>
+
+</body>
+</html>

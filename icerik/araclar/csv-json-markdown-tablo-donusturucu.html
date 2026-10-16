@@ -1,0 +1,205 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Veri</p>
+  <div class="tk-field"><label for="td-in">Girdi — Excel'den doğrudan yapıştırabilirsiniz</label>
+    <textarea id="td-in" class="tk-area" spellcheck="false" placeholder="Ad	Şehir	Yıl&#10;Ali	Bişkek	2024&#10;Ayşe	Ankara	2025"></textarea></div>
+  <div class="tk-field"><label for="td-out">Çıktı</label>
+    <textarea id="td-out" class="tk-area" readonly spellcheck="false"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="td-go">Dönüştür</button>
+    <button class="tk-btn ghost" id="td-copy">Kopyala</button>
+    <button class="tk-btn ghost" id="td-dl">İndir</button>
+    <button class="tk-btn ghost" id="td-demo">Örnek</button>
+    <span class="tk-msg" id="td-msg"></span>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Biçim</p>
+  <div class="tk-field"><label for="td-from">Girdi biçimi</label>
+    <select id="td-from" class="tk-sel">
+      <option value="auto">Otomatik algıla</option>
+      <option value="tsv">Sekmeyle ayrılmış (Excel)</option>
+      <option value="csv">CSV — virgül</option>
+      <option value="scsv">CSV — noktalı virgül (Türkçe Excel)</option>
+      <option value="json">JSON</option>
+      <option value="md">Markdown tablo</option>
+    </select></div>
+  <div class="tk-field"><label for="td-to">Çıktı biçimi</label>
+    <select id="td-to" class="tk-sel">
+      <option value="md">Markdown tablo</option>
+      <option value="json">JSON — nesne dizisi</option>
+      <option value="json2">JSON — dizi dizisi</option>
+      <option value="csv">CSV — virgül</option>
+      <option value="scsv">CSV — noktalı virgül</option>
+      <option value="tsv">Sekmeyle ayrılmış</option>
+      <option value="html">HTML tablo</option>
+      <option value="sql">SQL INSERT</option>
+      <option value="apa">APA 7 tablo (Word'e yapıştırılır)</option>
+    </select></div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="td-head" checked><span>İlk satır başlık</span></label>
+    <label><input type="checkbox" id="td-trim" checked><span>Hücre boşluklarını kırp</span></label>
+    <label><input type="checkbox" id="td-num"><span>Sayıları sayı olarak yaz<em>JSON ve SQL çıktısında tırnaksız</em></span></label>
+  </div>
+  <div class="tk-field"><label for="td-tbl">SQL tablo adı</label>
+    <input type="text" id="td-tbl" class="tk-in" value="veriler"></div>
+  <div class="tk-stats" style="margin-top:14px">
+    <div class="tk-stat"><b id="td-r">0</b><span>satır</span></div>
+    <div class="tk-stat"><b id="td-c">0</b><span>sütun</span></div>
+  </div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+function splitCsv(line,sep){
+  var out=[],cur="",q=false;
+  for(var i=0;i<line.length;i++){
+    var c=line[i];
+    if(q){
+      if(c==='"'){ if(line[i+1]==='"'){cur+='"';i++} else q=false }
+      else cur+=c;
+    }else{
+      if(c==='"')q=true;
+      else if(c===sep){out.push(cur);cur=""}
+      else cur+=c;
+    }
+  }
+  out.push(cur);return out;
+}
+function detect(t){
+  var l=t.trim();
+  if(/^[\[{]/.test(l))return "json";
+  if(/^\s*\|/.test(l)&&/\|/.test(l))return "md";
+  var f=l.split("\n")[0];
+  if(f.indexOf("\t")>-1)return "tsv";
+  if((f.match(/;/g)||[]).length>=(f.match(/,/g)||[]).length&&f.indexOf(";")>-1)return "scsv";
+  return "csv";
+}
+function parse(t,fmt){
+  if(fmt==="auto")fmt=detect(t);
+  var rows=[];
+  if(fmt==="json"){
+    var j=JSON.parse(t);
+    if(!Array.isArray(j))j=[j];
+    if(j.length&&Array.isArray(j[0]))rows=j.map(function(r){return r.map(String)});
+    else{
+      var keys=[];
+      j.forEach(function(o){Object.keys(o).forEach(function(k){if(keys.indexOf(k)<0)keys.push(k)})});
+      rows=[keys].concat(j.map(function(o){return keys.map(function(k){
+        return o[k]===undefined||o[k]===null?"":String(o[k])})}));
+    }
+  }else if(fmt==="md"){
+    t.split("\n").forEach(function(l){
+      l=l.trim();
+      if(!l||/^\|?[\s:\-|]+\|?$/.test(l))return;
+      rows.push(l.replace(/^\||\|$/g,"").split("|"));
+    });
+  }else{
+    var sep=fmt==="tsv"?"\t":fmt==="scsv"?";":",";
+    t.split("\n").forEach(function(l){if(l.trim()!=="")rows.push(splitCsv(l,sep))});
+  }
+  if($("td-trim").checked)rows=rows.map(function(r){return r.map(function(c){return String(c).trim()})});
+  var w=Math.max.apply(null,rows.map(function(r){return r.length}));
+  rows=rows.map(function(r){while(r.length<w)r.push("");return r});
+  return rows;
+}
+function isNum(v){return v!==""&&!isNaN(v.replace(",","."))&&/^-?[\d.,]+$/.test(v)}
+function jval(v){
+  if($("td-num").checked&&isNum(v))return v.replace(",",".");
+  return JSON.stringify(v);
+}
+function csvCell(v,sep){
+  return (v.indexOf(sep)>-1||v.indexOf('"')>-1||v.indexOf("\n")>-1)
+    ? '"'+v.replace(/"/g,'""')+'"' : v;
+}
+function emit(rows,to){
+  var head=$("td-head").checked,keys=head?rows[0]:rows[0].map(function(_,i){return "sutun"+(i+1)});
+  var body=head?rows.slice(1):rows;
+  if(to==="md"||to==="apa"){
+    var w=keys.map(function(k,i){
+      return Math.max(k.length,Math.max.apply(null,body.map(function(r){return (r[i]||"").length}).concat([3])))});
+    var pad=function(s,n){return s+" ".repeat(Math.max(0,n-s.length))};
+    if(to==="md"){
+      var L=["| "+keys.map(function(k,i){return pad(k,w[i])}).join(" | ")+" |"];
+      L.push("| "+w.map(function(n){return "-".repeat(n)}).join(" | ")+" |");
+      body.forEach(function(r){L.push("| "+keys.map(function(_,i){return pad(r[i]||"",w[i])}).join(" | ")+" |")});
+      return L.join("\n");
+    }
+    var line=w.reduce(function(s,n){return s+n+2},0);
+    var A=["Tablo 1","Tablonun basligi buraya",
+      "\u2014".repeat(line),
+      keys.map(function(k,i){return pad(k,w[i])}).join("  "),
+      "\u2014".repeat(line)];
+    body.forEach(function(r){A.push(keys.map(function(_,i){return pad(r[i]||"",w[i])}).join("  "))});
+    A.push("\u2014".repeat(line));
+    A.push("Not. Aciklama satiri.");
+    return A.join("\n");
+  }
+  if(to==="json")
+    return "[\n"+body.map(function(r){
+      return "  {"+keys.map(function(k,i){return JSON.stringify(k)+": "+jval(r[i]||"")}).join(", ")+"}";
+    }).join(",\n")+"\n]";
+  if(to==="json2")
+    return JSON.stringify(head?[keys].concat(body):body,null,2);
+  if(to==="html"){
+    var H=["<table>","  <thead>","    <tr>"+keys.map(function(k){return "<th>"+k+"</th>"}).join("")+"</tr>",
+      "  </thead>","  <tbody>"];
+    body.forEach(function(r){H.push("    <tr>"+keys.map(function(_,i){
+      return "<td>"+(r[i]||"")+"</td>"}).join("")+"</tr>")});
+    H.push("  </tbody>","</table>");return H.join("\n");
+  }
+  if(to==="sql"){
+    var tbl=$("td-tbl").value||"veriler";
+    return body.map(function(r){
+      return "INSERT INTO "+tbl+" ("+keys.map(function(k){
+        return k.replace(/[^\w]/g,"_")}).join(", ")+") VALUES ("
+        +keys.map(function(_,i){var v=r[i]||"";
+          return ($("td-num").checked&&isNum(v))?v.replace(",","."):"'"+v.replace(/'/g,"''")+"'"
+        }).join(", ")+");";
+    }).join("\n");
+  }
+  var sep=to==="tsv"?"\t":to==="scsv"?";":",";
+  var all=head?[keys].concat(body):body;
+  return all.map(function(r){return keys.map(function(_,i){
+    return csvCell(r[i]||"",sep)}).join(sep)}).join("\n");
+}
+function run(){
+  var t=$("td-in").value;
+  if(!t.trim()){$("td-out").value="";$("td-msg").textContent="";return}
+  try{
+    var rows=parse(t,$("td-from").value);
+    if(!rows.length)throw new Error("satir bulunamadi");
+    $("td-r").textContent=rows.length-($("td-head").checked?1:0);
+    $("td-c").textContent=rows[0].length;
+    $("td-out").value=emit(rows,$("td-to").value);
+    $("td-msg").className="tk-msg";
+    $("td-msg").textContent="donusturuldu ("+$("td-from").value.replace("auto",
+      "otomatik: "+detect(t))+")";
+  }catch(e){
+    $("td-msg").className="tk-msg err";$("td-msg").textContent=e.message;
+  }
+}
+$("td-go").addEventListener("click",run);
+["td-from","td-to","td-head","td-trim","td-num","td-tbl"].forEach(function(id){
+  $(id).addEventListener("change",run)});
+$("td-in").addEventListener("input",run);
+$("td-demo").addEventListener("click",function(){
+  $("td-in").value="Ad\tSehir\tYil\tPuan\nAli Veli\tBiskek\t2024\t87,5\n"
+   +"Ayse Kaya\tAnkara\t2025\t92\nJohn Smith\tLondon\t2023\t78,25";
+  run();
+});
+$("td-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("td-out").value).then(function(){$("td-msg").textContent="kopyalandi"})});
+$("td-dl").addEventListener("click",function(){
+  var to=$("td-to").value;
+  var ext={md:"md",json:"json",json2:"json",csv:"csv",scsv:"csv",tsv:"tsv",
+    html:"html",sql:"sql",apa:"txt"}[to];
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob(["\ufeff"+$("td-out").value],
+    {type:"text/plain;charset=utf-8"}));
+  a.download="tablo."+ext;a.click();
+});
+})();
+//]]></script>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="tr" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f4f3f0">
+<title>PDF Sayfa Numarası Ekleme — VuMaTech Tools</title>
+<meta name="description" content="Konum, biçim, başlangıç numarası ve atlanacak sayfa seçimiyle numaralandırma. Roma rakamı desteği.">
+<link rel="canonical" href="https://tools.vumatech.net/araclar/pdf-sayfa-numarasi-ekleme/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="VuMaTech Tools">
+<meta property="og:title" content="PDF Sayfa Numarası Ekleme — VuMaTech Tools">
+<meta property="og:description" content="Konum, biçim, başlangıç numarası ve atlanacak sayfa seçimiyle numaralandırma. Roma rakamı desteği.">
+<meta property="og:url" content="https://tools.vumatech.net/araclar/pdf-sayfa-numarasi-ekleme/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/assets/kit.css">
+<script>
+/* Tema, sayfa çizilmeden uygulanır; yoksa karanlık temada bir an beyaz parlama olur.
+   Kayıtlı tercih yoksa işletim sistemi ayarı kullanılır. */
+(function(){try{
+  var t=localStorage.getItem("vmt_theme");
+  if(t!=="dark"&&t!=="light"){
+    t=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";
+  }
+  document.documentElement.setAttribute("data-theme",t);
+  var m=document.querySelector('meta[name="theme-color"]');
+  if(m)m.setAttribute("content", t==="dark"?"#0d1014":"#f4f3f0");
+}catch(e){document.documentElement.setAttribute("data-theme","light");}})();
+</script>
+</head>
+<body>
+<div class="shell">
+  <div class='crest'>
+    <a class='name' href="/">VuMaTech <b>Tools</b></a>
+    <span class='crest-right'>
+<div class='langpick' id='langpick' role='group' aria-label='Dil'>
+        <button class='langbtn' data-lang='tr' title='Türkçe' aria-label='Türkçe'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e30a17'/><circle cx='11.5' cy='10' r='5' fill='#fff'/><circle cx='13' cy='10' r='4' fill='#e30a17'/><path fill='#fff' d='M17.5 10l4.2-1.4-2.6 3.6v-4.4l2.6 3.6z'/></svg></button>
+        <button class='langbtn' data-lang='ky' title='Кыргызча' aria-label='Кыргызча'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e8112d'/><circle cx='15' cy='10' r='4.2' fill='#ffef00'/><circle cx='15' cy='10' r='2.4' fill='none' stroke='#e8112d' stroke-width='.5'/><g stroke='#ffef00' stroke-width='.5'><path d='M15 4v12M9 10h12M10.6 5.6l8.8 8.8M19.4 5.6l-8.8 8.8'/></g></svg></button>
+        <button class='langbtn' data-lang='ru' title='Русский' aria-label='Русский'><svg viewBox='0 0 30 20'><rect width='30' height='6.67' fill='#fff'/><rect y='6.67' width='30' height='6.67' fill='#0039a6'/><rect y='13.33' width='30' height='6.67' fill='#d52b1e'/></svg></button>
+        <button class='langbtn' data-lang='en' title='English' aria-label='English'><svg viewBox='0 0 30 20'><clipPath id='uk'><rect width='30' height='20'/></clipPath><g clip-path='url(#uk)'><rect width='30' height='20' fill='#012169'/><path d='M0 0l30 20M30 0L0 20' stroke='#fff' stroke-width='4'/><path d='M0 0l30 20M30 0L0 20' stroke='#c8102e' stroke-width='2'/><path d='M15 0v20M0 10h30' stroke='#fff' stroke-width='6'/><path d='M15 0v20M0 10h30' stroke='#c8102e' stroke-width='3.5'/></g></svg></button>
+      </div>
+      <button class='themebtn' id='themebtn' aria-label='Tema'>
+        <svg class='i-moon' viewBox='0 0 24 24'><path d='M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z'/></svg>
+        <svg class='i-sun' viewBox='0 0 24 24'><circle cx='12' cy='12' r='4.2'/><path d='M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8'/></svg>
+      </button>
+      <a class='up' href='https://vumatech.net'>vumatech.net</a>
+    </span>
+  </div>
+
+
+<a class="back" href="/" data-i18n="back">← bütün araçlar</a>
+<h1 class="view">PDF Sayfa Numarası Ekleme</h1>
+<p class="priv"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> <span data-i18n="priv">Bu araç tamamen tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</span></p>
+<div class="tk">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<div class="tk-cols">
+<div>
+  <div class="tk-drop" id="pn-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6v20h12V8z M14 2v6h4"/><path d="M10 18h4"/></svg>
+    <strong>PDF bırakın</strong><span>Birleştirdiğiniz belgeye numara vermek için</span>
+  </div>
+  <input type="file" id="pn-file" class="tk-hidden" accept="application/pdf,.pdf">
+  <div class="tk-panel">
+    <p class="tk-h">Numara</p>
+    <div class="tk-two">
+      <div class="tk-field"><label for="pn-pos">Konum</label>
+        <select id="pn-pos" class="tk-sel">
+          <option value="bc">Alt orta</option><option value="br">Alt sağ</option>
+          <option value="bl">Alt sol</option><option value="tc">Üst orta</option>
+          <option value="tr">Üst sağ</option><option value="tl">Üst sol</option>
+          <option value="bo">Alt dış (çift/tek değişir)</option>
+        </select></div>
+      <div class="tk-field"><label for="pn-fmt">Biçim</label>
+        <select id="pn-fmt" class="tk-sel">
+          <option value="n">1</option><option value="-n-">- 1 -</option>
+          <option value="n/t">1 / 20</option><option value="Sayfa n">Sayfa 1</option>
+          <option value="Sayfa n / t">Sayfa 1 / 20</option>
+          <option value="roman">i, ii, iii</option>
+        </select></div>
+    </div>
+    <div class="tk-two">
+      <div class="tk-field"><label for="pn-start">Başlangıç numarası</label>
+        <input type="number" id="pn-start" class="tk-in" value="1"></div>
+      <div class="tk-field"><label for="pn-skip">İlk kaç sayfa atlansın</label>
+        <input type="number" id="pn-skip" class="tk-in" value="0" min="0"></div>
+    </div>
+    <div class="tk-two">
+      <div class="tk-field"><label for="pn-size">Punto — <span class="tk-val" id="pn-sv">11</span></label>
+        <input type="range" id="pn-size" class="tk-range" min="7" max="20" value="11"></div>
+      <div class="tk-field"><label for="pn-mg">Kenar boşluğu (mm) — <span class="tk-val" id="pn-mv">15</span></label>
+        <input type="range" id="pn-mg" class="tk-range" min="5" max="35" value="15"></div>
+    </div>
+    <div class="tk-acts">
+      <button class="tk-btn" id="pn-go" disabled>Numaraları ekle</button>
+      <span class="tk-msg" id="pn-msg">dosya bekleniyor</span>
+    </div>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Sonuç</p>
+  <div id="pn-out"><p class="tk-blank">PDF bırakın, konumu seçip numaraları ekleyin.</p></div>
+  <p class="tk-note">Atlanan sayfalar numarasız kalır ama sayıma dahil edilmez;
+     kapak ve içindekiler için "ilk 2 sayfa atlansın, başlangıç 1" doğru ayardır.
+     Roma rakamı seçeneği ön bölüm sayfaları içindir.</p>
+  <p class="tk-note">Numara gömülü Helvetica ile yazılır ve yalnız rakam ile
+     "Sayfa" kelimesi içerir; Türkçe özel harf gerekmediği için gömme sorunu
+     çıkmaz.</p>
+</div>
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var drop=$("pn-drop"),inp=$("pn-file"),msg=$("pn-msg"),go=$("pn-go");
+var buf=null,name="belge";
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files[0])});
+inp.addEventListener("change",function(e){take(e.target.files[0])});
+$("pn-size").addEventListener("input",function(){$("pn-sv").textContent=this.value});
+$("pn-mg").addEventListener("input",function(){$("pn-mv").textContent=this.value});
+function take(f){
+  if(!f)return;name=f.name.replace(/\.pdf$/i,"");
+  f.arrayBuffer().then(function(b){buf=b;
+    return PDFLib.PDFDocument.load(b,{ignoreEncryption:true})})
+   .then(function(d){go.disabled=false;msg.className="tk-msg";
+     msg.textContent=d.getPageCount()+" sayfa yuklendi"})
+   .catch(function(e){msg.className="tk-msg err";
+     msg.textContent=/encrypt|password/i.test(e.message)?"parola korumali dosya":"okunamadi"});
+}
+function roman(n){
+  var v=[1000,900,500,400,100,90,50,40,10,9,5,4,1],
+      s=["m","cm","d","cd","c","xc","l","xl","x","ix","v","iv","i"],r="";
+  for(var i=0;i<v.length;i++)while(n>=v[i]){r+=s[i];n-=v[i]}
+  return r;
+}
+function label(i,total,fmt){
+  if(fmt==="roman")return roman(i);
+  return fmt.replace(/\bn\b/,String(i)).replace(/\bt\b/,String(total));
+}
+go.addEventListener("click",function(){
+  msg.className="tk-msg";msg.textContent="ekleniyor...";go.disabled=true;
+  var pos=$("pn-pos").value,fmt=$("pn-fmt").value;
+  var start=parseInt($("pn-start").value,10)||1;
+  var skip=Math.max(0,parseInt($("pn-skip").value,10)||0);
+  var size=+$("pn-size").value,mg=+$("pn-mg").value*2.83465;
+  PDFLib.PDFDocument.load(buf,{ignoreEncryption:true}).then(function(doc){
+    return doc.embedFont(PDFLib.StandardFonts.Helvetica).then(function(font){
+      var pages=doc.getPages(),total=pages.length-skip;
+      pages.forEach(function(p,k){
+        if(k<skip)return;
+        var num=start+(k-skip);
+        var txt=label(num,total+start-1,fmt);
+        var s=p.getSize(),w=font.widthOfTextAtSize(txt,size);
+        var top=pos[0]==="t",x;
+        var side=pos[1];
+        if(pos==="bo")side=(num%2===0)?"l":"r";
+        if(side==="c")x=(s.width-w)/2;
+        else if(side==="l")x=mg;
+        else x=s.width-mg-w;
+        var y=top?(s.height-mg-size*0.8):mg;
+        p.drawText(txt,{x:x,y:y,size:size,font:font,
+          color:PDFLib.rgb(0.15,0.17,0.2)});
+      });
+      return doc.save();
+    });
+  }).then(function(b){
+    var blob=new Blob([b],{type:"application/pdf"});
+    $("pn-out").innerHTML='<div class="tk-acts"><a class="tk-btn" style="text-decoration:none" href="'
+      +URL.createObjectURL(blob)+'" download="'+esc(name)+'-numarali.pdf">'
+      +esc(name)+'-numarali.pdf indir</a></div>';
+    msg.textContent="numaralar eklendi";go.disabled=false;
+  }).catch(function(e){msg.className="tk-msg err";msg.textContent=e.message;go.disabled=false});
+});
+})();
+</script>
+</div>
+  <div class='adzone'>
+    <span class='lbl'>reklam</span>
+    <!-- AdSense birimi: Google'dan aldığınız data-ad-slot değerini yazıp
+         aşağıdaki iki satırın yorumunu kaldırın.
+    <script async='async' src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5193342573714090' crossorigin='anonymous'/>
+    <ins class='adsbygoogle' style='display:block' data-ad-client='ca-pub-5193342573714090' data-ad-slot='XXXXXXXXXX' data-ad-format='auto' data-full-width-responsive='true'/>
+    -->
+  </div>
+
+  <div class='promo'>
+    <p class='kicker' data-i18n='promo_kicker'>VuMaTech Studio · Bişkek</p>
+    <h2><span data-i18n='promo_h2_a'>Bu araçları yapan ekip </span><em data-i18n='promo_h2_b'>sizin sitenizi de yapar</em></h2>
+    <p class='lead' data-i18n='promo_lead'>Kurumsal siteden dijital menüye, akademik dergi sistemlerinden oyun portalına kadar. Tasarım, kurulum ve yıllık bakım tek elden.</p>
+    <div class='svcs'>
+      <a class='svc' href='https://web.vumatech.net'>
+        <b data-i18n='svc_web'>Web Tasarım</b><span data-i18n='svc_web_d'>Kurumsal site, portfolyo, tanıtım sayfası</span></a>
+      <a class='svc' href='https://menu.vumatech.net'>
+        <b data-i18n='svc_menu'>QR Dijital Menü</b><span data-i18n='svc_menu_d'>Çok dilli menü, anlık güncelleme, baskı maliyeti yok</span></a>
+      <a class='svc' href='https://academy.vumatech.net'>
+        <b data-i18n='svc_acad'>Akademik Web</b><span data-i18n='svc_acad_d'>Akademisyen sitesi, özgeçmiş, yayın listesi</span></a>
+      <a class='svc' href='https://ojs.vumatech.net'>
+        <b data-i18n='svc_ojs'>OJS Dergi Sistemi</b><span data-i18n='svc_ojs_d'>Kurulum, tema, hakem süreci yönetimi</span></a>
+    </div>
+    <div class='cta'>
+      <a class='btn' id='tg-btn' href='https://t.me/vumatech' target='_blank' rel='noopener'><svg viewBox='0 0 24 24'><path d='M9.8 15.3l-.4 4c.5 0 .8-.2 1.1-.5l2.6-2.4 5.4 3.9c1 .5 1.7.3 2-1l3.6-16.8c.3-1.2-.5-1.8-1.4-1.4L1.3 9.9c-1.2.5-1.2 1.1-.2 1.4l5.3 1.6L18.6 5c.6-.4 1.1-.2.7.2z'/></svg>
+        <span data-i18n='promo_wa'>Telegram: @vumatech</span></a>
+      <a class='btn line' href='https://vumatech.net' data-i18n='promo_all'>Tüm hizmetler</a>
+    </div>
+  </div>
+
+  <div class='foot'>
+    <div class='cols'>
+      <div>
+        <a class='brand' href='https://vumatech.net'>VuMaTech <b>Studio</b></a>
+        <p data-i18n='foot_about'>Bişkek merkezli web tasarım ve dijital hizmet atölyesi. Türkiye ve Kırgızistan'da çalışır.</p>
+        <p data-i18n='foot_about2'>Bu sayfadaki bütün araçlar ücretsizdir ve tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</p>
+      </div>
+      <div>
+        <h3 data-i18n='foot_services'>Hizmetler</h3>
+        <ul>
+          <li><a href='https://web.vumatech.net'>Web tasarım</a></li>
+          <li><a href='https://menu.vumatech.net'>QR dijital menü</a></li>
+          <li><a href='https://academy.vumatech.net'>Akademik web</a></li>
+          <li><a href='https://ojs.vumatech.net'>OJS dergi sistemi</a></li>
+          <li><a href='https://game.vumatech.net'>Oyun portalı</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n='foot_contact'>İletişim</h3>
+        <ul>
+          <li><a id='tg-foot' href='https://t.me/vumatech'>Telegram · @vumatech</a></li>
+          <li><a href='mailto:vumatechnet@gmail.com'>vumatechnet@gmail.com</a></li>
+          <li><a href='https://vumatech.net'>vumatech.net</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class='base'>
+      <span>© VuMaTech Studio · Bişkek</span>
+      <span><a href="/hakkinda/">Hakkında</a> · <a href="/gizlilik-ve-kvkk/">Gizlilik ve KVKK</a> · </span><span><a href="/">araç dizini</a> · <a href='https://vumatech.net'>VuMaTech</a></span>
+    </div>
+  </div>
+
+</div>
+
+
+</div>
+<script src="/assets/site.js"></script>
+
+</body>
+</html>

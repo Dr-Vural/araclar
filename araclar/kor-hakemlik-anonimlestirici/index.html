@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="tr" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f4f3f0">
+<title>Kör Hakemlik Anonimleştirici — VuMaTech Tools</title>
+<meta name="description" content="Yazar ve kurum adlarını gizler, kendi atıflarınızı ve birinci şahıs ifadelerini işaretler. Çift kör başvurular için.">
+<link rel="canonical" href="https://tools.vumatech.net/araclar/kor-hakemlik-anonimlestirici/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="VuMaTech Tools">
+<meta property="og:title" content="Kör Hakemlik Anonimleştirici — VuMaTech Tools">
+<meta property="og:description" content="Yazar ve kurum adlarını gizler, kendi atıflarınızı ve birinci şahıs ifadelerini işaretler. Çift kör başvurular için.">
+<meta property="og:url" content="https://tools.vumatech.net/araclar/kor-hakemlik-anonimlestirici/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/assets/kit.css">
+<script>
+/* Tema, sayfa çizilmeden uygulanır; yoksa karanlık temada bir an beyaz parlama olur.
+   Kayıtlı tercih yoksa işletim sistemi ayarı kullanılır. */
+(function(){try{
+  var t=localStorage.getItem("vmt_theme");
+  if(t!=="dark"&&t!=="light"){
+    t=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";
+  }
+  document.documentElement.setAttribute("data-theme",t);
+  var m=document.querySelector('meta[name="theme-color"]');
+  if(m)m.setAttribute("content", t==="dark"?"#0d1014":"#f4f3f0");
+}catch(e){document.documentElement.setAttribute("data-theme","light");}})();
+</script>
+</head>
+<body>
+<div class="shell">
+  <div class='crest'>
+    <a class='name' href="/">VuMaTech <b>Tools</b></a>
+    <span class='crest-right'>
+<div class='langpick' id='langpick' role='group' aria-label='Dil'>
+        <button class='langbtn' data-lang='tr' title='Türkçe' aria-label='Türkçe'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e30a17'/><circle cx='11.5' cy='10' r='5' fill='#fff'/><circle cx='13' cy='10' r='4' fill='#e30a17'/><path fill='#fff' d='M17.5 10l4.2-1.4-2.6 3.6v-4.4l2.6 3.6z'/></svg></button>
+        <button class='langbtn' data-lang='ky' title='Кыргызча' aria-label='Кыргызча'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e8112d'/><circle cx='15' cy='10' r='4.2' fill='#ffef00'/><circle cx='15' cy='10' r='2.4' fill='none' stroke='#e8112d' stroke-width='.5'/><g stroke='#ffef00' stroke-width='.5'><path d='M15 4v12M9 10h12M10.6 5.6l8.8 8.8M19.4 5.6l-8.8 8.8'/></g></svg></button>
+        <button class='langbtn' data-lang='ru' title='Русский' aria-label='Русский'><svg viewBox='0 0 30 20'><rect width='30' height='6.67' fill='#fff'/><rect y='6.67' width='30' height='6.67' fill='#0039a6'/><rect y='13.33' width='30' height='6.67' fill='#d52b1e'/></svg></button>
+        <button class='langbtn' data-lang='en' title='English' aria-label='English'><svg viewBox='0 0 30 20'><clipPath id='uk'><rect width='30' height='20'/></clipPath><g clip-path='url(#uk)'><rect width='30' height='20' fill='#012169'/><path d='M0 0l30 20M30 0L0 20' stroke='#fff' stroke-width='4'/><path d='M0 0l30 20M30 0L0 20' stroke='#c8102e' stroke-width='2'/><path d='M15 0v20M0 10h30' stroke='#fff' stroke-width='6'/><path d='M15 0v20M0 10h30' stroke='#c8102e' stroke-width='3.5'/></g></svg></button>
+      </div>
+      <button class='themebtn' id='themebtn' aria-label='Tema'>
+        <svg class='i-moon' viewBox='0 0 24 24'><path d='M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z'/></svg>
+        <svg class='i-sun' viewBox='0 0 24 24'><circle cx='12' cy='12' r='4.2'/><path d='M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8'/></svg>
+      </button>
+      <a class='up' href='https://vumatech.net'>vumatech.net</a>
+    </span>
+  </div>
+
+
+<a class="back" href="/" data-i18n="back">← bütün araçlar</a>
+<h1 class="view">Kör Hakemlik Anonimleştirici</h1>
+<p class="priv"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> <span data-i18n="priv">Bu araç tamamen tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</span></p>
+<div class="tk">
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Makale metni</p>
+  <div class="tk-field"><label for="kh-in">Girdi</label>
+    <textarea id="kh-in" class="tk-area" spellcheck="false" placeholder="Makalenin tam metnini yapıştırın…"></textarea></div>
+  <div class="tk-field"><label for="kh-out">Anonimleştirilmiş</label>
+    <textarea id="kh-out" class="tk-area" readonly spellcheck="false"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="kh-go">Anonimleştir</button>
+    <button class="tk-btn ghost" id="kh-copy">Kopyala</button>
+    <span class="tk-msg" id="kh-msg"></span>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Gizlenecekler</p>
+  <div class="tk-field"><label for="kh-names">Yazar adları — her satıra bir kişi</label>
+    <textarea id="kh-names" class="tk-area" style="min-height:80px" placeholder="Mahmut Vural&#10;Nasikat Alieva"></textarea></div>
+  <div class="tk-field"><label for="kh-inst">Kurum, şehir, proje adı — her satıra bir tane</label>
+    <textarea id="kh-inst" class="tk-area" style="min-height:80px" placeholder="Kırgızistan-Türkiye Manas Üniversitesi&#10;KTMÜ&#10;Bişkek"></textarea></div>
+  <div class="tk-field"><label for="kh-tag">Yerine yazılacak</label>
+    <input type="text" id="kh-tag" class="tk-in" value="[GİZLENDİ]"></div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="kh-self" checked><span>Kendi atıflarını işaretle<em>Yazar soyadını içeren atıflar raporda listelenir</em></span></label>
+    <label><input type="checkbox" id="kh-ack" checked><span>Teşekkür ve destek bölümünü ayıkla</span></label>
+    <label><input type="checkbox" id="kh-mail" checked><span>E-posta, ORCID ve bağlantıları gizle</span></label>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Denetim raporu</p>
+  <div class="tk-out" id="kh-rep" style="max-height:300px"><span class="tk-blank">“Anonimleştir”e basın.</span></div>
+  <p class="tk-note">Metin anonimleşse bile <strong>dosyanın kendisi kimliğinizi
+     taşır</strong>: Word belgesinin yazar alanı, düzenleme geçmişi ve oturum
+     kimlikleri. Anonim dosyayı göndermeden önce
+     <em>Meta Data Cleaner</em> aracından da geçirin.</p>
+  <p class="tk-note">Kendi atıflarınızı silmeyin — hakemlerin çalışmayı
+     değerlendirebilmesi için gereklidirler. Yaygın uygulama, üçüncü şahıs
+     ağzına çevirmektir: "kendi önceki çalışmamızda" yerine "Vural (2021)".</p>
+</div>
+</div>
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+function esc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}
+function lines(id){return $(id).value.split("\n").map(function(x){return x.trim()}).filter(Boolean)}
+var FIRST=/\b(kendi (?:önceki )?çalışma(?:m|mız)(?:da|ızda)?|çalışmamızda|makalemizde|tarafımızdan|yazar(?:ın|ların) (?:kendi )?(?:önceki )?çalışma)/gi;
+var ACK=/(^|\n)\s*(teşekkür|teşekkürler|acknowledg(?:e)?ments?|destek(?:leyen)? (?:kurum|beyan)|funding)\s*:?\s*\n?[\s\S]{0,700}?(?=\n\s*\n|\n\s*[A-ZÇĞİÖŞÜ][^\n]{0,60}\n|$)/gi;
+$("kh-go").addEventListener("click",function(){
+  var t=$("kh-in").value;
+  if(!t.trim()){$("kh-msg").className="tk-msg err";$("kh-msg").textContent="metin girin";return}
+  $("kh-msg").className="tk-msg";
+  var tag=$("kh-tag").value||"[GİZLENDİ]";
+  var names=lines("kh-names"),inst=lines("kh-inst");
+  var rep=[],hits=0;
+
+  // soyadları da tek başına yakala
+  var terms=[];
+  names.forEach(function(n){
+    terms.push(n);
+    var p=n.split(/\s+/);
+    if(p.length>1)terms.push(p[p.length-1]);
+  });
+  inst.forEach(function(i){terms.push(i)});
+  terms=terms.filter(function(v,i,a){return v.length>2&&a.indexOf(v)===i})
+             .sort(function(a,b){return b.length-a.length});
+
+  var selfCites=[];
+  if($("kh-self").checked){
+    names.forEach(function(n){
+      var sur=n.split(/\s+/).pop();
+      var re=new RegExp("[^\\n]{0,60}\\b"+esc(sur)+"\\b[^\\n]{0,20}\\(?\\d{4}[^\\n]{0,20}","g"),m;
+      while((m=re.exec(t))!==null)if(/\d{4}/.test(m[0]))selfCites.push(m[0].trim());
+    });
+  }
+  var out=t;
+  if($("kh-ack").checked){
+    var found=out.match(ACK);
+    if(found){rep.push("Ayıklanan bölüm: teşekkür / destek ("+found.length+" adet)");
+      out=out.replace(ACK,"\n\n"+tag+" (teşekkür ve destek beyanı kör sürümden çıkarıldı)\n\n")}
+  }
+  if($("kh-mail").checked){
+    var c=(out.match(/[\w.+-]+@[\w.-]+\.\w{2,}/g)||[]).length;
+    out=out.replace(/[\w.+-]+@[\w.-]+\.\w{2,}/g,tag);
+    var o=(out.match(/\b\d{4}-\d{4}-\d{4}-\d{3}[\dX]\b/g)||[]).length;
+    out=out.replace(/\b\d{4}-\d{4}-\d{4}-\d{3}[\dX]\b/g,tag);
+    var u=(out.match(/https?:\/\/\S+/g)||[]).length;
+    out=out.replace(/https?:\/\/\S+/g,tag);
+    if(c+o+u)rep.push("Gizlenen iletişim verisi: "+c+" e-posta, "+o+" ORCID, "+u+" bağlantı");
+  }
+  terms.forEach(function(w){
+    var re=new RegExp("\\b"+esc(w)+"\\b","gi");
+    var n=(out.match(re)||[]).length;
+    if(n){out=out.replace(re,tag);hits+=n;rep.push("  "+w.padEnd(42).slice(0,42)+n+" kez gizlendi")}
+  });
+  if(hits)rep.unshift("GİZLENEN ADLAR VE KURUMLAR ("+hits+" geçiş)");
+
+  var fp=(out.match(FIRST)||[]);
+  if(fp.length){
+    rep.push("");
+    rep.push("BİRİNCİ ŞAHIS İFADELERİ ("+fp.length+") — elle düzeltin");
+    fp.slice(0,8).forEach(function(x){rep.push("  “"+x+"”")});
+  }
+  if(selfCites.length){
+    rep.push("");
+    rep.push("KENDİ ATIFLARINIZ ("+selfCites.length+") — silmeyin, üçüncü şahıs ağzına çevirin");
+    selfCites.slice(0,10).forEach(function(x){rep.push("  …"+x.slice(0,80)+"…")});
+  }
+  if(!rep.length)rep.push("Gizlenecek bir şey bulunamadı. Yazar ve kurum adlarını girdiğinizden emin olun.");
+  $("kh-out").value=out;
+  $("kh-rep").textContent=rep.join("\n");
+  $("kh-msg").textContent=hits+" geçiş gizlendi";
+});
+$("kh-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("kh-out").value).then(function(){$("kh-msg").textContent="kopyalandı"})});
+})();
+</script>
+</div>
+  <div class='adzone'>
+    <span class='lbl'>reklam</span>
+    <!-- AdSense birimi: Google'dan aldığınız data-ad-slot değerini yazıp
+         aşağıdaki iki satırın yorumunu kaldırın.
+    <script async='async' src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5193342573714090' crossorigin='anonymous'/>
+    <ins class='adsbygoogle' style='display:block' data-ad-client='ca-pub-5193342573714090' data-ad-slot='XXXXXXXXXX' data-ad-format='auto' data-full-width-responsive='true'/>
+    -->
+  </div>
+
+  <div class='promo'>
+    <p class='kicker' data-i18n='promo_kicker'>VuMaTech Studio · Bişkek</p>
+    <h2><span data-i18n='promo_h2_a'>Bu araçları yapan ekip </span><em data-i18n='promo_h2_b'>sizin sitenizi de yapar</em></h2>
+    <p class='lead' data-i18n='promo_lead'>Kurumsal siteden dijital menüye, akademik dergi sistemlerinden oyun portalına kadar. Tasarım, kurulum ve yıllık bakım tek elden.</p>
+    <div class='svcs'>
+      <a class='svc' href='https://web.vumatech.net'>
+        <b data-i18n='svc_web'>Web Tasarım</b><span data-i18n='svc_web_d'>Kurumsal site, portfolyo, tanıtım sayfası</span></a>
+      <a class='svc' href='https://menu.vumatech.net'>
+        <b data-i18n='svc_menu'>QR Dijital Menü</b><span data-i18n='svc_menu_d'>Çok dilli menü, anlık güncelleme, baskı maliyeti yok</span></a>
+      <a class='svc' href='https://academy.vumatech.net'>
+        <b data-i18n='svc_acad'>Akademik Web</b><span data-i18n='svc_acad_d'>Akademisyen sitesi, özgeçmiş, yayın listesi</span></a>
+      <a class='svc' href='https://ojs.vumatech.net'>
+        <b data-i18n='svc_ojs'>OJS Dergi Sistemi</b><span data-i18n='svc_ojs_d'>Kurulum, tema, hakem süreci yönetimi</span></a>
+    </div>
+    <div class='cta'>
+      <a class='btn' id='tg-btn' href='https://t.me/vumatech' target='_blank' rel='noopener'><svg viewBox='0 0 24 24'><path d='M9.8 15.3l-.4 4c.5 0 .8-.2 1.1-.5l2.6-2.4 5.4 3.9c1 .5 1.7.3 2-1l3.6-16.8c.3-1.2-.5-1.8-1.4-1.4L1.3 9.9c-1.2.5-1.2 1.1-.2 1.4l5.3 1.6L18.6 5c.6-.4 1.1-.2.7.2z'/></svg>
+        <span data-i18n='promo_wa'>Telegram: @vumatech</span></a>
+      <a class='btn line' href='https://vumatech.net' data-i18n='promo_all'>Tüm hizmetler</a>
+    </div>
+  </div>
+
+  <div class='foot'>
+    <div class='cols'>
+      <div>
+        <a class='brand' href='https://vumatech.net'>VuMaTech <b>Studio</b></a>
+        <p data-i18n='foot_about'>Bişkek merkezli web tasarım ve dijital hizmet atölyesi. Türkiye ve Kırgızistan'da çalışır.</p>
+        <p data-i18n='foot_about2'>Bu sayfadaki bütün araçlar ücretsizdir ve tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</p>
+      </div>
+      <div>
+        <h3 data-i18n='foot_services'>Hizmetler</h3>
+        <ul>
+          <li><a href='https://web.vumatech.net'>Web tasarım</a></li>
+          <li><a href='https://menu.vumatech.net'>QR dijital menü</a></li>
+          <li><a href='https://academy.vumatech.net'>Akademik web</a></li>
+          <li><a href='https://ojs.vumatech.net'>OJS dergi sistemi</a></li>
+          <li><a href='https://game.vumatech.net'>Oyun portalı</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n='foot_contact'>İletişim</h3>
+        <ul>
+          <li><a id='tg-foot' href='https://t.me/vumatech'>Telegram · @vumatech</a></li>
+          <li><a href='mailto:vumatechnet@gmail.com'>vumatechnet@gmail.com</a></li>
+          <li><a href='https://vumatech.net'>vumatech.net</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class='base'>
+      <span>© VuMaTech Studio · Bişkek</span>
+      <span><a href="/hakkinda/">Hakkında</a> · <a href="/gizlilik-ve-kvkk/">Gizlilik ve KVKK</a> · </span><span><a href="/">araç dizini</a> · <a href='https://vumatech.net'>VuMaTech</a></span>
+    </div>
+  </div>
+
+</div>
+
+
+</div>
+<script src="/assets/site.js"></script>
+
+</body>
+</html>

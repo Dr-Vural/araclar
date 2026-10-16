@@ -1,0 +1,94 @@
+<div class="tk-cols">
+<div>
+  <div class="tk-drop" id="cp-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M9 4L4 9M4 4v5h5M15 20l5-5M20 20v-5h-5"/></svg>
+    <strong>Tek görsel bırakın</strong>
+    <span>Önce ve sonrayı yan yana görürsünüz</span>
+  </div>
+  <input type="file" id="cp-file" class="tk-hidden" accept="image/*">
+
+  <div class="tk-panel">
+    <p class="tk-h">Sıkıştırma</p>
+    <div class="tk-field"><label for="cp-q">Kalite — <span class="tk-val" id="cp-qv">75</span></label>
+      <input type="range" id="cp-q" class="tk-range" min="20" max="100" value="75"></div>
+    <div class="tk-field"><label for="cp-fmt">Biçim</label>
+      <select id="cp-fmt" class="tk-sel">
+        <option value="image/jpeg">JPEG</option>
+        <option value="image/webp" selected>WebP</option>
+      </select></div>
+    <div class="tk-field"><label for="cp-max">En uzun kenar sınırı (px, isteğe bağlı)</label>
+      <input type="number" id="cp-max" class="tk-in" min="100" placeholder="dokunma"></div>
+    <div class="tk-acts">
+      <span class="tk-msg" id="cp-msg">dosya bekleniyor</span>
+    </div>
+  </div>
+
+  <div class="tk-panel">
+    <p class="tk-h">Ölçüm</p>
+    <div class="tk-stats">
+      <div class="tk-stat"><b id="cp-s1">—</b><span>özgün</span></div>
+      <div class="tk-stat ok"><b id="cp-s2">—</b><span>sıkıştırılmış</span></div>
+      <div class="tk-stat"><b id="cp-s3">—</b><span>kazanç</span></div>
+    </div>
+    <div class="tk-acts"><a class="tk-btn" id="cp-dl" style="display:none;text-decoration:none">İndir</a></div>
+  </div>
+</div>
+
+<div class="tk-panel">
+  <p class="tk-h">Önizleme</p>
+  <div class="tk-prev" id="cp-prev"><p class="tk-blank">Kaydırıcıyı oynattıkça çıktı anında yeniden hesaplanır.</p></div>
+  <p class="tk-note">Kalite 75 çoğu fotoğraf için gözle ayırt edilemeyen sonuç verir.
+     Grafik, ekran görüntüsü ve keskin kenarlı görsellerde 85 üstünü tercih edin.</p>
+</div>
+</div>
+
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var drop=$("cp-drop"),inp=$("cp-file"),msg=$("cp-msg"),prev=$("cp-prev"),dl=$("cp-dl");
+var img=null,orig=0,name="gorsel",t=null;
+function kb(n){return n<1024?n+" B":n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB"}
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files[0])});
+inp.addEventListener("change",function(e){take(e.target.files[0])});
+["cp-q","cp-fmt","cp-max"].forEach(function(id){
+  $(id).addEventListener("input",function(){
+    if(id==="cp-q")$("cp-qv").textContent=this.value;
+    clearTimeout(t);t=setTimeout(run,120);
+  });
+});
+function take(f){
+  if(!f||!/^image\//.test(f.type)){msg.textContent="g\u00f6rsel bulunamad\u0131";msg.className="tk-msg err";return}
+  msg.className="tk-msg";orig=f.size;name=f.name.replace(/\.[^.]+$/,"");
+  var u=URL.createObjectURL(f),im=new Image();
+  im.onload=function(){img=im;URL.revokeObjectURL(u);$("cp-s1").textContent=kb(orig);run()};
+  im.src=u;
+}
+function run(){
+  if(!img)return;
+  msg.textContent="hesaplan\u0131yor\u2026";
+  var q=parseInt($("cp-q").value,10)/100,type=$("cp-fmt").value;
+  var max=parseInt($("cp-max").value,10)||0;
+  var w=img.naturalWidth,h=img.naturalHeight;
+  if(max&&Math.max(w,h)>max){var s=max/Math.max(w,h);w=Math.round(w*s);h=Math.round(h*s)}
+  var c=document.createElement("canvas");c.width=w;c.height=h;
+  var x=c.getContext("2d");x.imageSmoothingQuality="high";
+  if(type==="image/jpeg"){x.fillStyle="#fff";x.fillRect(0,0,w,h)}
+  x.drawImage(img,0,0,w,h);
+  c.toBlob(function(b){
+    var pct=orig?Math.round((1-b.size/orig)*100):0;
+    $("cp-s2").textContent=kb(b.size);
+    $("cp-s3").textContent=(pct>0?"\u2212":"+")+Math.abs(pct)+"%";
+    prev.innerHTML="";prev.appendChild(c);
+    var url=URL.createObjectURL(b);
+    dl.href=url;dl.download=name+"-min."+type.split("/")[1].replace("jpeg","jpg");
+    dl.style.display="inline-block";
+    msg.textContent=w+"\u00d7"+h+" \u00b7 kalite "+Math.round(q*100);
+  },type,q);
+}
+})();
+//]]></script>

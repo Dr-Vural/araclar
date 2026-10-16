@@ -1,0 +1,125 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<div class="tk-cols">
+<div>
+  <div class="tk-drop" id="pn-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6v20h12V8z M14 2v6h4"/><path d="M10 18h4"/></svg>
+    <strong>PDF bırakın</strong><span>Birleştirdiğiniz belgeye numara vermek için</span>
+  </div>
+  <input type="file" id="pn-file" class="tk-hidden" accept="application/pdf,.pdf">
+  <div class="tk-panel">
+    <p class="tk-h">Numara</p>
+    <div class="tk-two">
+      <div class="tk-field"><label for="pn-pos">Konum</label>
+        <select id="pn-pos" class="tk-sel">
+          <option value="bc">Alt orta</option><option value="br">Alt sağ</option>
+          <option value="bl">Alt sol</option><option value="tc">Üst orta</option>
+          <option value="tr">Üst sağ</option><option value="tl">Üst sol</option>
+          <option value="bo">Alt dış (çift/tek değişir)</option>
+        </select></div>
+      <div class="tk-field"><label for="pn-fmt">Biçim</label>
+        <select id="pn-fmt" class="tk-sel">
+          <option value="n">1</option><option value="-n-">- 1 -</option>
+          <option value="n/t">1 / 20</option><option value="Sayfa n">Sayfa 1</option>
+          <option value="Sayfa n / t">Sayfa 1 / 20</option>
+          <option value="roman">i, ii, iii</option>
+        </select></div>
+    </div>
+    <div class="tk-two">
+      <div class="tk-field"><label for="pn-start">Başlangıç numarası</label>
+        <input type="number" id="pn-start" class="tk-in" value="1"></div>
+      <div class="tk-field"><label for="pn-skip">İlk kaç sayfa atlansın</label>
+        <input type="number" id="pn-skip" class="tk-in" value="0" min="0"></div>
+    </div>
+    <div class="tk-two">
+      <div class="tk-field"><label for="pn-size">Punto — <span class="tk-val" id="pn-sv">11</span></label>
+        <input type="range" id="pn-size" class="tk-range" min="7" max="20" value="11"></div>
+      <div class="tk-field"><label for="pn-mg">Kenar boşluğu (mm) — <span class="tk-val" id="pn-mv">15</span></label>
+        <input type="range" id="pn-mg" class="tk-range" min="5" max="35" value="15"></div>
+    </div>
+    <div class="tk-acts">
+      <button class="tk-btn" id="pn-go" disabled>Numaraları ekle</button>
+      <span class="tk-msg" id="pn-msg">dosya bekleniyor</span>
+    </div>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Sonuç</p>
+  <div id="pn-out"><p class="tk-blank">PDF bırakın, konumu seçip numaraları ekleyin.</p></div>
+  <p class="tk-note">Atlanan sayfalar numarasız kalır ama sayıma dahil edilmez;
+     kapak ve içindekiler için "ilk 2 sayfa atlansın, başlangıç 1" doğru ayardır.
+     Roma rakamı seçeneği ön bölüm sayfaları içindir.</p>
+  <p class="tk-note">Numara gömülü Helvetica ile yazılır ve yalnız rakam ile
+     "Sayfa" kelimesi içerir; Türkçe özel harf gerekmediği için gömme sorunu
+     çıkmaz.</p>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var drop=$("pn-drop"),inp=$("pn-file"),msg=$("pn-msg"),go=$("pn-go");
+var buf=null,name="belge";
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files[0])});
+inp.addEventListener("change",function(e){take(e.target.files[0])});
+$("pn-size").addEventListener("input",function(){$("pn-sv").textContent=this.value});
+$("pn-mg").addEventListener("input",function(){$("pn-mv").textContent=this.value});
+function take(f){
+  if(!f)return;name=f.name.replace(/\.pdf$/i,"");
+  f.arrayBuffer().then(function(b){buf=b;
+    return PDFLib.PDFDocument.load(b,{ignoreEncryption:true})})
+   .then(function(d){go.disabled=false;msg.className="tk-msg";
+     msg.textContent=d.getPageCount()+" sayfa yuklendi"})
+   .catch(function(e){msg.className="tk-msg err";
+     msg.textContent=/encrypt|password/i.test(e.message)?"parola korumali dosya":"okunamadi"});
+}
+function roman(n){
+  var v=[1000,900,500,400,100,90,50,40,10,9,5,4,1],
+      s=["m","cm","d","cd","c","xc","l","xl","x","ix","v","iv","i"],r="";
+  for(var i=0;i<v.length;i++)while(n>=v[i]){r+=s[i];n-=v[i]}
+  return r;
+}
+function label(i,total,fmt){
+  if(fmt==="roman")return roman(i);
+  return fmt.replace(/\bn\b/,String(i)).replace(/\bt\b/,String(total));
+}
+go.addEventListener("click",function(){
+  msg.className="tk-msg";msg.textContent="ekleniyor...";go.disabled=true;
+  var pos=$("pn-pos").value,fmt=$("pn-fmt").value;
+  var start=parseInt($("pn-start").value,10)||1;
+  var skip=Math.max(0,parseInt($("pn-skip").value,10)||0);
+  var size=+$("pn-size").value,mg=+$("pn-mg").value*2.83465;
+  PDFLib.PDFDocument.load(buf,{ignoreEncryption:true}).then(function(doc){
+    return doc.embedFont(PDFLib.StandardFonts.Helvetica).then(function(font){
+      var pages=doc.getPages(),total=pages.length-skip;
+      pages.forEach(function(p,k){
+        if(k<skip)return;
+        var num=start+(k-skip);
+        var txt=label(num,total+start-1,fmt);
+        var s=p.getSize(),w=font.widthOfTextAtSize(txt,size);
+        var top=pos[0]==="t",x;
+        var side=pos[1];
+        if(pos==="bo")side=(num%2===0)?"l":"r";
+        if(side==="c")x=(s.width-w)/2;
+        else if(side==="l")x=mg;
+        else x=s.width-mg-w;
+        var y=top?(s.height-mg-size*0.8):mg;
+        p.drawText(txt,{x:x,y:y,size:size,font:font,
+          color:PDFLib.rgb(0.15,0.17,0.2)});
+      });
+      return doc.save();
+    });
+  }).then(function(b){
+    var blob=new Blob([b],{type:"application/pdf"});
+    $("pn-out").innerHTML='<div class="tk-acts"><a class="tk-btn" style="text-decoration:none" href="'
+      +URL.createObjectURL(blob)+'" download="'+esc(name)+'-numarali.pdf">'
+      +esc(name)+'-numarali.pdf indir</a></div>';
+    msg.textContent="numaralar eklendi";go.disabled=false;
+  }).catch(function(e){msg.className="tk-msg err";msg.textContent=e.message;go.disabled=false});
+});
+})();
+//]]></script>

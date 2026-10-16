@@ -1,0 +1,132 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<div class="tk-cols">
+<div>
+  <div class="tk-drop" id="ip-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M3 5h18v14H3z M3 16l5-5 4 4 3-3 6 6"/></svg>
+    <strong>Görselleri bırakın</strong>
+    <span>Her görsel bir sayfa olur — sırayı değiştirebilirsiniz</span>
+  </div>
+  <input type="file" id="ip-file" class="tk-hidden" multiple accept="image/*">
+  <div class="tk-panel">
+    <p class="tk-h">Sayfa</p>
+    <div class="tk-field"><label for="ip-size">Kağıt</label>
+      <select id="ip-size" class="tk-sel">
+        <option value="A4">A4 — 210 × 297 mm</option>
+        <option value="A5">A5 — 148 × 210 mm</option>
+        <option value="Letter">Letter — 216 × 279 mm</option>
+        <option value="fit">Görselin kendi boyutu</option>
+      </select></div>
+    <div class="tk-field"><label for="ip-or">Yön</label>
+      <select id="ip-or" class="tk-sel">
+        <option value="auto">Görsele göre otomatik</option>
+        <option value="p">Dikey</option><option value="l">Yatay</option></select></div>
+    <div class="tk-field"><label for="ip-marg">Kenar boşluğu (mm) — <span class="tk-val" id="ip-mv">10</span></label>
+      <input type="range" id="ip-marg" class="tk-range" min="0" max="40" value="10"></div>
+    <div class="tk-field"><label for="ip-q">JPEG kalitesi — <span class="tk-val" id="ip-qv">85</span></label>
+      <input type="range" id="ip-q" class="tk-range" min="40" max="100" value="85"></div>
+    <div class="tk-acts">
+      <button class="tk-btn" id="ip-go" disabled>PDF oluştur</button>
+      <button class="tk-btn ghost" id="ip-clear">Temizle</button>
+      <span class="tk-msg" id="ip-msg">dosya bekleniyor</span>
+    </div>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Sayfa sırası</p>
+  <div id="ip-list"><p class="tk-blank">Görselleri bırakın.</p></div>
+  <div id="ip-res"></div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var PAPER={A4:[595.28,841.89],A5:[419.53,595.28],Letter:[612,792]};
+var drop=$("ip-drop"),inp=$("ip-file"),msg=$("ip-msg"),go=$("ip-go"),list=$("ip-list");
+var items=[];
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function kb(n){return n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB"}
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files)});
+inp.addEventListener("change",function(e){take(e.target.files)});
+["ip-marg","ip-q"].forEach(function(id){$(id).addEventListener("input",function(){
+  $(id==="ip-marg"?"ip-mv":"ip-qv").textContent=this.value})});
+$("ip-clear").addEventListener("click",function(){items=[];render();$("ip-res").innerHTML=""});
+function take(fl){
+  Array.prototype.forEach.call(fl,function(f){if(/^image\//.test(f.type))items.push(f)});
+  render();
+}
+function render(){
+  go.disabled=!items.length;
+  if(!items.length){list.innerHTML='<p class="tk-blank">G\u00f6rselleri b\u0131rak\u0131n.</p>';
+    msg.textContent="dosya bekleniyor";return}
+  msg.textContent=items.length+" g\u00f6rsel \u00b7 "+items.length+" sayfa";
+  list.innerHTML='<ul class="tk-list">'+items.map(function(f,i){
+    return '<li><span class="sz">'+(i+1)+'</span><span class="nm">'+esc(f.name)+'</span>'
+      +'<span class="sz">'+kb(f.size)+'</span>'
+      +'<span><button class="tk-btn ghost" data-up="'+i+'" style="padding:3px 9px;font-size:12px">\u2191</button> '
+      +'<button class="tk-btn ghost" data-dn="'+i+'" style="padding:3px 9px;font-size:12px">\u2193</button> '
+      +'<button class="tk-btn ghost" data-rm="'+i+'" style="padding:3px 9px;font-size:12px">\u00d7</button></span></li>';
+  }).join("")+'</ul>';
+}
+list.addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  var u=b.getAttribute("data-up"),d=b.getAttribute("data-dn"),r=b.getAttribute("data-rm");
+  if(u!==null&&+u>0){var i=+u,t=items[i];items[i]=items[i-1];items[i-1]=t}
+  else if(d!==null&&+d<items.length-1){var j=+d,s=items[j];items[j]=items[j+1];items[j+1]=s}
+  else if(r!==null)items.splice(+r,1);
+  render();
+});
+function toJpeg(f,q){
+  return new Promise(function(res,rej){
+    var u=URL.createObjectURL(f),im=new Image();
+    im.onload=function(){
+      var c=document.createElement("canvas");c.width=im.naturalWidth;c.height=im.naturalHeight;
+      var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);
+      x.drawImage(im,0,0);URL.revokeObjectURL(u);
+      res({data:c.toDataURL("image/jpeg",q),w:c.width,h:c.height});
+    };
+    im.onerror=function(){URL.revokeObjectURL(u);rej(new Error(f.name+" a\u00e7\u0131lamad\u0131"))};
+    im.src=u;
+  });
+}
+go.addEventListener("click",function(){
+  msg.className="tk-msg";msg.textContent="olu\u015fturuluyor\u2026";go.disabled=true;
+  var paper=$("ip-size").value,orient=$("ip-or").value;
+  var mg=+$("ip-marg").value*2.83465,q=+$("ip-q").value/100;
+  PDFLib.PDFDocument.create().then(function(doc){
+    var chain=Promise.resolve();
+    items.forEach(function(f){
+      chain=chain.then(function(){
+        return toJpeg(f,q).then(function(o){
+          return doc.embedJpg(o.data).then(function(im){
+            var pw,ph;
+            if(paper==="fit"){pw=o.w*0.75+mg*2;ph=o.h*0.75+mg*2}
+            else{
+              var P=PAPER[paper],land=orient==="l"||(orient==="auto"&&o.w>o.h);
+              pw=land?P[1]:P[0];ph=land?P[0]:P[1];
+            }
+            var page=doc.addPage([pw,ph]);
+            var aw=pw-mg*2,ah=ph-mg*2;
+            var s=Math.min(aw/o.w,ah/o.h);
+            var w=o.w*s,h=o.h*s;
+            page.drawImage(im,{x:(pw-w)/2,y:(ph-h)/2,width:w,height:h});
+          });
+        });
+      });
+    });
+    return chain.then(function(){return doc.save()});
+  }).then(function(b){
+    var blob=new Blob([b],{type:"application/pdf"});
+    $("ip-res").innerHTML='<p class="tk-h2">Sonu\u00e7</p><div class="tk-out">'
+      +items.length+' sayfa \u00b7 '+kb(blob.size)+'</div>'
+      +'<div class="tk-acts"><a class="tk-btn" style="text-decoration:none" href="'
+      +URL.createObjectURL(blob)+'" download="belge.pdf">belge.pdf indir</a></div>';
+    msg.textContent="olu\u015fturuldu";go.disabled=false;
+  }).catch(function(e){msg.className="tk-msg err";msg.textContent=e.message;go.disabled=false});
+});
+})();
+//]]></script>

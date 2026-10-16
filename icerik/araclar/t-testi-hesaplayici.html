@@ -1,0 +1,145 @@
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Veri</p>
+  <div class="tk-field"><label for="tt-mode">Test türü</label>
+    <select id="tt-mode" class="tk-sel">
+      <option value="ind">Bağımsız iki grup</option>
+      <option value="paired">Eşleştirilmiş (öntest-sontest)</option>
+      <option value="one">Tek örneklem</option>
+    </select></div>
+  <div class="tk-two">
+    <div class="tk-field"><label for="tt-a" id="tt-la">1. grup</label>
+      <textarea id="tt-a" class="tk-area" style="min-height:200px" spellcheck="false" placeholder="4,2&#10;3,8&#10;5,1"></textarea></div>
+    <div class="tk-field" id="tt-bw"><label for="tt-b" id="tt-lb">2. grup</label>
+      <textarea id="tt-b" class="tk-area" style="min-height:200px" spellcheck="false" placeholder="3,1&#10;2,9&#10;3,4"></textarea></div>
+  </div>
+  <div class="tk-field" id="tt-mw" style="display:none"><label for="tt-mu">Karşılaştırılacak değer (μ₀)</label>
+    <input type="number" id="tt-mu" class="tk-in" value="0" step="any"></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="tt-go">Hesapla</button>
+    <button class="tk-btn ghost" id="tt-copy">APA cümlesini kopyala</button>
+    <span class="tk-msg" id="tt-msg"></span>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Sonuç</p>
+  <div class="tk-stats">
+    <div class="tk-stat"><b id="tt-t">—</b><span>t</span></div>
+    <div class="tk-stat"><b id="tt-df">—</b><span>sd</span></div>
+    <div class="tk-stat ok"><b id="tt-p">—</b><span>p (iki yönlü)</span></div>
+    <div class="tk-stat"><b id="tt-d">—</b><span>Cohen d</span></div>
+  </div>
+  <div class="tk-out" id="tt-out">—</div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">APA raporu</p>
+  <div class="tk-out" id="tt-apa" style="font-family:var(--sans);font-size:14.5px">—</div>
+  <p class="tk-note">Bağımsız örneklem testinde varyansların eşitliği
+     <strong>varsayılmaz</strong>; Welch düzeltmesi uygulanır (SPSS'in "eşit
+     varyans varsayılmaz" satırı). Bu, eşit olmayan grup büyüklüklerinde daha
+     güvenli sonuçtur. p değeri t dağılımından hesaplanır; çok küçük değerler
+     için "p &lt; .001" yazılır.</p>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+function nums(t){return (t.match(/-?\d+(?:[.,]\d+)?/g)||[]).map(function(x){return parseFloat(x.replace(",","."))})}
+function mean(a){return a.reduce(function(s,x){return s+x},0)/a.length}
+function ss(a,m){return a.reduce(function(s,x){return s+(x-m)*(x-m)},0)}
+function fmt(n,d){return n.toFixed(d===undefined?3:d)}
+// t da\u011f\u0131l\u0131m\u0131 iki y\u00f6nl\u00fc p \u2014 s\u00fcrekli kesir ile d\u00fczenlenmi\u015f beta
+function betacf(a,b,x){
+  var MAXIT=200,EPS=3e-12,FPMIN=1e-300;
+  var qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;
+  if(Math.abs(d)<FPMIN)d=FPMIN;d=1/d;var h=d;
+  for(var m=1;m<=MAXIT;m++){
+    var m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));
+    d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;
+    c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;d=1/d;h*=d*c;
+    aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));
+    d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;
+    c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;d=1/d;
+    var del=d*c;h*=del;if(Math.abs(del-1)<EPS)break;
+  }
+  return h;
+}
+function gammaln(x){
+  var c=[76.18009172947146,-86.50532032941677,24.01409824083091,
+    -1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+  var y=x,t=x+5.5;t-=(x+0.5)*Math.log(t);var s=1.000000000190015;
+  for(var j=0;j<6;j++)s+=c[j]/++y;
+  return -t+Math.log(2.5066282746310005*s/x);
+}
+function ibeta(x,a,b){
+  if(x<=0)return 0;if(x>=1)return 1;
+  var bt=Math.exp(gammaln(a+b)-gammaln(a)-gammaln(b)+a*Math.log(x)+b*Math.log(1-x));
+  return x<(a+1)/(a+b+2)?bt*betacf(a,b,x)/a:1-bt*betacf(b,a,1-x)/b;
+}
+function pTwo(t,df){var x=df/(df+t*t);return ibeta(x,df/2,0.5)} // iki y\u00f6nl\u00fc
+function pstr(p){return p<0.001?"< .001":"= "+p.toFixed(3).replace(/^0/,"")}
+function run(){
+  var mode=$("tt-mode").value,a=nums($("tt-a").value),b=nums($("tt-b").value);
+  var t,df,d,line,rep;
+  if(mode==="one"){
+    if(a.length<2){err("en az 2 de\u011fer girin");return}
+    var mu=parseFloat($("tt-mu").value)||0,m=mean(a),n=a.length;
+    var sd=Math.sqrt(ss(a,m)/(n-1));
+    t=(m-mu)/(sd/Math.sqrt(n));df=n-1;d=(m-mu)/sd;
+    line="M = "+fmt(m,2)+", SD = "+fmt(sd,2)+", n = "+n+", \u03bc\u2080 = "+mu;
+    rep="Tek \u00f6rneklem t testi, \u00f6rneklem ortalamas\u0131n\u0131n ("+fmt(m,2)
+      +") test de\u011ferinden ("+mu+") ";
+  }else if(mode==="paired"){
+    if(a.length!==b.length||a.length<2){err("iki grup e\u015fit ve en az 2 de\u011fer olmal\u0131");return}
+    var diff=a.map(function(x,i){return x-b[i]}),md=mean(diff),nd=diff.length;
+    var sdd=Math.sqrt(ss(diff,md)/(nd-1));
+    t=md/(sdd/Math.sqrt(nd));df=nd-1;d=md/sdd;
+    line="M\u2081 = "+fmt(mean(a),2)+", M\u2082 = "+fmt(mean(b),2)+", fark = "+fmt(md,2)
+      +", SD(fark) = "+fmt(sdd,2)+", n = "+nd;
+    rep="E\u015fle\u015ftirilmi\u015f \u00f6rneklem t testi, iki \u00f6l\u00e7\u00fcm aras\u0131ndaki fark\u0131n ";
+  }else{
+    if(a.length<2||b.length<2){err("her grupta en az 2 de\u011fer olmal\u0131");return}
+    var m1=mean(a),m2=mean(b),n1=a.length,n2=b.length;
+    var v1=ss(a,m1)/(n1-1),v2=ss(b,m2)/(n2-1);
+    // Welch
+    t=(m1-m2)/Math.sqrt(v1/n1+v2/n2);
+    df=Math.pow(v1/n1+v2/n2,2)/(Math.pow(v1/n1,2)/(n1-1)+Math.pow(v2/n2,2)/(n2-1));
+    // Cohen d \u2014 birle\u015ftirilmi\u015f ss
+    var sp=Math.sqrt(((n1-1)*v1+(n2-1)*v2)/(n1+n2-2));
+    d=(m1-m2)/sp;
+    line="M\u2081 = "+fmt(m1,2)+" (SD = "+fmt(Math.sqrt(v1),2)+", n = "+n1+"), "
+      +"M\u2082 = "+fmt(m2,2)+" (SD = "+fmt(Math.sqrt(v2),2)+", n = "+n2+")";
+    rep="Ba\u011f\u0131ms\u0131z \u00f6rneklem t testi (Welch), iki grup ortalamas\u0131 aras\u0131ndaki fark\u0131n ";
+  }
+  var p=pTwo(t,df);
+  $("tt-t").textContent=fmt(t,2);
+  $("tt-df").textContent=fmt(df,mode==="ind"?1:0);
+  $("tt-p").textContent=pstr(p).replace("= ","");
+  $("tt-d").textContent=fmt(Math.abs(d),2);
+  var dsz=Math.abs(d)<0.2?"ihmal edilebilir":Math.abs(d)<0.5?"k\u00fc\u00e7\u00fck":
+          Math.abs(d)<0.8?"orta":"b\u00fcy\u00fck";
+  $("tt-out").textContent=line+"\n\nt("+fmt(df,mode==="ind"?1:0)+") = "+fmt(t,3)
+    +"\np "+pstr(p)+"\nCohen d = "+fmt(d,3)+"  ("+dsz+" etki)\n"
+    +(p<0.05?"Fark istatistiksel olarak anlaml\u0131 (\u03b1 = .05).":
+             "Fark istatistiksel olarak anlaml\u0131 de\u011fil (\u03b1 = .05).");
+  $("tt-apa").textContent=rep+(p<0.05?"anlaml\u0131 oldu\u011fu g\u00f6r\u00fclm\u00fc\u015ft\u00fcr":"anlaml\u0131 olmad\u0131\u011f\u0131 g\u00f6r\u00fclm\u00fc\u015ft\u00fcr")
+    +", t("+fmt(df,mode==="ind"?1:0)+") = "+fmt(t,2).replace(",",".")
+    +", p "+pstr(p)+", d = "+fmt(Math.abs(d),2).replace(",",".")+" ("+dsz+" etki).";
+  $("tt-msg").className="tk-msg";$("tt-msg").textContent="hesapland\u0131";
+}
+function err(m){$("tt-msg").className="tk-msg err";$("tt-msg").textContent=m}
+$("tt-mode").addEventListener("change",function(){
+  var m=this.value;
+  $("tt-bw").style.display=m==="one"?"none":"";
+  $("tt-mw").style.display=m==="one"?"":"none";
+  $("tt-la").textContent=m==="paired"?"\u00d6ntest":m==="one"?"Veri":"1. grup";
+  $("tt-lb").textContent=m==="paired"?"Sontest":"2. grup";
+});
+$("tt-go").addEventListener("click",run);
+$("tt-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("tt-apa").textContent).then(function(){$("tt-msg").textContent="kopyaland\u0131"})});
+})();
+//]]></script>

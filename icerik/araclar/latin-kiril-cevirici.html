@@ -1,0 +1,143 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Metin</p>
+  <div class="tk-field"><label for="lk-in">Girdi</label>
+    <textarea id="lk-in" class="tk-area" placeholder="Кыргыз Республикасынын билим берүү системасы"></textarea></div>
+  <div class="tk-field"><label for="lk-out">Çeviri</label>
+    <textarea id="lk-out" class="tk-area" readonly></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn ghost" id="lk-copy">Kopyala</button>
+    <button class="tk-btn ghost" id="lk-swap">Yönü çevir</button>
+    <button class="tk-btn ghost" id="lk-demo">Örnek</button>
+    <span class="tk-msg" id="lk-msg"></span>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Ayar</p>
+  <div class="tk-field"><label for="lk-sys">Sistem</label>
+    <select id="lk-sys" class="tk-sel">
+      <option value="kg">Kırgızca — Türkçe temelli latin</option>
+      <option value="ru">Rusça — uluslararası (BGN/PCGN)</option>
+      <option value="iso">Rusça — ISO 9 bilimsel</option>
+      <option value="tr2ru">Türkçe → Rusça Kiril (sesletim)</option>
+    </select></div>
+  <div class="tk-field"><label for="lk-dir">Yön</label>
+    <select id="lk-dir" class="tk-sel">
+      <option value="c2l">Kiril → Latin</option>
+      <option value="l2c">Latin → Kiril</option>
+    </select></div>
+  <p class="tk-h2">Sistemler arasındaki fark</p>
+  <p class="tk-note">Kırgızca sistemi <code>ө</code> → <code>ö</code>,
+     <code>ү</code> → <code>ü</code>, <code>ң</code> → <code>ñ</code> karşılıklarını
+     kullanır; Türkçe okuyan biri için doğal sonuç verir.
+     BGN/PCGN pasaport ve harita adlarında kullanılan İngilizce temelli sistemdir
+     (<code>ш</code> → <code>sh</code>). ISO 9 her Kiril harfine tek Latin harf
+     verir ve geri dönüştürülebilir (<code>ш</code> → <code>š</code>);
+     akademik metinlerde tercih edilir.</p>
+  <p class="tk-note">Latin → Kiril yönü sesletim tahminine dayanır ve her zaman
+     kusursuz değildir; özellikle <code>e</code>, <code>y</code> ve yumuşak
+     işaretlerde sonucu gözden geçirin.</p>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var KG={"\u0430":"a","\u0431":"b","\u0432":"v","\u0433":"g","\u0434":"d","\u0435":"e","\u0451":"yo","\u0436":"c","\u0437":"z",
+"\u0438":"i","\u0439":"y","\u043a":"k","\u043b":"l","\u043c":"m","\u043d":"n","\u04a3":"\u00f1","\u043e":"o","\u04e9":"\u00f6","\u043f":"p",
+"\u0440":"r","\u0441":"s","\u0442":"t","\u0443":"u","\u04af":"\u00fc","\u0444":"f","\u0445":"h","\u0446":"ts","\u0447":"\u00e7","\u0448":"\u015f",
+"\u0449":"\u015f\u00e7","\u044a":"","\u044b":"\u0131","\u044c":"","\u044d":"e","\u044e":"yu","\u044f":"ya"};
+var RU={"\u0430":"a","\u0431":"b","\u0432":"v","\u0433":"g","\u0434":"d","\u0435":"e","\u0451":"ye","\u0436":"zh","\u0437":"z",
+"\u0438":"i","\u0439":"y","\u043a":"k","\u043b":"l","\u043c":"m","\u043d":"n","\u043e":"o","\u043f":"p","\u0440":"r","\u0441":"s",
+"\u0442":"t","\u0443":"u","\u0444":"f","\u0445":"kh","\u0446":"ts","\u0447":"ch","\u0448":"sh","\u0449":"shch","\u044a":"\u201d",
+"\u044b":"y","\u044c":"\u2019","\u044d":"e","\u044e":"yu","\u044f":"ya","\u04a3":"ng","\u04e9":"o","\u04af":"u"};
+var ISO={"\u0430":"a","\u0431":"b","\u0432":"v","\u0433":"g","\u0434":"d","\u0435":"e","\u0451":"\u00eb","\u0436":"\u017e","\u0437":"z",
+"\u0438":"i","\u0439":"j","\u043a":"k","\u043b":"l","\u043c":"m","\u043d":"n","\u043e":"o","\u043f":"p","\u0440":"r","\u0441":"s",
+"\u0442":"t","\u0443":"u","\u0444":"f","\u0445":"h","\u0446":"c","\u0447":"\u010d","\u0448":"\u0161","\u0449":"\u015d","\u044a":"\u02ba","\u044b":"y",
+"\u044c":"\u02b9","\u044d":"\u00e8","\u044e":"\u00fb","\u044f":"\u00e2","\u04a3":"n\u0326","\u04e9":"\u00f4","\u04af":"\u00f9"};
+/* T\u00fcrk\u00e7e -> Rus\u00e7a Kiril sesletim e\u015flemesi. Bu bir harf \u00e7evirisi (transliteration)
+   de\u011fil, sesletim aktar\u0131m\u0131d\u0131r: T\u00fcrk\u00e7e harflerin Rus\u00e7ada do\u011frudan kar\u015f\u0131l\u0131\u011f\u0131 olmad\u0131\u011f\u0131
+   i\u00e7in en yak\u0131n ses verilir. \u011f genelde d\u00fc\u015fer ya da \u00f6nceki \u00fcnl\u00fcy\u00fc uzat\u0131r; burada
+   sadele\u015ftirme i\u00e7in at\u0131l\u0131r. Sonucu her zaman g\u00f6zden ge\u00e7irin. */
+var TR2RU={"a":"\u0430","b":"\u0431","c":"\u0434\u0436","\u00e7":"\u0447","d":"\u0434","e":"\u0435","f":"\u0444","g":"\u0433",
+"\u011f":"","h":"\u0445","\u0131":"\u044b","i":"\u0438","j":"\u0436","k":"\u043a","l":"\u043b","m":"\u043c","n":"\u043d","o":"\u043e",
+"\u00f6":"\u0451","p":"\u043f","r":"\u0440","s":"\u0441","\u015f":"\u0448","t":"\u0442","u":"\u0443","\u00fc":"\u044e","v":"\u0432","y":"\u0439",
+"z":"\u0437","\u00e2":"\u0430","\u00ee":"\u0438","\u00fb":"\u0443","q":"\u043a","w":"\u0432","x":"\u043a\u0441"};
+var MAPS={kg:KG,ru:RU,iso:ISO};
+
+function cap(s,src){
+  // \u0130lk harf b\u00fcy\u00fckse \u00e7\u0131kt\u0131n\u0131n ilk harfini de b\u00fcy\u00fct
+  if(!s)return s;
+  if(src[0]===src[0].toLocaleUpperCase("tr")&&src[0]!==src[0].toLocaleLowerCase("tr"))
+    return s[0].toLocaleUpperCase("tr")+s.slice(1);
+  return s;
+}
+function c2l(text,map){
+  var out="";
+  for(var i=0;i<text.length;i++){
+    var ch=text[i],low=ch.toLowerCase();
+    if(map[low]!==undefined)out+=cap(map[low],ch);
+    else out+=ch;
+  }
+  return out;
+}
+function buildReverse(map){
+  var pairs=Object.keys(map).filter(function(k){return map[k]})
+    .map(function(k){return [map[k],k]});
+  pairs.sort(function(a,b){return b[0].length-a[0].length});
+  return pairs;
+}
+function l2c(text,map){
+  var pairs=buildReverse(map),out="",i=0;
+  outer:
+  while(i<text.length){
+    for(var p=0;p<pairs.length;p++){
+      var lat=pairs[p][0],cyr=pairs[p][1],n=lat.length;
+      var seg=text.substr(i,n);
+      if(seg.toLocaleLowerCase("tr")===lat.toLocaleLowerCase("tr")){
+        out+=cap(cyr,seg);i+=n;continue outer;
+      }
+    }
+    out+=text[i];i++;
+  }
+  return out;
+}
+function tr2ruConv(text){
+  var out="";
+  for(var i=0;i<text.length;i++){
+    var ch=text[i],low=ch.toLocaleLowerCase("tr");
+    if(TR2RU[low]!==undefined)out+=cap(TR2RU[low],ch);
+    else out+=ch;
+  }
+  return out;
+}
+function run(){
+  var sys=$("lk-sys").value,s=$("lk-in").value;
+  if(sys==="tr2ru"){
+    // bu mod tek y\u00f6nl\u00fc: T\u00fcrk\u00e7e latin -> Rus\u00e7a kiril
+    $("lk-out").value=tr2ruConv(s);
+    $("lk-msg").textContent=(s.length?s.length+" karakter":"")+" \u00b7 tek y\u00f6nl\u00fc (T\u00fcrk\u00e7e\u2192Rus\u00e7a)";
+    return;
+  }
+  var map=MAPS[sys];
+  $("lk-out").value=$("lk-dir").value==="c2l"?c2l(s,map):l2c(s,map);
+  $("lk-msg").textContent=s.length?s.length+" karakter":"";
+}
+["lk-in"].forEach(function(id){$(id).addEventListener("input",run)});
+["lk-sys","lk-dir"].forEach(function(id){$(id).addEventListener("change",run)});
+$("lk-sys").addEventListener("change",function(){
+  var t2r=this.value==="tr2ru";
+  var dw=$("lk-dir").closest(".tk-field");
+  if(dw)dw.style.display=t2r?"none":"";
+});
+$("lk-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("lk-out").value).then(function(){$("lk-msg").textContent="kopyaland\u0131"})});
+$("lk-swap").addEventListener("click",function(){
+  var d=$("lk-dir");d.value=d.value==="c2l"?"l2c":"c2l";
+  $("lk-in").value=$("lk-out").value;run()});
+$("lk-demo").addEventListener("click",function(){
+  $("lk-in").value="\u041a\u044b\u0440\u0433\u044b\u0437-\u0422\u04af\u0440\u043a \u041c\u0430\u043d\u0430\u0441 \u0443\u043d\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\u0438, \u0411\u0438\u0448\u043a\u0435\u043a \u0448\u0430\u0430\u0440\u044b.\n\u04e8\u0437\u0433\u04e9\u0447\u04e9 \u0431\u0438\u043b\u0438\u043c \u0431\u0435\u0440\u04af\u04af \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u043c\u0430\u0441\u044b \u0436\u04e9\u043d\u04af\u043d\u0434\u04e9 \u043c\u0430\u0430\u043b\u044b\u043c\u0430\u0442.";
+  $("lk-dir").value="c2l";run()});
+run();
+})();
+//]]></script>

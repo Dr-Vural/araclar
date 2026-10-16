@@ -1,0 +1,163 @@
+<div class="tk-panel">
+  <p class="tk-h">İki bölümü ayrı ayrı yapıştırın</p>
+  <div class="tk-two">
+    <div class="tk-field"><label for="ak-text">Makale metni — kaynakça hariç</label>
+      <textarea id="ak-text" class="tk-area" spellcheck="false" placeholder="…bu bulgu daha önce de rapor edilmişti (Öztürk, 2022; Buyar ve Vural, 2019). Alieva (2025) ise…"></textarea></div>
+    <div class="tk-field"><label for="ak-ref">Kaynakça — her satır bir kaynak</label>
+      <textarea id="ak-ref" class="tk-area" spellcheck="false" placeholder="Öztürk, A. N. (2022). Siber güvenlik farkındalığı. Anadolu Yayınları.&#10;Buyar, C. ve Vural, M. (2019). …"></textarea></div>
+  </div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="ak-go">Denetle</button>
+    <button class="tk-btn ghost" id="ak-demo">Örnek yükle</button>
+    <span class="tk-msg" id="ak-msg"></span>
+  </div>
+</div>
+
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Sonuç</p>
+  <div class="tk-stats">
+    <div class="tk-stat"><b id="ak-c">0</b><span>metinde atıf</span></div>
+    <div class="tk-stat"><b id="ak-r">0</b><span>kaynakçada</span></div>
+    <div class="tk-stat warn"><b id="ak-m">0</b><span>eksik</span></div>
+    <div class="tk-stat warn"><b id="ak-u">0</b><span>kullanılmayan</span></div>
+  </div>
+  <div class="tk-out" id="ak-out" style="max-height:420px"><span class="tk-blank">İki bölümü yapıştırıp “Denetle”ye basın.</span></div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Ne yapar, ne yapmaz</p>
+  <p class="tk-note">Metindeki <code>(Soyadı, 2020)</code> ve <code>Soyadı (2020)</code>
+     biçimindeki atıfları çıkarır, kaynakçadaki soyadı-yıl çiftleriyle eşleştirir.
+     İki liste arasındaki farkı gösterir: <span class="tk-mark">eksik</span> =
+     metinde geçiyor ama kaynakçada yok; <span class="tk-mark">kullanılmayan</span> =
+     kaynakçada var ama metinde geçmiyor. Hakem sürecinde en sık dönen
+     düzeltme taleplerinden biri budur.</p>
+  <p class="tk-note">Sınırları: yalnız yazar-tarih sistemleriyle (APA, Chicago
+     yazar-tarih, Harvard) çalışır; numaralı sistemlerde (Vancouver, IEEE)
+     kullanılamaz. "vd." ve "et al." kısaltmaları ilk yazara indirgenir,
+     bu yüzden aynı soyadı ve yıla sahip iki farklı kaynak tek sayılır.
+     Sonucu gözle doğrulayın.</p>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var TRUP="A-Z\u00c7\u011e\u0130\u00d6\u015e\u00dc", TRLO="a-z\u00e7\u011f\u0131\u00f6\u015f\u00fc";
+function low(s){return s.toLocaleLowerCase("tr")}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+
+/* Metin i\u00e7i at\u0131flar: parantezli ve anlat\u0131 bi\u00e7imli */
+function fromText(t){
+  var hits={}, add=function(name,year,raw){
+    name=name.replace(/\s+/g," ").trim();
+    if(!name||name.length<2)return;
+    var k=low(name)+"|"+year;
+    if(!hits[k])hits[k]={n:name,y:year,c:0,ex:raw};
+    hits[k].c++;
+  };
+  // (Soyad\u0131, 2020) \u00b7 (Soyad\u0131 ve Soyad\u0131, 2020) \u00b7 (Soyad\u0131 vd., 2020; \u00d6teki, 2019)
+  var par=/\(([^()]{2,220}?)\)/g, m;
+  while((m=par.exec(t))!==null){
+    var inner=m[1];
+    if(!/\d{4}/.test(inner))continue;
+    inner.split(";").forEach(function(chunk){
+      var c=chunk.trim();
+      var mm=c.match(new RegExp("^([" +TRUP+ "][" +TRLO+ TRUP+ "'\u2019\\-\\. ]*?)\\s*,?\\s*(?:vd\\.|ve dig\\.|et al\\.?)?\\s*,?\\s*\\(?(\\d{4})[a-z]?\\)?"));
+      if(mm)add(firstSurname(mm[1]),mm[2],c);
+    });
+  }
+  // Soyad\u0131 (2020) \u00b7 Soyad\u0131 ve Soyad\u0131 (2020) \u00b7 Soyad\u0131 vd. (2020)
+  var nar=new RegExp("([" +TRUP+ "][" +TRLO+ "]+(?:\\s*(?:ve|&|and)\\s*[" +TRUP+ "][" +TRLO+ "]+)?(?:\\s*(?:vd\\.|et al\\.?))?)\\s*\\((\\d{4})[a-z]?\\)","g");
+  while((m=nar.exec(t))!==null)add(firstSurname(m[1]),m[2],m[0]);
+  return hits;
+}
+function firstSurname(s){
+  s=s.replace(/\s*(?:vd\.|ve dig\.|et al\.?)\s*$/i,"");
+  s=s.split(/\s*(?:,|;|\bve\b|&|\band\b)\s*/)[0];
+  // "A. N. \u00d6zt\u00fcrk" gibi ba\u015f harfleri at
+  s=s.replace(/\b[A-Z\u00c7\u011e\u0130\u00d6\u015e\u00dc]\.\s*/g,"").trim();
+  return s;
+}
+/* Kaynak\u00e7a sat\u0131r\u0131ndan soyad\u0131 + y\u0131l */
+function fromRefs(t){
+  var out=[];
+  t.split("\n").forEach(function(l,i){
+    l=l.replace(/\s+/g," ").trim();
+    if(l.length<8)return;
+    var y=(l.match(/\((\d{4})[a-z]?\)/)||l.match(/\b(1[89]\d{2}|20\d{2})\b/)||[])[1];
+    var name=(l.match(new RegExp("^([" +TRUP+ "][" +TRLO+ TRUP+ "'\u2019\\-]*)"))||[])[1];
+    out.push({line:l,n:name||"?",y:y||"",i:i+1,
+      k:low(name||"?")+"|"+(y||"")});
+  });
+  return out;
+}
+$("ak-demo").addEventListener("click",function(){
+  $("ak-text").value="Siber g\u00fcvenlik fark\u0131ndal\u0131\u011f\u0131 \u00fczerine yap\u0131lan \u00e7al\u0131\u015fmalar son y\u0131llarda "
+   +"artm\u0131\u015ft\u0131r (\u00d6zt\u00fcrk, 2022; Buyar ve Vural, 2019). Alieva (2025) kurumsal e\u011fitimlerin "
+   +"etkisini incelemi\u015f, Maks\u00fcd\u00fcnov vd. (2018) ise benzer bir \u00f6rneklemde farkl\u0131 sonu\u00e7lara "
+   +"ula\u015fm\u0131\u015ft\u0131r. Daha eski bir \u00e7al\u0131\u015fmada (Kaya, 2011) bu ili\u015fki anlaml\u0131 bulunmam\u0131\u015ft\u0131r.";
+  $("ak-ref").value="Alieva, N. B. (2025). Kurumsal e\u011fitim ve fark\u0131ndal\u0131k. Vestnik Issyk-Kul.\n"
+   +"Buyar, C. ve Vural, M. (2019). Dijital okuryazarl\u0131k. KTM\u00dc Yay\u0131nlar\u0131.\n"
+   +"Maks\u00fcd\u00fcnov, A., Atantaev, K. ve Alieva, N. (2018). \u00d6rg\u00fctsel davran\u0131\u015f. Manas Journal.\n"
+   +"\u00d6zt\u00fcrk, A. N. (2022). Siber g\u00fcvenlik fark\u0131ndal\u0131\u011f\u0131. Anadolu Yay\u0131nlar\u0131.\n"
+   +"Demir, S. (2016). Kullan\u0131lmayan bir kaynak. \u00d6rnek Yay\u0131nevi.";
+});
+$("ak-go").addEventListener("click",function(){
+  var hits=fromText($("ak-text").value), refs=fromRefs($("ak-ref").value);
+  var cites=Object.keys(hits).map(function(k){return hits[k]});
+  if(!cites.length&&!refs.length){
+    $("ak-msg").className="tk-msg err";$("ak-msg").textContent="iki alan\u0131 da doldurun";return}
+  $("ak-msg").className="tk-msg";
+  var refKeys={}, refByName={};
+  refs.forEach(function(r){refKeys[r.k]=r;(refByName[low(r.n)]=refByName[low(r.n)]||[]).push(r)});
+  var missing=[],yearOff=[];
+  cites.forEach(function(c){
+    var k=low(c.n)+"|"+c.y;
+    if(refKeys[k])return;
+    var same=refByName[low(c.n)];
+    if(same&&same.length)yearOff.push({c:c,r:same});
+    else missing.push(c);
+  });
+  var usedKeys={};
+  cites.forEach(function(c){usedKeys[low(c.n)+"|"+c.y]=1});
+  var unused=refs.filter(function(r){return !usedKeys[r.k]&&!(refByName[low(r.n)]||[]).some(function(){
+    return cites.some(function(c){return low(c.n)===low(r.n)})})});
+  $("ak-c").textContent=cites.length;
+  $("ak-r").textContent=refs.length;
+  $("ak-m").textContent=missing.length+yearOff.length;
+  $("ak-u").textContent=unused.length;
+  var L=[];
+  if(missing.length){
+    L.push("KAYNAK\u00c7ADA BULUNAMAYAN ATIFLAR ("+missing.length+")");
+    missing.forEach(function(c){L.push("  "+c.n+", "+c.y+"   \u00b7  metinde "+c.c+" kez")});
+    L.push("");
+  }
+  if(yearOff.length){
+    L.push("YIL UYU\u015eMAZLI\u011eI OLAB\u0130L\u0130R ("+yearOff.length+")");
+    yearOff.forEach(function(o){
+      L.push("  metinde: "+o.c.n+", "+o.c.y);
+      o.r.forEach(function(r){L.push("  kaynak\u00e7ada: "+r.n+", "+(r.y||"y\u0131l yok")+"  (sat\u0131r "+r.i+")")});
+      L.push("");
+    });
+  }
+  if(unused.length){
+    L.push("MET\u0130NDE GE\u00c7MEYEN KAYNAKLAR ("+unused.length+")");
+    unused.forEach(function(r){L.push("  sat\u0131r "+r.i+"  "+r.line.slice(0,74))});
+    L.push("");
+  }
+  if(!missing.length&&!yearOff.length&&!unused.length)
+    L.push("Uyu\u015fmazl\u0131k bulunamad\u0131. Metindeki b\u00fct\u00fcn at\u0131flar kaynak\u00e7ada, "
+      +"kaynak\u00e7adaki b\u00fct\u00fcn kay\u0131tlar metinde ge\u00e7iyor.");
+  else{
+    L.push("\u2500".repeat(52));
+    L.push("Metinde bulunan at\u0131flar:");
+    cites.sort(function(a,b){return a.n.localeCompare(b.n,"tr")}).forEach(function(c){
+      L.push("  "+(c.n+", "+c.y).padEnd(34)+c.c+" kez")});
+  }
+  $("ak-out").textContent=L.join("\n");
+  $("ak-msg").textContent=(missing.length+yearOff.length+unused.length)
+    ? (missing.length+yearOff.length+unused.length)+" sorun bulundu" : "temiz";
+});
+})();
+//]]></script>

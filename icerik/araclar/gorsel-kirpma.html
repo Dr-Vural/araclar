@@ -1,0 +1,126 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Alanı fareyle seçin</p>
+  <div class="tk-prev" id="cr-prev" style="position:relative;user-select:none">
+    <p class="tk-blank">Görsel bırakın, sonra üzerinde sürükleyerek alan seçin.</p></div>
+</div>
+<div>
+  <div class="tk-drop" id="cr-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M6 2v16h16M2 6h16v16"/></svg>
+    <strong>Görsel bırakın</strong><span>PNG · JPEG · WebP</span>
+  </div>
+  <input type="file" id="cr-file" class="tk-hidden" accept="image/*">
+  <div class="tk-panel">
+    <p class="tk-h">Kırpma</p>
+    <div class="tk-field"><label for="cr-ar">Oran kilidi</label>
+      <select id="cr-ar" class="tk-sel">
+        <option value="0">Serbest</option><option value="1">1 : 1 — kare</option>
+        <option value="1.777">16 : 9</option><option value="1.333">4 : 3</option>
+        <option value="0.8">4 : 5 — Instagram dikey</option>
+        <option value="0.5625">9 : 16 — hikâye</option>
+        <option value="1.5">3 : 2</option></select></div>
+    <div class="tk-two">
+      <div class="tk-field"><label for="cr-x">X</label><input type="number" id="cr-x" class="tk-in" value="0"></div>
+      <div class="tk-field"><label for="cr-y">Y</label><input type="number" id="cr-y" class="tk-in" value="0"></div>
+    </div>
+    <div class="tk-two">
+      <div class="tk-field"><label for="cr-w">Genişlik</label><input type="number" id="cr-w" class="tk-in" value="0"></div>
+      <div class="tk-field"><label for="cr-h">Yükseklik</label><input type="number" id="cr-h" class="tk-in" value="0"></div>
+    </div>
+    <div class="tk-field"><label for="cr-fmt">Çıktı</label>
+      <select id="cr-fmt" class="tk-sel"><option value="image/png">PNG</option>
+      <option value="image/jpeg">JPEG</option><option value="image/webp">WebP</option></select></div>
+    <div class="tk-acts">
+      <button class="tk-btn" id="cr-go" disabled>Kırp ve indir</button>
+      <button class="tk-btn ghost" id="cr-all">Tümünü seç</button>
+      <span class="tk-msg" id="cr-msg">dosya bekleniyor</span>
+    </div>
+  </div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var drop=$("cr-drop"),inp=$("cr-file"),prev=$("cr-prev"),msg=$("cr-msg"),go=$("cr-go");
+var img=null,name="gorsel",cv=null,box=null,sel={x:0,y:0,w:0,h:0},drag=null,scale=1;
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files[0])});
+inp.addEventListener("change",function(e){take(e.target.files[0])});
+function take(f){
+  if(!f||!/^image\//.test(f.type)){msg.className="tk-msg err";msg.textContent="g\u00f6rsel bulunamad\u0131";return}
+  msg.className="tk-msg";name=f.name.replace(/\.[^.]+$/,"");
+  var u=URL.createObjectURL(f),im=new Image();
+  im.onload=function(){img=im;URL.revokeObjectURL(u);setup();go.disabled=false;
+    msg.textContent=im.naturalWidth+"\u00d7"+im.naturalHeight};
+  im.src=u;
+}
+function setup(){
+  prev.innerHTML="";
+  var wrap=document.createElement("div");wrap.style.position="relative";
+  wrap.style.display="inline-block";wrap.style.lineHeight="0";
+  cv=document.createElement("canvas");
+  var maxW=560;scale=Math.min(1,maxW/img.naturalWidth);
+  cv.width=img.naturalWidth*scale;cv.height=img.naturalHeight*scale;
+  cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);
+  cv.style.cursor="crosshair";
+  box=document.createElement("div");
+  box.style.cssText="position:absolute;border:2px solid #0d6357;background:rgba(13,99,87,.14);"
+    +"pointer-events:none;display:none";
+  wrap.appendChild(cv);wrap.appendChild(box);prev.appendChild(wrap);
+  cv.addEventListener("pointerdown",function(e){
+    var r=cv.getBoundingClientRect();
+    drag={x:e.clientX-r.left,y:e.clientY-r.top};cv.setPointerCapture(e.pointerId);
+  });
+  cv.addEventListener("pointermove",function(e){
+    if(!drag)return;
+    var r=cv.getBoundingClientRect();
+    var x2=Math.max(0,Math.min(cv.width,e.clientX-r.left));
+    var y2=Math.max(0,Math.min(cv.height,e.clientY-r.top));
+    var x=Math.min(drag.x,x2),y=Math.min(drag.y,y2);
+    var w=Math.abs(x2-drag.x),h=Math.abs(y2-drag.y);
+    var ar=parseFloat($("cr-ar").value)||0;
+    if(ar){h=w/ar;if(y+h>cv.height){h=cv.height-y;w=h*ar}}
+    setSel(x,y,w,h);
+  });
+  ["pointerup","pointercancel"].forEach(function(v){
+    cv.addEventListener(v,function(){drag=null})});
+  setSel(0,0,cv.width,cv.height);
+}
+function setSel(x,y,w,h){
+  sel={x:x,y:y,w:w,h:h};
+  box.style.display=w>2&&h>2?"block":"none";
+  box.style.left=x+"px";box.style.top=y+"px";
+  box.style.width=w+"px";box.style.height=h+"px";
+  $("cr-x").value=Math.round(x/scale);$("cr-y").value=Math.round(y/scale);
+  $("cr-w").value=Math.round(w/scale);$("cr-h").value=Math.round(h/scale);
+}
+["cr-x","cr-y","cr-w","cr-h"].forEach(function(id){
+  $(id).addEventListener("input",function(){
+    if(!cv)return;
+    setSel((+$("cr-x").value)*scale,(+$("cr-y").value)*scale,
+           (+$("cr-w").value)*scale,(+$("cr-h").value)*scale);
+  });
+});
+$("cr-all").addEventListener("click",function(){if(cv)setSel(0,0,cv.width,cv.height)});
+go.addEventListener("click",function(){
+  var x=Math.round(sel.x/scale),y=Math.round(sel.y/scale),
+      w=Math.round(sel.w/scale),h=Math.round(sel.h/scale);
+  if(w<1||h<1){msg.className="tk-msg err";msg.textContent="\u00f6nce alan se\u00e7in";return}
+  msg.className="tk-msg";
+  var c=document.createElement("canvas");c.width=w;c.height=h;
+  var t=$("cr-fmt").value,x2=c.getContext("2d");
+  if(t==="image/jpeg"){x2.fillStyle="#fff";x2.fillRect(0,0,w,h)}
+  x2.drawImage(img,x,y,w,h,0,0,w,h);
+  c.toBlob(function(b){
+    var a=document.createElement("a");
+    a.href=URL.createObjectURL(b);
+    a.download=name+"-"+w+"x"+h+"."+t.split("/")[1].replace("jpeg","jpg");
+    a.click();msg.textContent=w+"\u00d7"+h+" indirildi";
+  },t,0.92);
+});
+})();
+//]]></script>

@@ -1,0 +1,96 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Kaynakça — her satır bir kaynak</p>
+  <div class="tk-field"><label for="ks-in">Girdi</label>
+    <textarea id="ks-in" class="tk-area" spellcheck="false" placeholder="Öztürk, A. N. (2022). Siber güvenlik farkındalığı. Anadolu Yayınları.&#10;Buyar, C. (2017). Kırgız tarihi. KTMÜ Yayınları."></textarea></div>
+  <div class="tk-field"><label for="ks-out">Düzenlenmiş</label>
+    <textarea id="ks-out" class="tk-area" readonly spellcheck="false"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="ks-go">Düzenle</button>
+    <button class="tk-btn ghost" id="ks-copy">Kopyala</button>
+    <span class="tk-msg" id="ks-msg"></span>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">İşlem</p>
+  <div class="tk-field"><label for="ks-sort">Sıralama</label>
+    <select id="ks-sort" class="tk-sel">
+      <option value="az">Yazar soyadına göre (Türkçe alfabe)</option>
+      <option value="year">Yayın yılına göre — eskiden yeniye</option>
+      <option value="yeard">Yayın yılına göre — yeniden eskiye</option>
+      <option value="">Sırayı bozma</option>
+    </select></div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="ks-dup" checked><span>Tekrarları sil<em>Aynı yazar ve yıl birden çok geçiyorsa</em></span></label>
+    <label><input type="checkbox" id="ks-hang"><span>Asılı girinti işareti koy<em>Word'de yapıştırdıktan sonra biçimlendirmek için</em></span></label>
+    <label><input type="checkbox" id="ks-join" checked><span>Bölünmüş satırları birleştir<em>PDF'ten kopyalanan kaynakçalarda satır ortadan kırılır</em></span></label>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Denetim</p>
+  <div class="tk-out" id="ks-diag" style="max-height:300px"><span class="tk-blank">“Düzenle”ye basın.</span></div>
+  <p class="tk-note">Denetim biçimsel eksikleri işaretler: yıl bulunamayan,
+     nokta ile bitmeyen, DOI'si olmayan ve tekrar eden kayıtlar. Bu bir
+     APA doğrulaması değildir — hangi satıra bakmanız gerektiğini söyler.</p>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+function key(l){
+  var m=l.match(/^\s*([^,(]+)/);
+  return (m?m[1]:l).trim().toLocaleLowerCase("tr");
+}
+function year(l){
+  var m=l.match(/\((\d{4})[a-z]?\)/)||l.match(/\b(1[89]\d{2}|20\d{2})\b/);
+  return m?+m[1]:0;
+}
+$("ks-go").addEventListener("click",function(){
+  var raw=$("ks-in").value;
+  if($("ks-join").checked){
+    // B\u00fcy\u00fck harf ya da rakamla ba\u015flamayan sat\u0131r, \u00f6ncekinin devam\u0131d\u0131r
+    raw=raw.replace(/\n(?![A-Z\u00c7\u011e\u0130\u00d6\u015e\u00dc\d]|\s*$)/g," ");
+  }
+  var L=raw.split("\n").map(function(x){return x.replace(/\s+/g," ").trim()}).filter(Boolean);
+  var before=L.length,dups=[];
+  if($("ks-dup").checked){
+    var seen={},o=[];
+    L.forEach(function(x){
+      var k=key(x)+"|"+year(x);
+      if(seen[k]){dups.push(x)}else{seen[k]=1;o.push(x)}
+    });
+    L=o;
+  }
+  var s=$("ks-sort").value;
+  if(s==="az")L.sort(function(a,b){
+    var d=key(a).localeCompare(key(b),"tr");return d||year(a)-year(b)});
+  else if(s==="year")L.sort(function(a,b){return year(a)-year(b)||key(a).localeCompare(key(b),"tr")});
+  else if(s==="yeard")L.sort(function(a,b){return year(b)-year(a)||key(a).localeCompare(key(b),"tr")});
+
+  $("ks-out").value=L.map(function(x){return ($("ks-hang").checked?"\t":"")+x}).join("\n");
+
+  var noYear=[],noDot=[],noDoi=0;
+  L.forEach(function(x,i){
+    if(!year(x))noYear.push(i+1);
+    if(!/[.?!]$/.test(x))noDot.push(i+1);
+    if(!/doi\.org|doi:/i.test(x))noDoi++;
+  });
+  var d=[];
+  d.push("Kaynak say\u0131s\u0131        "+L.length+(before!==L.length?"  ("+(before-L.length)+" tekrar silindi)":""));
+  d.push("Y\u0131l bulunamayan      "+(noYear.length?noYear.join(", "):"yok"));
+  d.push("Nokta ile bitmeyen   "+(noDot.length?noDot.slice(0,15).join(", ")+(noDot.length>15?" \u2026":""):"yok"));
+  d.push("DOI i\u00e7ermeyen        "+noDoi+" kay\u0131t");
+  if(dups.length){
+    d.push("");d.push("Silinen tekrarlar:");
+    dups.slice(0,6).forEach(function(x){d.push("  "+x.slice(0,72))});
+  }
+  $("ks-diag").textContent=d.join("\n");
+  $("ks-msg").textContent=L.length+" kaynak d\u00fczenlendi";
+});
+$("ks-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("ks-out").value).then(function(){$("ks-msg").textContent="kopyaland\u0131"})});
+})();
+//]]></script>

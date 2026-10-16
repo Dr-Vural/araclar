@@ -1,0 +1,94 @@
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Tarihler</p>
+  <div class="tk-field"><label for="dt-a">Başlangıç</label><input type="date" id="dt-a" class="tk-in"></div>
+  <div class="tk-field"><label for="dt-b">Bitiş</label><input type="date" id="dt-b" class="tk-in"></div>
+  <div class="tk-acts">
+    <button class="tk-btn ghost" id="dt-today">Bitiş = bugün</button>
+    <button class="tk-btn ghost" id="dt-swap">Yer değiştir</button>
+  </div>
+  <p class="tk-h2">Tarihe ekle / çıkar</p>
+  <div class="tk-two">
+    <div class="tk-field"><label for="dt-n">Miktar</label><input type="number" id="dt-n" class="tk-in" value="30"></div>
+    <div class="tk-field"><label for="dt-u">Birim</label>
+      <select id="dt-u" class="tk-sel"><option value="d">gün</option><option value="w">hafta</option>
+      <option value="m">ay</option><option value="y">yıl</option></select></div>
+  </div>
+  <div class="tk-out" id="dt-add">—</div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Fark</p>
+  <div class="tk-stats">
+    <div class="tk-stat"><b id="dt-y">—</b><span>yıl</span></div>
+    <div class="tk-stat"><b id="dt-m">—</b><span>ay</span></div>
+    <div class="tk-stat"><b id="dt-d">—</b><span>gün</span></div>
+  </div>
+  <div class="tk-stats">
+    <div class="tk-stat ok"><b id="dt-total">—</b><span>toplam gün</span></div>
+    <div class="tk-stat"><b id="dt-work">—</b><span>iş günü</span></div>
+    <div class="tk-stat"><b id="dt-week">—</b><span>hafta</span></div>
+  </div>
+  <div class="tk-out" id="dt-detail">İki tarih seçin.</div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Kullanım</p>
+  <p class="tk-note">Yaş hesabı için doğum tarihini başlangıca yazın ve "Bitiş = bugün"e
+     basın. İş günü sayımı cumartesi ve pazarı hariç tutar; resmî tatiller dahil
+     değildir, ülkeye göre ayrıca düşülmelidir.</p>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var TR=["Pazar","Pazartesi","Sal\u0131","\u00c7ar\u015famba","Per\u015fembe","Cuma","Cumartesi"];
+function iso(d){return d.toISOString().slice(0,10)}
+function run(){
+  var a=$("dt-a").value,b=$("dt-b").value;
+  if(!a||!b){$("dt-detail").textContent="\u0130ki tarih se\u00e7in.";return}
+  var A=new Date(a+"T00:00:00"),B=new Date(b+"T00:00:00"),neg=B<A;
+  if(neg){var t=A;A=B;B=t}
+  var y=B.getFullYear()-A.getFullYear(),m=B.getMonth()-A.getMonth(),d=B.getDate()-A.getDate();
+  if(d<0){m--;d+=new Date(B.getFullYear(),B.getMonth(),0).getDate()}
+  if(m<0){y--;m+=12}
+  var total=Math.round((B-A)/86400000);
+  var full=Math.floor(total/7),rem=total%7,work=full*5;
+  for(var i=0;i<rem;i++){var w=new Date(+A+ (full*7+i)*86400000).getDay();if(w!==0&&w!==6)work++}
+  $("dt-y").textContent=y;$("dt-m").textContent=m;$("dt-d").textContent=d;
+  $("dt-total").textContent=total.toLocaleString("tr-TR");
+  $("dt-work").textContent=work.toLocaleString("tr-TR");
+  $("dt-week").textContent=(total/7).toFixed(1);
+  $("dt-detail").textContent=
+    "Ba\u015flang\u0131\u00e7 : "+A.toLocaleDateString("tr-TR")+"  ("+TR[A.getDay()]+")\n"+
+    "Biti\u015f     : "+B.toLocaleDateString("tr-TR")+"  ("+TR[B.getDay()]+")\n"+
+    "Fark      : "+y+" y\u0131l "+m+" ay "+d+" g\u00fcn\n"+
+    "Saat      : "+(total*24).toLocaleString("tr-TR")+"\n"+
+    "Dakika    : "+(total*1440).toLocaleString("tr-TR")+
+    (neg?"\n\n(biti\u015f tarihi ba\u015flang\u0131\u00e7tan \u00f6nce \u2014 mutlak fark g\u00f6steriliyor)":"");
+  addCalc();
+}
+function addCalc(){
+  var a=$("dt-a").value;if(!a)return;
+  var D=new Date(a+"T00:00:00"),n=parseInt($("dt-n").value,10)||0,u=$("dt-u").value;
+  var R=new Date(D);
+  if(u==="d")R.setDate(R.getDate()+n);
+  else if(u==="w")R.setDate(R.getDate()+n*7);
+  else if(u==="m")R.setMonth(R.getMonth()+n);
+  else R.setFullYear(R.getFullYear()+n);
+  $("dt-add").textContent=D.toLocaleDateString("tr-TR")+"  "+(n<0?"\u2212":"+")+" "+Math.abs(n)+" "+
+    ({d:"g\u00fcn",w:"hafta",m:"ay",y:"y\u0131l"})[u]+"\n= "+R.toLocaleDateString("tr-TR")+
+    "  ("+TR[R.getDay()]+")";
+}
+["dt-a","dt-b"].forEach(function(id){$(id).addEventListener("change",run)});
+["dt-n","dt-u"].forEach(function(id){$(id).addEventListener("input",addCalc);
+  $(id).addEventListener("change",addCalc)});
+$("dt-today").addEventListener("click",function(){$("dt-b").value=iso(new Date());run()});
+$("dt-swap").addEventListener("click",function(){
+  var t=$("dt-a").value;$("dt-a").value=$("dt-b").value;$("dt-b").value=t;run()});
+$("dt-b").value=iso(new Date());
+$("dt-a").value=iso(new Date(Date.now()-30*86400000));
+run();
+})();
+//]]></script>

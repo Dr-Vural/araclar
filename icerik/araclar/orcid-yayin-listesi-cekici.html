@@ -1,0 +1,126 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Yayınlar</p>
+  <div class="tk-out" id="oy-out" style="max-height:460px"><span class="tk-blank">ORCID kimliğinizi girip “Getir”e basın.</span></div>
+  <div class="tk-acts">
+    <button class="tk-btn ghost" id="oy-copy">Kopyala</button>
+    <button class="tk-btn ghost" id="oy-dl">İndir</button>
+    <span class="tk-msg" id="oy-msg"></span>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">ORCID</p>
+  <div class="tk-field"><label for="oy-id">Kimlik — 0000-0000-0000-0000</label>
+    <input type="text" id="oy-id" class="tk-in" placeholder="0000-0002-1825-0097"></div>
+  <div class="tk-acts"><button class="tk-btn" id="oy-go">Getir</button></div>
+  <p class="tk-h2">Çıktı</p>
+  <div class="tk-field"><label for="oy-fmt">Biçim</label>
+    <select id="oy-fmt" class="tk-sel">
+      <option value="apa">APA 7 kaynakça</option>
+      <option value="gost">GOST</option>
+      <option value="list">Numaralı yayın listesi (özgeçmiş)</option>
+      <option value="year">Yıllara göre gruplu</option>
+      <option value="bibtex">BibTeX</option>
+    </select></div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="oy-desc" checked><span>Yeniden eskiye sırala</span></label>
+    <label><input type="checkbox" id="oy-doi" checked><span>DOI bağlantısı ekle</span></label>
+  </div>
+  <div class="tk-stats" style="margin-top:14px">
+    <div class="tk-stat ok"><b id="oy-n">0</b><span>yayın</span></div>
+  </div>
+  <p class="tk-note">Veriler ORCID'in açık kayıt API'sinden gelir; yalnız
+     <strong>herkese açık</strong> yayınlar listelenir. Yayınlar ORCID
+     profilinize kim tarafından eklendiğine göre eksik ya da yinelenmiş
+     olabilir — çıktıyı gözden geçirin. Doçentlik dosyası, özgeçmiş ve
+     akademik site yayın listesi için hızlı bir başlangıç sağlar.</p>
+  <p class="tk-note">Bu araç ORCID kimliğinizi orcid.org sunucusuna sorar;
+     dışarı giden tek veri kimlik numarasıdır.</p>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var works=[];
+function ini(g){return (g||"").split(/\s+/).filter(Boolean).map(function(w){return w[0].toLocaleUpperCase("tr")+"."}).join(" ")}
+function extract(w){
+  var s=w["work-summary"]?w["work-summary"][0]:w;
+  var title=(s.title&&s.title.title&&s.title.title.value)||"[ba\u015fl\u0131ks\u0131z]";
+  var journal=(s["journal-title"]&&s["journal-title"].value)||"";
+  var year=(s["publication-date"]&&s["publication-date"].year&&s["publication-date"].year.value)||"";
+  var type=(s.type||"").toLowerCase();
+  var doi="";
+  var ids=(s["external-ids"]&&s["external-ids"]["external-id"])||[];
+  ids.forEach(function(x){if((x["external-id-type"]||"").toLowerCase()==="doi")doi=x["external-id-value"]});
+  return {title:title,journal:journal,year:year,type:type,doi:doi};
+}
+function fmtApa(w){
+  var s=w.title+".";
+  var line="("+(w.year||"t.y.")+"). "+s;
+  if(w.journal)line+=" "+w.journal;
+  line+=".";
+  if(w.doi&&$("oy-doi").checked)line+=" https://doi.org/"+w.doi;
+  return line;
+}
+function fmtGost(w){
+  var s=w.title+" // "+(w.journal||"")+". \u2014 "+(w.year||"")+".";
+  if(w.doi&&$("oy-doi").checked)s+=" \u2014 DOI "+w.doi+".";
+  return s;
+}
+function fmtBib(w){
+  var key=(w.journal||"kaynak").replace(/\W/g,"").slice(0,8).toLowerCase()+(w.year||"");
+  var f=[["title",w.title],["journal",w.journal],["year",w.year],["doi",w.doi]];
+  return "@article{"+key+",\n"+f.filter(function(x){return x[1]})
+    .map(function(x){return "  "+x[0]+" = {"+x[1]+"}"}).join(",\n")+"\n}";
+}
+function render(){
+  if(!works.length){$("oy-out").innerHTML='<span class="tk-blank">Yay\u0131n bulunamad\u0131.</span>';return}
+  var w=works.slice();
+  if($("oy-desc").checked)w.sort(function(a,b){return (+b.year||0)-(+a.year||0)});
+  else w.sort(function(a,b){return (+a.year||0)-(+b.year||0)});
+  var fmt=$("oy-fmt").value,out;
+  if(fmt==="year"){
+    var by={};w.forEach(function(x){(by[x.year||"tarihsiz"]=by[x.year||"tarihsiz"]||[]).push(x)});
+    var years=Object.keys(by).sort(function(a,b){return $("oy-desc").checked?b-a:a-b});
+    out=years.map(function(y){return y+"\n"+by[y].map(function(x){
+      return "  \u2022 "+x.title+(x.journal?". "+x.journal:"")}).join("\n")}).join("\n\n");
+  }else if(fmt==="list")
+    out=w.map(function(x,i){return (i+1)+". "+x.title+(x.journal?". "+x.journal:"")
+      +(x.year?" ("+x.year+")":"")+(x.doi&&$("oy-doi").checked?". doi:"+x.doi:"")}).join("\n\n");
+  else if(fmt==="gost")out=w.map(function(x,i){return (i+1)+". "+fmtGost(x)}).join("\n");
+  else if(fmt==="bibtex")out=w.map(fmtBib).join("\n\n");
+  else out=w.map(function(x){return fmtApa(x)}).join("\n\n");
+  $("oy-out").textContent=out;
+  $("oy-n").textContent=w.length;
+}
+$("oy-go").addEventListener("click",function(){
+  var id=$("oy-id").value.trim().replace(/^https?:\/\/orcid\.org\//i,"");
+  if(!/^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/.test(id)){
+    $("oy-msg").className="tk-msg err";$("oy-msg").textContent="ge\u00e7erli ORCID kimli\u011fi girin";return}
+  $("oy-msg").className="tk-msg";$("oy-msg").textContent="ORCID sorgulan\u0131yor\u2026";
+  fetch("https://pub.orcid.org/v3.0/"+id+"/works",{headers:{"Accept":"application/json"}})
+    .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()})
+    .then(function(j){
+      works=(j.group||[]).map(extract);
+      if(!works.length){$("oy-msg").className="tk-msg err";
+        $("oy-msg").textContent="herkese a\u00e7\u0131k yay\u0131n bulunamad\u0131";return}
+      render();
+      $("oy-msg").textContent=works.length+" yay\u0131n geldi";
+    })
+    .catch(function(e){$("oy-msg").className="tk-msg err";
+      $("oy-msg").textContent="al\u0131namad\u0131: "+e.message});
+});
+["oy-fmt","oy-desc","oy-doi"].forEach(function(id){$(id).addEventListener("change",render)});
+$("oy-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("oy-out").textContent).then(function(){$("oy-msg").textContent="kopyaland\u0131"})});
+$("oy-dl").addEventListener("click",function(){
+  if(!works.length)return;
+  var ext=$("oy-fmt").value==="bibtex"?"bib":"txt";
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob(["\ufeff"+$("oy-out").textContent],{type:"text/plain;charset=utf-8"}));
+  a.download="yayinlar."+ext;a.click()});
+})();
+//]]></script>

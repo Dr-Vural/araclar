@@ -1,0 +1,113 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify-html.min.js"></script>
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Kod</p>
+  <div class="tk-field"><label for="kb-in">Girdi</label>
+    <textarea id="kb-in" class="tk-area" spellcheck="false" placeholder="HTML, CSS veya JavaScript yapıştırın…"></textarea></div>
+  <div class="tk-field"><label for="kb-out">Çıktı</label>
+    <textarea id="kb-out" class="tk-area" readonly spellcheck="false"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="kb-beau">Biçimlendir</button>
+    <button class="tk-btn ghost" id="kb-min">Küçült</button>
+    <button class="tk-btn ghost" id="kb-copy">Kopyala</button>
+    <button class="tk-btn ghost" id="kb-swap">Sonucu girdiye al</button>
+    <span class="tk-msg" id="kb-msg"></span>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Ayar</p>
+  <div class="tk-field"><label for="kb-lang">Dil</label>
+    <select id="kb-lang" class="tk-sel">
+      <option value="auto">Otomatik algıla</option>
+      <option value="html">HTML</option><option value="css">CSS</option>
+      <option value="js">JavaScript</option></select></div>
+  <div class="tk-field"><label for="kb-ind">Girinti</label>
+    <select id="kb-ind" class="tk-sel"><option value="2">2 boşluk</option>
+    <option value="4">4 boşluk</option><option value="t">sekme</option></select></div>
+  <div class="tk-stats" style="margin-top:16px">
+    <div class="tk-stat"><b id="kb-a">0</b><span>girdi</span></div>
+    <div class="tk-stat ok"><b id="kb-b">0</b><span>çıktı</span></div>
+    <div class="tk-stat"><b id="kb-c">—</b><span>fark</span></div>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">JavaScript küçültme neden yok</p>
+  <p class="tk-note">Gerçek bir JavaScript küçültücü kodu ayrıştırmak zorundadır;
+     düzenli ifadeyle yapılan küçültme değişken adlarını, şablon dizgilerini ve
+     regex değişmezlerini sessizce bozar — hata vermez, sadece yanlış çalışır.
+     Bu yüzden burada JS için yalnızca <strong>yorum ve fazla boşluk temizliği</strong>
+     yapılır. Üretim için Terser ya da esbuild kullanın.</p>
+  <p class="tk-note">CSS ve HTML küçültme güvenlidir; <code>pre</code>,
+     <code>textarea</code> ve koşullu yorumlar korunur.</p>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var msg=$("kb-msg");
+function detect(s){
+  var t=s.trim();
+  if(/^\s*</.test(t)&&/<\/?[a-z][\s\S]*>/i.test(t))return "html";
+  if(/^[\s\S]*\{[^{}]*:[^{}]*;[\s\S]*\}/.test(t)&&!/function|=>|var |let |const /.test(t))return "css";
+  if(/function|=>|var |let |const |console\./.test(t))return "js";
+  return t.indexOf("{")>-1?"css":"html";
+}
+function lang(){var v=$("kb-lang").value;return v==="auto"?detect($("kb-in").value):v}
+function ind(){var v=$("kb-ind").value;
+  return v==="t"?{indent_with_tabs:true}:{indent_size:+v};}
+function count(){
+  var a=$("kb-in").value.length,b=$("kb-out").value.length;
+  $("kb-a").textContent=a.toLocaleString("tr-TR");
+  $("kb-b").textContent=b.toLocaleString("tr-TR");
+  $("kb-c").textContent=a?((b-a>=0?"+":"\u2212")+Math.abs(Math.round((b-a)/a*100))+"%"):"\u2014";
+}
+$("kb-beau").addEventListener("click",function(){
+  var s=$("kb-in").value,L=lang();
+  if(typeof js_beautify==="undefined"){msg.className="tk-msg err";
+    msg.textContent="bi\u00e7imlendirme k\u00fct\u00fcphanesi y\u00fcklenemedi";return}
+  msg.className="tk-msg";
+  var o=ind();
+  try{
+    $("kb-out").value=L==="html"?html_beautify(s,o):L==="css"?css_beautify(s,o):js_beautify(s,o);
+    msg.textContent=L.toUpperCase()+" bi\u00e7imlendirildi";
+  }catch(e){msg.className="tk-msg err";msg.textContent="bi\u00e7imlendirilemedi"}
+  count();
+});
+function minCss(s){
+  return s.replace(/\/\*[\s\S]*?\*\//g,"")
+    .replace(/\s*([{}:;,>~+])\s*/g,"$1")
+    .replace(/;}/g,"}").replace(/\s+/g," ").trim();
+}
+function minHtml(s){
+  var keep=[],i=0;
+  s=s.replace(/<(pre|textarea|script|style)[\s\S]*?<\/\1>/gi,function(m){
+    keep.push(m);return "\u0000"+(i++)+"\u0000"});
+  s=s.replace(/<!--(?!\[if)[\s\S]*?-->/g,"")
+     .replace(/>\s+</g,"><").replace(/\s{2,}/g," ").trim();
+  return s.replace(/\u0000(\d+)\u0000/g,function(m,k){return keep[+k]});
+}
+function minJs(s){
+  return s.replace(/^\s*\/\/.*$/gm,"")
+    .replace(/\/\*[\s\S]*?\*\//g,"")
+    .split("\n").map(function(l){return l.replace(/^[ \t]+/,"")})
+    .filter(function(l){return l.trim()}).join("\n");
+}
+$("kb-min").addEventListener("click",function(){
+  var s=$("kb-in").value,L=lang();
+  msg.className="tk-msg";
+  $("kb-out").value=L==="css"?minCss(s):L==="html"?minHtml(s):minJs(s);
+  msg.textContent=L==="js"?"JS: yaln\u0131z yorum ve girinti temizlendi"
+    :L.toUpperCase()+" k\u00fc\u00e7\u00fclt\u00fcld\u00fc";
+  count();
+});
+$("kb-in").addEventListener("input",count);
+$("kb-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("kb-out").value).then(function(){msg.textContent="kopyaland\u0131"})});
+$("kb-swap").addEventListener("click",function(){$("kb-in").value=$("kb-out").value;count()});
+})();
+//]]></script>

@@ -1,0 +1,114 @@
+<div class="tk-cols">
+<div>
+  <div class="tk-drop" id="sm-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M3 5h18v14H3z M8 19v2h8v-2"/></svg>
+    <strong>Görsel bırakın</strong><span>Seçtiğiniz her boyut için ayrı dosya üretilir</span>
+  </div>
+  <input type="file" id="sm-file" class="tk-hidden" accept="image/*">
+  <div class="tk-panel">
+    <p class="tk-h">Boyutlar</p>
+    <div id="sm-list" class="tk-checks" style="max-height:340px;overflow:auto"></div>
+    <div class="tk-acts">
+      <button class="tk-btn ghost" id="sm-none">Seçimi temizle</button>
+      <button class="tk-btn ghost" id="sm-common">Yaygın olanlar</button>
+    </div>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Ayar</p>
+  <div class="tk-field"><label for="sm-fit">Sığdırma</label>
+    <select id="sm-fit" class="tk-sel">
+      <option value="cover">Doldur — kenarlardan kırpar</option>
+      <option value="contain">Sığdır — boşluk bırakır</option>
+    </select></div>
+  <div class="tk-field"><label for="sm-bg">Boşluk rengi</label>
+    <input type="color" id="sm-bg" class="tk-in" value="#ffffff" style="height:44px;padding:4px"></div>
+  <div class="tk-field"><label for="sm-fmt">Biçim</label>
+    <select id="sm-fmt" class="tk-sel"><option value="image/jpeg">JPEG</option>
+    <option value="image/png">PNG</option><option value="image/webp">WebP</option></select></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="sm-go" disabled>Üret</button>
+    <span class="tk-msg" id="sm-msg">dosya bekleniyor</span>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Çıktı</p>
+  <div id="sm-out"><p class="tk-blank">Boyutları seçip “Üret”e basın.</p></div>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var S=[
+["Instagram g\u00f6nderi \u2014 kare",1080,1080,1],["Instagram g\u00f6nderi \u2014 dikey",1080,1350,1],
+["Instagram hik\u00e2ye / Reels",1080,1920,1],["Instagram profil",320,320,0],
+["Facebook g\u00f6nderi",1200,630,1],["Facebook kapak",1640,624,0],
+["Facebook profil",170,170,0],
+["X / Twitter g\u00f6nderi",1600,900,1],["X / Twitter ba\u015fl\u0131k",1500,500,0],
+["LinkedIn g\u00f6nderi",1200,627,1],["LinkedIn kapak \u2014 ki\u015fisel",1584,396,0],
+["LinkedIn logo \u2014 \u015firket",300,300,0],
+["YouTube k\u00fc\u00e7\u00fck resim",1280,720,1],["YouTube kanal sanat\u0131",2560,1440,0],
+["WhatsApp durum",1080,1920,0],["Telegram kanal",1280,640,0],
+["Pinterest pin",1000,1500,0],["TikTok video kapa\u011f\u0131",1080,1920,0],
+["Web \u2014 Open Graph",1200,630,1],["Web \u2014 favicon kayna\u011f\u0131",512,512,0]
+];
+var img=null,name="gorsel";
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+$("sm-list").innerHTML=S.map(function(o,i){
+  return '<label><input type="checkbox" class="smx" data-i="'+i+'"'+(o[3]?" checked":"")
+    +'><span>'+esc(o[0])+'<em>'+o[1]+' \u00d7 '+o[2]+'</em></span></label>';
+}).join("");
+$("sm-none").addEventListener("click",function(){
+  Array.prototype.forEach.call(document.querySelectorAll(".smx"),function(n){n.checked=false})});
+$("sm-common").addEventListener("click",function(){
+  Array.prototype.forEach.call(document.querySelectorAll(".smx"),function(n){
+    n.checked=!!S[+n.getAttribute("data-i")][3]})});
+var drop=$("sm-drop"),inp=$("sm-file"),msg=$("sm-msg");
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files[0])});
+inp.addEventListener("change",function(e){take(e.target.files[0])});
+function take(f){
+  if(!f||!/^image\//.test(f.type)){msg.className="tk-msg err";msg.textContent="g\u00f6rsel bulunamad\u0131";return}
+  msg.className="tk-msg";name=f.name.replace(/\.[^.]+$/,"");
+  var u=URL.createObjectURL(f),im=new Image();
+  im.onload=function(){img=im;URL.revokeObjectURL(u);$("sm-go").disabled=false;
+    msg.textContent=im.naturalWidth+"\u00d7"+im.naturalHeight};
+  im.src=u;
+}
+$("sm-go").addEventListener("click",function(){
+  var want=Array.prototype.filter.call(document.querySelectorAll(".smx"),function(n){return n.checked})
+    .map(function(n){return S[+n.getAttribute("data-i")]});
+  if(!want.length){msg.className="tk-msg err";msg.textContent="en az bir boyut se\u00e7in";return}
+  msg.className="tk-msg";
+  var fit=$("sm-fit").value,bg=$("sm-bg").value,type=$("sm-fmt").value;
+  var ext=type.split("/")[1].replace("jpeg","jpg"),rows=[],done=0;
+  want.forEach(function(o,k){
+    var c=document.createElement("canvas");c.width=o[1];c.height=o[2];
+    var x=c.getContext("2d");x.imageSmoothingQuality="high";
+    x.fillStyle=bg;x.fillRect(0,0,o[1],o[2]);
+    var s=fit==="cover"?Math.max(o[1]/img.naturalWidth,o[2]/img.naturalHeight)
+                       :Math.min(o[1]/img.naturalWidth,o[2]/img.naturalHeight);
+    var w=img.naturalWidth*s,h=img.naturalHeight*s;
+    x.drawImage(img,(o[1]-w)/2,(o[2]-h)/2,w,h);
+    c.toBlob(function(b){
+      var nm=name+"-"+o[1]+"x"+o[2]+"."+ext;
+      rows[k]='<li><span class="nm"><a class="tk-dl" href="'+URL.createObjectURL(b)
+        +'" download="'+esc(nm)+'">'+esc(o[0])+'</a></span>'
+        +'<span class="sz">'+o[1]+'\u00d7'+o[2]+'</span>'
+        +'<span class="sz">'+(b.size/1024).toFixed(0)+' KB</span></li>';
+      if(++done===want.length){
+        $("sm-out").innerHTML='<ul class="tk-list">'+rows.join("")+'</ul>'
+          +'<p class="tk-note">Adlara t\u0131klayarak indirin.</p>';
+        msg.textContent=done+" boyut \u00fcretildi";
+      }
+    },type,0.9);
+  });
+});
+})();
+//]]></script>

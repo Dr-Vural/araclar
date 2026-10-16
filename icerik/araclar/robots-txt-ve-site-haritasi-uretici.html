@@ -1,0 +1,116 @@
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Site</p>
+  <div class="tk-field"><label for="rb-host">Alan adı</label>
+    <input type="text" id="rb-host" class="tk-in" value="https://tools.vumatech.net"></div>
+  <p class="tk-h2">robots.txt</p>
+  <div class="tk-field"><label for="rb-preset">Hazır ayar</label>
+    <select id="rb-preset" class="tk-sel">
+      <option value="open">Herkese açık — her şey taranabilir</option>
+      <option value="blog">Blog / CMS — yönetim ve arama sayfaları kapalı</option>
+      <option value="shop">E-ticaret — sepet ve hesap kapalı</option>
+      <option value="closed">Tamamen kapalı — hiçbir şey taranmasın</option>
+      <option value="ai">Yapay zekâ tarayıcılarını dışarıda bırak</option>
+    </select></div>
+  <div class="tk-field"><label for="rb-dis">Ek yasaklı yollar — her satıra bir tane</label>
+    <textarea id="rb-dis" class="tk-area" style="min-height:110px" spellcheck="false" placeholder="/gizli/&#10;/tmp/"></textarea></div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="rb-map" checked><span>Site haritası satırı ekle</span></label>
+    <label><input type="checkbox" id="rb-delay"><span>Tarama gecikmesi koy (10 sn)<em>Google yok sayar; Bing ve Yandex uyar</em></span></label>
+  </div>
+  <p class="tk-h2">Site haritası</p>
+  <div class="tk-field"><label for="rb-urls">Adresler — her satıra bir tane (yol ya da tam adres)</label>
+    <textarea id="rb-urls" class="tk-area" style="min-height:130px" spellcheck="false" placeholder="/&#10;/p/gorsel-boyutlandirma.html&#10;/p/pdf-birlestirme.html"></textarea></div>
+  <div class="tk-two">
+    <div class="tk-field"><label for="rb-freq">Güncelleme sıklığı</label>
+      <select id="rb-freq" class="tk-sel"><option value="">belirtme</option>
+      <option value="daily">günlük</option><option value="weekly" selected>haftalık</option>
+      <option value="monthly">aylık</option><option value="yearly">yıllık</option></select></div>
+    <div class="tk-field"><label for="rb-pri">Öncelik</label>
+      <select id="rb-pri" class="tk-sel"><option value="">belirtme</option>
+      <option value="1.0">1.0</option><option value="0.8" selected>0.8</option>
+      <option value="0.5">0.5</option></select></div>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">robots.txt</p>
+  <div class="tk-out" id="rb-out1" style="max-height:250px">—</div>
+  <div class="tk-acts"><button class="tk-btn ghost" id="rb-c1">Kopyala</button>
+    <button class="tk-btn ghost" id="rb-d1">İndir</button></div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">sitemap.xml</p>
+  <div class="tk-out" id="rb-out2" style="max-height:280px">—</div>
+  <div class="tk-acts"><button class="tk-btn ghost" id="rb-c2">Kopyala</button>
+    <button class="tk-btn ghost" id="rb-d2">İndir</button>
+    <span class="tk-msg" id="rb-msg"></span></div>
+  <p class="tk-note">Bazı yayın platformları site haritasını kendisi üretir
+     (<code>/sitemap.xml</code>); o durumda elle dosya yüklemeniz gerekmez, yalnız
+     robots.txt'yi Ayarlar &gt; Tarayıcılar ve dizine ekleme bölümünden
+     tanımlarsınız.</p>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var AI=["GPTBot","ChatGPT-User","CCBot","anthropic-ai","ClaudeBot","Google-Extended",
+"PerplexityBot","Applebot-Extended","Bytespider","meta-externalagent"];
+var P={
+ open:[],
+ blog:["/search","/admin/","/wp-admin/","/*?replytocom=","/etiket/"],
+ shop:["/sepet","/cart","/checkout","/hesabim","/account","/*?sort=","/*?filter="],
+ closed:["/"],
+ ai:[]
+};
+function host(){return $("rb-host").value.trim().replace(/\/+$/,"")}
+function build(){
+  var pre=$("rb-preset").value,L=[];
+  if(pre==="ai"){
+    AI.forEach(function(b){L.push("User-agent: "+b);L.push("Disallow: /");L.push("")});
+    L.push("User-agent: *");L.push("Allow: /");
+  }else{
+    L.push("User-agent: *");
+    var d=P[pre].concat($("rb-dis").value.split("\n").map(function(x){return x.trim()}).filter(Boolean));
+    if(!d.length)L.push("Allow: /");
+    else d.forEach(function(x){L.push("Disallow: "+(x[0]==="/"?x:"/"+x))});
+  }
+  if($("rb-delay").checked){L.push("");L.push("User-agent: Bingbot");L.push("Crawl-delay: 10")}
+  if($("rb-map").checked&&host()){L.push("");L.push("Sitemap: "+host()+"/sitemap.xml")}
+  $("rb-out1").textContent=L.join("\n");
+
+  var urls=$("rb-urls").value.split("\n").map(function(x){return x.trim()}).filter(Boolean);
+  var today=new Date().toISOString().slice(0,10);
+  var freq=$("rb-freq").value,pri=$("rb-pri").value;
+  var x=['<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'];
+  urls.forEach(function(u){
+    var full=/^https?:\/\//.test(u)?u:host()+(u[0]==="/"?u:"/"+u);
+    x.push("  <url>");
+    x.push("    <loc>"+full.replace(/&/g,"&amp;")+"</loc>");
+    x.push("    <lastmod>"+today+"</lastmod>");
+    if(freq)x.push("    <changefreq>"+freq+"</changefreq>");
+    if(pri)x.push("    <priority>"+pri+"</priority>");
+    x.push("  </url>");
+  });
+  x.push("</urlset>");
+  $("rb-out2").textContent=urls.length?x.join("\n"):"\u2014 adres girin \u2014";
+  $("rb-msg").textContent=urls.length+" adres";
+}
+["rb-host","rb-dis","rb-urls"].forEach(function(id){$(id).addEventListener("input",build)});
+["rb-preset","rb-map","rb-delay","rb-freq","rb-pri"].forEach(function(id){
+  $(id).addEventListener("change",build)});
+function dl(text,name,type){
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([text],{type:type}));
+  a.download=name;a.click();
+}
+$("rb-c1").addEventListener("click",function(){navigator.clipboard.writeText($("rb-out1").textContent)});
+$("rb-c2").addEventListener("click",function(){navigator.clipboard.writeText($("rb-out2").textContent)});
+$("rb-d1").addEventListener("click",function(){dl($("rb-out1").textContent,"robots.txt","text/plain")});
+$("rb-d2").addEventListener("click",function(){dl($("rb-out2").textContent,"sitemap.xml","application/xml")});
+build();
+})();
+//]]></script>

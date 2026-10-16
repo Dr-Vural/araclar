@@ -1,0 +1,276 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Önizleme — çerçeveyi sürükleyip boyutlandırın</p>
+  <div class="tk-prev" id="vs-prev" style="user-select:none;min-height:360px">
+    <p class="tk-blank">Yüzü net, cepheden çekilmiş bir fotoğraf bırakın.</p></div>
+  <div class="tk-acts" style="margin-top:12px">
+    <button class="tk-btn" id="vs-dl" disabled>İndir</button>
+    <button class="tk-btn ghost" id="vs-sheet" disabled>Baskı sayfası (10'lu)</button>
+    <span class="tk-msg" id="vs-msg">dosya bekleniyor</span>
+  </div>
+</div>
+<div>
+  <div class="tk-drop" id="vs-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><circle cx="12" cy="10" r="3"/><path d="M6 18c1.5-3 10.5-3 12 0"/></svg>
+    <strong>Fotoğraf bırakın</strong><span>JPEG · PNG · omuz hizasına kadar, düz bakış</span>
+  </div>
+  <input type="file" id="vs-file" class="tk-hidden" accept="image/*">
+  <div class="tk-panel">
+    <p class="tk-h">Ölçü</p>
+    <div class="tk-field"><label for="vs-preset">Belge türü</label>
+      <select id="vs-preset" class="tk-sel">
+        <option value="50,60,300">Türkiye biyometrik — 50×60 mm</option>
+        <option value="35,45,600">Vesikalık / Schengen — 35×45 mm</option>
+        <option value="51,51,300">ABD vizesi / DV — 51×51 mm (2×2 inç)</option>
+        <option value="35,45,300">Kırgızistan pasaport — 35×45 mm</option>
+        <option value="33,48,300">Çin vizesi — 33×48 mm</option>
+        <option value="40,60,300">Ehliyet / genel — 40×60 mm</option>
+        <option value="x">Özel ölçü</option>
+      </select></div>
+    <div class="tk-two" id="vs-custom" style="display:none">
+      <div class="tk-field"><label for="vs-w">Genişlik (mm)</label><input type="number" id="vs-w" class="tk-in" value="35"></div>
+      <div class="tk-field"><label for="vs-h">Yükseklik (mm)</label><input type="number" id="vs-h" class="tk-in" value="45"></div>
+    </div>
+    <div class="tk-field"><label for="vs-dpi">Çözünürlük (dpi)</label>
+      <select id="vs-dpi" class="tk-sel"><option value="300">300 — baskı</option>
+      <option value="600">600 — yüksek</option><option value="72">72 — ekran</option></select></div>
+
+    <p class="tk-h2">Arka plan</p>
+    <div class="tk-field"><label for="vs-bg">Arka plan işlemi</label>
+      <select id="vs-bg" class="tk-sel">
+        <option value="keep">Dokunma</option>
+        <option value="ai">Yapay zekâ ile kaldır (beyaz zemin)</option>
+        <option value="color">Renkten kaldır (düz zemin varsa)</option>
+      </select></div>
+    <div class="tk-two" id="vs-bgopt" style="display:none">
+      <div class="tk-field"><label for="vs-bgcol">Yeni zemin</label>
+        <input type="color" id="vs-bgcol" class="tk-in" value="#ffffff" style="height:44px;padding:4px"></div>
+      <div class="tk-field"><label for="vs-tol">Tolerans — <span class="tk-val" id="vs-tv">40</span></label>
+        <input type="range" id="vs-tol" class="tk-range" min="0" max="120" value="40"></div>
+    </div>
+
+    <p class="tk-h2">Baş konumu</p>
+    <div class="tk-field"><label for="vs-scale">Yüz boyutu — <span class="tk-val" id="vs-scv">100</span>%</label>
+      <input type="range" id="vs-scale" class="tk-range" min="50" max="180" value="100"></div>
+    <div class="tk-field"><label for="vs-vert">Dikey konum — <span class="tk-val" id="vs-vtv">0</span></label>
+      <input type="range" id="vs-vert" class="tk-range" min="-50" max="50" value="0"></div>
+
+    <div class="tk-out" id="vs-check" style="margin-top:14px;font-size:13px"><span class="tk-blank">Ölçü denetimi burada görünür.</span></div>
+  </div>
+</div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Ne yapar, ne yapmaz — mutlaka okuyun</p>
+  <p class="tk-note">Bu araç fotoğrafı seçtiğiniz belge ölçüsüne kırpar, arka planı
+     temizler ve baş oranı ile boşlukları biyometrik kılavuzlara göre
+     <strong>denetleyip uyarır</strong>. Kılavuz çizgileri ICAO/ISO 19794-5
+     ve Schengen ölçütlerine dayanır: baş yüksekliği toplam yüksekliğin
+     %70–80'i, gözler üstten yaklaşık %45–55 arasında olmalıdır.</p>
+  <p class="tk-note"><strong>Bu bir resmî onay değildir.</strong> Yüz ifadesi,
+     ışık, gölge, gözlük yansıması, canlılık ve poz gibi biyometrik kuralların
+     çoğu ancak insan ya da resmî sistem tarafından denetlenebilir. Çıktının
+     başvuru için kabul edileceğini garanti etmez; yalnız ölçüsel hazırlık
+     yapar. Nihai kararı ilgili kurum verir.</p>
+  <p class="tk-note">Fotoğrafınız tarayıcınızda işlenir; hiçbir sunucuya
+     yüklenmez. Yapay zekâ ile arka plan kaldırma seçeneği ilk kullanımda
+     dış bir kütüphane (yaklaşık 40 MB model) indirir; bağlantı yoksa
+     "renkten kaldır" seçeneğini kullanın.</p>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var drop=$("vs-drop"),inp=$("vs-file"),prev=$("vs-prev"),msg=$("vs-msg");
+var img=null,name="foto",cutBmp=null,t=null;
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files[0])});
+inp.addEventListener("change",function(e){take(e.target.files[0])});
+
+$("vs-preset").addEventListener("change",function(){
+  $("vs-custom").style.display=this.value==="x"?"":"none";queue()});
+$("vs-bg").addEventListener("change",function(){
+  $("vs-bgopt").style.display=this.value==="color"?"":"none";
+  cutBmp=null;              // motor de\u011fi\u015fti, yeniden hesapla
+  if(this.value==="ai")runAi();else queue();
+});
+["vs-dpi","vs-w","vs-h","vs-bgcol"].forEach(function(id){$(id).addEventListener("input",queue);$(id).addEventListener("change",queue)});
+["vs-scale","vs-vert","vs-tol"].forEach(function(id){$(id).addEventListener("input",function(){
+  if(id==="vs-scale")$("vs-scv").textContent=this.value;
+  if(id==="vs-vert")$("vs-vtv").textContent=this.value;
+  if(id==="vs-tol")$("vs-tv").textContent=this.value;
+  if(id==="vs-tol"){cutBmp=null}
+  queue();
+})});
+
+function take(f){
+  if(!f||!/^image\//.test(f.type)){msg.className="tk-msg err";msg.textContent="g\u00f6rsel bulunamad\u0131";return}
+  msg.className="tk-msg";name=f.name.replace(/\.[^.]+$/,"");
+  var u=URL.createObjectURL(f),im=new Image();
+  im.onload=function(){img=im;cutBmp=null;URL.revokeObjectURL(u);
+    $("vs-dl").disabled=$("vs-sheet").disabled=false;
+    msg.textContent=im.naturalWidth+"\u00d7"+im.naturalHeight;queue()};
+  im.src=u;
+}
+function dims(){
+  var p=$("vs-preset").value;
+  if(p==="x")return {w:+$("vs-w").value||35,h:+$("vs-h").value||45,dpi:+$("vs-dpi").value};
+  var a=p.split(",");return {w:+a[0],h:+a[1],dpi:+$("vs-dpi").value};
+}
+function queue(){clearTimeout(t);t=setTimeout(render,120)}
+
+// renkten arka plan kald\u0131rma (k\u00f6\u015fe rengini \u00f6rnekler, kenardan ta\u015fk\u0131n)
+function colorCut(src){
+  var w=src.width,h=src.height,d=src.data;
+  var tol=+$("vs-tol").value,lim=tol*tol*3;
+  // d\u00f6rt k\u00f6\u015fe ortalamas\u0131
+  function px(x,y){var i=(y*w+x)*4;return [d[i],d[i+1],d[i+2]]}
+  var cs=[px(0,0),px(w-1,0),px(0,h-1),px(w-1,h-1)];
+  var bg=[0,1,2].map(function(k){return Math.round((cs[0][k]+cs[1][k]+cs[2][k]+cs[3][k])/4)});
+  var keep=new Uint8Array(w*h),st=[];
+  for(var x=0;x<w;x++){st.push(x);st.push((h-1)*w+x)}
+  for(var y=0;y<h;y++){st.push(y*w);st.push(y*w+w-1)}
+  var near=new Uint8Array(w*h);
+  for(var i=0,k=0;i<d.length;i+=4,k++){
+    var dr=d[i]-bg[0],dg=d[i+1]-bg[1],db=d[i+2]-bg[2];
+    if(dr*dr+dg*dg+db*db<=lim)near[k]=1;
+  }
+  while(st.length){var pp=st.pop();if(keep[pp]||!near[pp])continue;keep[pp]=1;
+    var px2=pp%w,py=(pp-px2)/w;
+    if(px2>0)st.push(pp-1);if(px2<w-1)st.push(pp+1);
+    if(py>0)st.push(pp-w);if(py<h-1)st.push(pp+w)}
+  var col=$("vs-bgcol").value,cr=parseInt(col.substr(1,2),16),cg=parseInt(col.substr(3,2),16),cb=parseInt(col.substr(5,2),16);
+  for(var k2=0;k2<keep.length;k2++)if(keep[k2]){var o=k2*4;d[o]=cr;d[o+1]=cg;d[o+2]=cb}
+  return src;
+}
+
+function baseCanvas(){
+  // arka plan i\u015flemine g\u00f6re kaynak canvas haz\u0131rla
+  var c=document.createElement("canvas");c.width=img.naturalWidth;c.height=img.naturalHeight;
+  var x=c.getContext("2d");
+  if(cutBmp){ x.drawImage(cutBmp,0,0); return c; }  // AI sonucu haz\u0131r
+  x.drawImage(img,0,0);
+  if($("vs-bg").value==="color"){
+    var id=x.getImageData(0,0,c.width,c.height);
+    x.putImageData(colorCut(id),0,0);
+  }
+  return c;
+}
+
+function render(){
+  if(!img)return;
+  var d=dims(),W=Math.round(d.w/25.4*d.dpi),H=Math.round(d.h/25.4*d.dpi);
+  var base=baseCanvas();
+  var out=document.createElement("canvas");out.width=W;out.height=H;
+  var x=out.getContext("2d");x.imageSmoothingQuality="high";
+  x.fillStyle=($("vs-bg").value==="keep")?"#ffffff":$("vs-bgcol").value;
+  x.fillRect(0,0,W,H);
+  // kayna\u011f\u0131 \u00f6l\u00e7\u00fcye "cover" ile yerle\u015ftir, kullan\u0131c\u0131 ayar\u0131yla \u00f6l\u00e7ekle-kayd\u0131r
+  var scale=(+$("vs-scale").value)/100, vert=(+$("vs-vert").value)/100;
+  var base_cover=Math.max(W/base.width,H/base.height);
+  var s=base_cover*scale;
+  var dw=base.width*s,dh=base.height*s;
+  var dx=(W-dw)/2, dy=(H-dh)/2 + vert*H*0.5;
+  x.drawImage(base,dx,dy,dw,dh);
+  // k\u0131lavuz \u00e7izgileri (\u00f6nizlemede)
+  var showC=out.cloneNode();var xc=showC.getContext("2d");
+  xc.drawImage(out,0,0);
+  drawGuides(xc,W,H);
+  prev.innerHTML="";
+  showC.style.maxHeight="360px";showC.style.width="auto";prev.appendChild(showC);
+  window.__vsOut=out;  // indirme i\u00e7in temiz s\u00fcr\u00fcm (k\u0131lavuzsuz)
+  // denetim
+  checkRatio(W,H);
+  msg.className="tk-msg";msg.textContent=d.w+"\u00d7"+d.h+" mm \u00b7 "+W+"\u00d7"+H+" px";
+}
+function drawGuides(x,W,H){
+  x.save();x.strokeStyle="rgba(13,99,87,.6)";x.lineWidth=Math.max(1,W/400);
+  x.setLineDash([W/60,W/60]);
+  // ba\u015f b\u00f6lgesi: \u00fcstten %10 bo\u015fluk, ba\u015f %70-80
+  [0.10,0.90].forEach(function(f){x.beginPath();x.moveTo(0,H*f);x.lineTo(W,H*f);x.stroke()});
+  // g\u00f6z hatt\u0131 %50
+  x.setLineDash([]);x.strokeStyle="rgba(155,44,44,.5)";
+  x.beginPath();x.moveTo(0,H*0.50);x.lineTo(W,H*0.50);x.stroke();
+  x.restore();
+}
+function checkRatio(W,H){
+  // y\u00fcz tespiti yok; oransal k\u0131lavuz + uyar\u0131 veriyoruz
+  var d=dims();
+  var L=[];
+  L.push("\u00d6l\u00e7\u00fc         "+d.w+" \u00d7 "+d.h+" mm  @ "+d.dpi+" dpi");
+  L.push("Piksel       "+W+" \u00d7 "+H);
+  L.push("");
+  L.push("KILAVUZ (g\u00f6zle hizalay\u0131n):");
+  L.push("\u2022 Ye\u015fil kesikli \u00e7izgiler ba\u015f b\u00f6lgesi (%10\u201390)");
+  L.push("\u2022 K\u0131rm\u0131z\u0131 \u00e7izgi g\u00f6z hatt\u0131 (~%50)");
+  L.push("\u2022 Ba\u015f, iki ye\u015fil \u00e7izgi aras\u0131n\u0131 dolduracak");
+  L.push("  \u015fekilde 'Y\u00fcz boyutu'nu ayarlay\u0131n");
+  L.push("\u2022 G\u00f6zler k\u0131rm\u0131z\u0131 \u00e7izgiye gelene kadar");
+  L.push("  'Dikey konum'u kayd\u0131r\u0131n");
+  $("vs-check").textContent=L.join("\n");
+}
+
+function runAi(){
+  msg.className="tk-msg";msg.textContent="yapay zek\u00e2 modeli y\u00fckleniyor\u2026 (ilk seferde ~40 MB)";
+  var url="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.6.0/dist/index.mjs";
+  import(url).then(function(mod){
+    var rm=mod.removeBackground||mod.default;
+    var c=document.createElement("canvas");c.width=img.naturalWidth;c.height=img.naturalHeight;
+    c.getContext("2d").drawImage(img,0,0);
+    return new Promise(function(res){c.toBlob(res,"image/png")}).then(function(b){
+      msg.textContent="arka plan kald\u0131r\u0131l\u0131yor\u2026";
+      return rm(b);
+    });
+  }).then(function(blob){
+    var u=URL.createObjectURL(blob),im=new Image();
+    im.onload=function(){
+      // \u015feffaf sonucu se\u00e7ilen zemine bas
+      var c=document.createElement("canvas");c.width=im.width;c.height=im.height;
+      var x=c.getContext("2d");x.fillStyle=$("vs-bgcol").value;x.fillRect(0,0,c.width,c.height);
+      x.drawImage(im,0,0);
+      cutBmp=c;URL.revokeObjectURL(u);
+      msg.textContent="arka plan kald\u0131r\u0131ld\u0131";render();
+    };
+    im.src=u;
+  }).catch(function(e){
+    msg.className="tk-msg err";
+    msg.textContent="yapay zek\u00e2 y\u00fcklenemedi \u2014 'renkten kald\u0131r' deneyin";
+    $("vs-bg").value="color";$("vs-bgopt").style.display="";queue();
+  });
+}
+
+$("vs-dl").addEventListener("click",function(){
+  if(!window.__vsOut)return;
+  var d=dims();
+  window.__vsOut.toBlob(function(b){
+    var a=document.createElement("a");a.href=URL.createObjectURL(b);
+    a.download=name+"-"+d.w+"x"+d.h+".jpg";a.click();
+  },"image/jpeg",0.95);
+});
+$("vs-sheet").addEventListener("click",function(){
+  if(!window.__vsOut)return;
+  // 10x15 cm bask\u0131 ka\u011f\u0131d\u0131na 10'lu dizim
+  var d=dims(),dpi=d.dpi;
+  var pw=Math.round(102/25.4*dpi),ph=Math.round(152/25.4*dpi); // 10x15
+  var cw=window.__vsOut.width,ch=window.__vsOut.height;
+  var gap=Math.round(2/25.4*dpi);
+  var cols=Math.max(1,Math.floor((pw+gap)/(cw+gap)));
+  var rows=Math.max(1,Math.floor((ph+gap)/(ch+gap)));
+  var c=document.createElement("canvas");c.width=pw;c.height=ph;
+  var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,pw,ph);
+  var totalW=cols*cw+(cols-1)*gap,totalH=rows*ch+(rows-1)*gap;
+  var ox=(pw-totalW)/2,oy=(ph-totalH)/2;
+  for(var r=0;r<rows;r++)for(var cc=0;cc<cols;cc++)
+    x.drawImage(window.__vsOut,ox+cc*(cw+gap),oy+r*(ch+gap));
+  c.toBlob(function(b){
+    var a=document.createElement("a");a.href=URL.createObjectURL(b);
+    a.download=name+"-baski-"+(cols*rows)+"lu.jpg";a.click();
+  },"image/jpeg",0.95);
+  msg.textContent=(cols*rows)+" adet 10\u00d715 bask\u0131 sayfas\u0131na dizildi";
+});
+})();
+//]]></script>

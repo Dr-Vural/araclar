@@ -1,0 +1,89 @@
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Dönüştür</p>
+  <div class="tk-field"><label for="bd-cat">Kategori</label>
+    <select id="bd-cat" class="tk-sel"></select></div>
+  <div class="tk-field"><label for="bd-val">Değer</label>
+    <input type="number" id="bd-val" class="tk-in" value="1" step="any"></div>
+  <div class="tk-two">
+    <div class="tk-field"><label for="bd-from">Kaynak</label><select id="bd-from" class="tk-sel"></select></div>
+    <div class="tk-field"><label for="bd-to">Hedef</label><select id="bd-to" class="tk-sel"></select></div>
+  </div>
+  <div class="tk-acts"><button class="tk-btn ghost" id="bd-swap">Yer değiştir</button>
+    <span class="tk-msg" id="bd-msg"></span></div>
+  <div class="tk-stats" style="margin-top:16px">
+    <div class="tk-stat ok"><b id="bd-res">—</b><span>sonuç</span></div>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Bütün karşılıklar</p>
+  <div class="tk-out" id="bd-all" style="max-height:460px">—</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var C={
+"Uzunluk":{milimetre:0.001,santimetre:0.01,metre:1,kilometre:1000,in\u00e7:0.0254,
+  ayak:0.3048,yarda:0.9144,mil:1609.344,"deniz mili":1852},
+"A\u011f\u0131rl\u0131k":{miligram:1e-6,gram:0.001,kilogram:1,ton:1000,ons:0.0283495,
+  libre:0.453592,okka:1.2828},
+"Alan":{"metrekare":1,"santimetrekare":0.0001,"kilometrekare":1e6,d\u00f6n\u00fcm:1000,
+  hektar:10000,akre:4046.86,"ayakkare":0.092903},
+"Hacim":{mililitre:0.001,litre:1,metrek\u00fcp:1000,"\u00e7ay barda\u011f\u0131":0.11,
+  "su barda\u011f\u0131":0.2,galon:3.78541,"ABD fincan\u0131":0.236588},
+"Veri":{bayt:1,kilobayt:1024,megabayt:1048576,gigabayt:1073741824,
+  terabayt:1099511627776,bit:0.125},
+"H\u0131z":{"km/sa":1,"m/sn":3.6,"mil/sa":1.60934,knot:1.852},
+"Zaman":{saniye:1,dakika:60,saat:3600,g\u00fcn:86400,hafta:604800,ay:2629746,y\u0131l:31556952},
+"Bas\u0131n\u00e7":{pascal:1,kilopascal:1000,bar:100000,atmosfer:101325,psi:6894.76,mmHg:133.322}
+};
+var TEMP={"Santigrat":"C","Fahrenhayt":"F","Kelvin":"K"};
+$("bd-cat").innerHTML=Object.keys(C).map(function(k){return '<option>'+k+'</option>'}).join("")
+  +'<option>S\u0131cakl\u0131k</option>';
+function units(){
+  var c=$("bd-cat").value;
+  return c==="S\u0131cakl\u0131k"?Object.keys(TEMP):Object.keys(C[c]);
+}
+function fillUnits(){
+  var u=units(),o=u.map(function(k){return '<option>'+k+'</option>'}).join("");
+  $("bd-from").innerHTML=o;$("bd-to").innerHTML=o;
+  $("bd-to").selectedIndex=Math.min(1,u.length-1);
+  run();
+}
+function toBase(v,u){
+  if($("bd-cat").value!=="S\u0131cakl\u0131k")return v*C[$("bd-cat").value][u];
+  var t=TEMP[u];
+  return t==="C"?v:t==="F"?(v-32)*5/9:v-273.15;   // baz: santigrat
+}
+function fromBase(v,u){
+  if($("bd-cat").value!=="S\u0131cakl\u0131k")return v/C[$("bd-cat").value][u];
+  var t=TEMP[u];
+  return t==="C"?v:t==="F"?v*9/5+32:v+273.15;
+}
+function fmt(n){
+  if(!isFinite(n))return "\u2014";
+  var a=Math.abs(n);
+  if(a!==0&&(a<1e-4||a>=1e12))return n.toExponential(6);
+  return new Intl.NumberFormat("tr-TR",{maximumFractionDigits:8}).format(n);
+}
+function run(){
+  var v=parseFloat($("bd-val").value);
+  if(isNaN(v)){$("bd-res").textContent="\u2014";return}
+  var base=toBase(v,$("bd-from").value);
+  $("bd-res").textContent=fmt(fromBase(base,$("bd-to").value));
+  $("bd-msg").textContent=fmt(v)+" "+$("bd-from").value+" = "
+    +fmt(fromBase(base,$("bd-to").value))+" "+$("bd-to").value;
+  var w=Math.max.apply(null,units().map(function(u){return u.length}));
+  $("bd-all").textContent=units().map(function(u){
+    return u.padEnd(w+2)+fmt(fromBase(base,u))}).join("\n");
+}
+$("bd-cat").addEventListener("change",fillUnits);
+["bd-val","bd-from","bd-to"].forEach(function(id){
+  $(id).addEventListener("input",run);$(id).addEventListener("change",run)});
+$("bd-swap").addEventListener("click",function(){
+  var a=$("bd-from").value;$("bd-from").value=$("bd-to").value;$("bd-to").value=a;run()});
+fillUnits();
+})();
+//]]></script>

@@ -1,0 +1,58 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Metin</p>
+  <div class="tk-field"><label for="th-in">Girdi</label>
+    <textarea id="th-in" class="tk-area" placeholder="Metni buraya yapıştırın…"></textarea></div>
+  <div class="tk-field"><label for="th-out">Sonuç</label>
+    <textarea id="th-out" class="tk-area" readonly></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn ghost" id="th-copy">Panoya kopyala</button>
+    <button class="tk-btn ghost" id="th-swap">Sonucu girdiye al</button>
+    <span class="tk-msg" id="th-msg"></span>
+  </div>
+</div>
+
+<div class="tk-panel">
+  <p class="tk-h">Dönüşüm</p>
+  <div class="tk-checks" id="th-modes">
+    <label><input type="radio" name="th-m" value="up" checked><span>BÜYÜK HARF<em>i harfi İ olur, ı harfi I olur</em></span></label>
+    <label><input type="radio" name="th-m" value="low"><span>küçük harf<em>I harfi ı olur, İ harfi i olur</em></span></label>
+    <label><input type="radio" name="th-m" value="title"><span>Her Kelime Büyük</span></label>
+    <label><input type="radio" name="th-m" value="sent"><span>Cümle düzeni</span></label>
+    <label><input type="radio" name="th-m" value="toggle"><span>bÜYÜK kÜÇÜK dEĞİŞTİR</span></label>
+  </div>
+  <p class="tk-h2">Neden ayrı bir araç</p>
+  <p class="tk-note">Türkçede <code>i</code> harfinin büyüğü <code>İ</code>, <code>ı</code> harfinin
+     büyüğü <code>I</code>'dır. İngilizce kurallarıyla çalışan araçlar
+     "iyi" kelimesini <span class="tk-mark">IYI</span> yapar; doğrusu
+     <span class="tk-good">İYİ</span>'dir. Excel, Word ve çevrimiçi araçların
+     çoğu bu hatayı yapar.</p>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var inp=$("th-in"),out=$("th-out"),msg=$("th-msg");
+function UP(s){return s.replace(/i/g,"\u0130").replace(/\u0131/g,"I").toLocaleUpperCase("tr")}
+function LOW(s){return s.replace(/I/g,"\u0131").replace(/\u0130/g,"i").toLocaleLowerCase("tr")}
+function run(){
+  var s=inp.value,m=document.querySelector('input[name="th-m"]:checked').value,r;
+  if(m==="up")r=UP(s);
+  else if(m==="low")r=LOW(s);
+  else if(m==="title")r=LOW(s).replace(/(^|[\s"'(\[{\-\u2013\u2014/])(\S)/g,function(a,b,c){return b+UP(c)});
+  else if(m==="sent")r=LOW(s).replace(/(^|[.!?\u2026]\s+|\n\s*)(\S)/g,function(a,b,c){return b+UP(c)});
+  else r=Array.prototype.map.call(s,function(c){
+    var u=UP(c);return c===u?LOW(c):u}).join("");
+  out.value=r;
+  msg.textContent=s.length?s.length+" karakter":"";
+}
+inp.addEventListener("input",run);
+$("th-modes").addEventListener("change",run);
+$("th-copy").addEventListener("click",function(){
+  if(!out.value)return;
+  navigator.clipboard.writeText(out.value).then(function(){msg.textContent="kopyaland\u0131"});
+});
+$("th-swap").addEventListener("click",function(){inp.value=out.value;run()});
+})();
+//]]></script>

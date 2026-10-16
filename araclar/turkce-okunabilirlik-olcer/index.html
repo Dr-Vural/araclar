@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="tr" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f4f3f0">
+<title>Türkçe Okunabilirlik Ölçer — VuMaTech Tools</title>
+<meta name="description" content="Ateşman ve Bezirci-Yılmaz formülleriyle metnin okunabilirliğini ölçer, en uzun cümleleri gösterir.">
+<link rel="canonical" href="https://tools.vumatech.net/araclar/turkce-okunabilirlik-olcer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="VuMaTech Tools">
+<meta property="og:title" content="Türkçe Okunabilirlik Ölçer — VuMaTech Tools">
+<meta property="og:description" content="Ateşman ve Bezirci-Yılmaz formülleriyle metnin okunabilirliğini ölçer, en uzun cümleleri gösterir.">
+<meta property="og:url" content="https://tools.vumatech.net/araclar/turkce-okunabilirlik-olcer/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/assets/kit.css">
+<script>
+/* Tema, sayfa çizilmeden uygulanır; yoksa karanlık temada bir an beyaz parlama olur.
+   Kayıtlı tercih yoksa işletim sistemi ayarı kullanılır. */
+(function(){try{
+  var t=localStorage.getItem("vmt_theme");
+  if(t!=="dark"&&t!=="light"){
+    t=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";
+  }
+  document.documentElement.setAttribute("data-theme",t);
+  var m=document.querySelector('meta[name="theme-color"]');
+  if(m)m.setAttribute("content", t==="dark"?"#0d1014":"#f4f3f0");
+}catch(e){document.documentElement.setAttribute("data-theme","light");}})();
+</script>
+</head>
+<body>
+<div class="shell">
+  <div class='crest'>
+    <a class='name' href="/">VuMaTech <b>Tools</b></a>
+    <span class='crest-right'>
+<div class='langpick' id='langpick' role='group' aria-label='Dil'>
+        <button class='langbtn' data-lang='tr' title='Türkçe' aria-label='Türkçe'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e30a17'/><circle cx='11.5' cy='10' r='5' fill='#fff'/><circle cx='13' cy='10' r='4' fill='#e30a17'/><path fill='#fff' d='M17.5 10l4.2-1.4-2.6 3.6v-4.4l2.6 3.6z'/></svg></button>
+        <button class='langbtn' data-lang='ky' title='Кыргызча' aria-label='Кыргызча'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e8112d'/><circle cx='15' cy='10' r='4.2' fill='#ffef00'/><circle cx='15' cy='10' r='2.4' fill='none' stroke='#e8112d' stroke-width='.5'/><g stroke='#ffef00' stroke-width='.5'><path d='M15 4v12M9 10h12M10.6 5.6l8.8 8.8M19.4 5.6l-8.8 8.8'/></g></svg></button>
+        <button class='langbtn' data-lang='ru' title='Русский' aria-label='Русский'><svg viewBox='0 0 30 20'><rect width='30' height='6.67' fill='#fff'/><rect y='6.67' width='30' height='6.67' fill='#0039a6'/><rect y='13.33' width='30' height='6.67' fill='#d52b1e'/></svg></button>
+        <button class='langbtn' data-lang='en' title='English' aria-label='English'><svg viewBox='0 0 30 20'><clipPath id='uk'><rect width='30' height='20'/></clipPath><g clip-path='url(#uk)'><rect width='30' height='20' fill='#012169'/><path d='M0 0l30 20M30 0L0 20' stroke='#fff' stroke-width='4'/><path d='M0 0l30 20M30 0L0 20' stroke='#c8102e' stroke-width='2'/><path d='M15 0v20M0 10h30' stroke='#fff' stroke-width='6'/><path d='M15 0v20M0 10h30' stroke='#c8102e' stroke-width='3.5'/></g></svg></button>
+      </div>
+      <button class='themebtn' id='themebtn' aria-label='Tema'>
+        <svg class='i-moon' viewBox='0 0 24 24'><path d='M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z'/></svg>
+        <svg class='i-sun' viewBox='0 0 24 24'><circle cx='12' cy='12' r='4.2'/><path d='M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8'/></svg>
+      </button>
+      <a class='up' href='https://vumatech.net'>vumatech.net</a>
+    </span>
+  </div>
+
+
+<a class="back" href="/" data-i18n="back">← bütün araçlar</a>
+<h1 class="view">Türkçe Okunabilirlik Ölçer</h1>
+<p class="priv"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> <span data-i18n="priv">Bu araç tamamen tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</span></p>
+<div class="tk">
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Metin</p>
+  <textarea id="ok-in" class="tk-area" style="min-height:320px" placeholder="Değerlendirilecek Türkçe metni yapıştırın…"></textarea>
+  <div class="tk-acts">
+    <button class="tk-btn ghost" id="ok-demo">Örnek metin</button>
+    <span class="tk-msg" id="ok-msg"></span>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Puanlar</p>
+  <div class="tk-stats">
+    <div class="tk-stat"><b id="ok-at">—</b><span>Ateşman</span></div>
+    <div class="tk-stat"><b id="ok-bz">—</b><span>Bezirci-Yılmaz</span></div>
+  </div>
+  <div class="tk-out" id="ok-verdict">—</div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Metin ölçüleri</p>
+  <div class="tk-out" id="ok-stats">—</div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">En uzun cümleler</p>
+  <div class="tk-out" id="ok-long" style="max-height:220px">—</div>
+  <p class="tk-note">Ateşman formülü metni 0–100 arasında puanlar; yüksek puan
+     kolay okunur demektir. Bezirci-Yılmaz ise metnin anlaşılması için gereken
+     <em>okul yılı</em> sayısını verir; 12 çıktıysa lise düzeyi anlamına gelir.
+     İkisi de İngilizce için geliştirilmiş Flesch formülünün Türkçeye
+     uyarlanmış karşılıklarıdır.</p>
+  <p class="tk-note">Akademik metinlerde düşük okunabilirlik doğaldır ve tek
+     başına kusur değildir. Bu araç asıl olarak öz, bildiri özeti, proje
+     tanıtımı ve ders materyali gibi <strong>geniş okura yazılan</strong>
+     metinlerde işe yarar.</p>
+</div>
+</div>
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var V=/[aeıioöuüâîû]/gi;
+function syl(w){var m=w.match(V);return m?m.length:1}
+function analyze(){
+  var t=$("ok-in").value;
+  if(!t.trim()){["ok-at","ok-bz"].forEach(function(i){$(i).textContent="—"});
+    $("ok-verdict").textContent="—";$("ok-stats").textContent="—";
+    $("ok-long").textContent="—";return}
+  var sents=t.split(/(?<=[.!?…])\s+|\n+/).map(function(s){return s.trim()})
+    .filter(function(s){return s.length>1});
+  var words=t.match(/[\wçğıöşüâîûÇĞİÖŞÜ]+/g)||[];
+  if(!sents.length||!words.length)return;
+  var totalSyl=words.reduce(function(s,w){return s+syl(w)},0);
+  var aveSyl=totalSyl/words.length, aveW=words.length/sents.length;
+  var at=198.825-40.175*aveSyl-2.610*aveW;
+  var h={3:0,4:0,5:0,6:0};
+  words.forEach(function(w){var s=syl(w);
+    if(s===3)h[3]++;else if(s===4)h[4]++;else if(s===5)h[5]++;else if(s>=6)h[6]++});
+  var n=words.length;
+  var bz=Math.sqrt(aveW*((h[3]/n*0.84)+(h[4]/n*1.5)+(h[5]/n*3.5)+(h[6]/n*26.25)));
+  $("ok-at").textContent=at.toFixed(1);
+  $("ok-bz").textContent=bz.toFixed(1);
+  var lvl=at>=90?"çok kolay — ilkokul":at>=70?"kolay — ortaokul":
+          at>=50?"orta güçlük — lise":at>=30?"zor — lisans":"çok zor — akademik";
+  $("ok-verdict").textContent=
+    "Ateşman         "+at.toFixed(1)+"  ·  "+lvl+"\n"
+    +"Bezirci-Yılmaz  "+bz.toFixed(1)+" yıllık eğitim düzeyi\n\n"
+    +(at<30?"Metin geniş okur için ağır. Cümleleri kısaltmak ve çok heceli\n"
+      +"sözcükleri azaltmak en hızlı iyileştirmedir.":
+      at<50?"Lisans düzeyi okur için uygun.":
+      "Geniş okur kitlesi için uygun.");
+  $("ok-stats").textContent=
+    "Cümle              "+sents.length+"\n"
+    +"Kelime             "+n+"\n"
+    +"Hece               "+totalSyl+"\n"
+    +"Cümle başına kelime "+aveW.toFixed(2)+"\n"
+    +"Kelime başına hece  "+aveSyl.toFixed(3)+"\n"
+    +"3 heceli           "+h[3]+"   (%"+(h[3]/n*100).toFixed(1)+")\n"
+    +"4 heceli           "+h[4]+"   (%"+(h[4]/n*100).toFixed(1)+")\n"
+    +"5 heceli           "+h[5]+"   (%"+(h[5]/n*100).toFixed(1)+")\n"
+    +"6+ heceli          "+h[6]+"   (%"+(h[6]/n*100).toFixed(1)+")";
+  var srt=sents.map(function(s){return {s:s,w:(s.match(/[\wçğıöşüâîûÇĞİÖŞÜ]+/g)||[]).length}})
+    .sort(function(a,b){return b.w-a.w}).slice(0,5);
+  $("ok-long").textContent=srt.map(function(o){
+    return o.w+" kelime · "+o.s.slice(0,110)+(o.s.length>110?"…":"")}).join("\n\n");
+  $("ok-msg").textContent=n+" kelime çözümlendi";
+}
+$("ok-in").addEventListener("input",analyze);
+$("ok-demo").addEventListener("click",function(){
+  $("ok-in").value="Bu çalışmanın amacı, üniversite öğrencilerinin siber güvenlik "
+   +"farkındalık düzeylerinin çeşitli değişkenler açısından incelenmesidir. "
+   +"Araştırma, ilişkisel tarama modelinde desenlenmiştir. Veriler, araştırmacılar "
+   +"tarafından geliştirilen ve geçerlik güvenirlik çalışmaları tamamlanan bir "
+   +"ölçme aracıyla toplanmıştır. Elde edilen bulgular, katılımcıların farkındalık "
+   +"düzeylerinin öğrenim görülen fakülteye göre anlamlı biçimde farklılaştığını "
+   +"göstermektedir.";
+  analyze();
+});
+})();
+</script>
+</div>
+  <div class='adzone'>
+    <span class='lbl'>reklam</span>
+    <!-- AdSense birimi: Google'dan aldığınız data-ad-slot değerini yazıp
+         aşağıdaki iki satırın yorumunu kaldırın.
+    <script async='async' src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5193342573714090' crossorigin='anonymous'/>
+    <ins class='adsbygoogle' style='display:block' data-ad-client='ca-pub-5193342573714090' data-ad-slot='XXXXXXXXXX' data-ad-format='auto' data-full-width-responsive='true'/>
+    -->
+  </div>
+
+  <div class='promo'>
+    <p class='kicker' data-i18n='promo_kicker'>VuMaTech Studio · Bişkek</p>
+    <h2><span data-i18n='promo_h2_a'>Bu araçları yapan ekip </span><em data-i18n='promo_h2_b'>sizin sitenizi de yapar</em></h2>
+    <p class='lead' data-i18n='promo_lead'>Kurumsal siteden dijital menüye, akademik dergi sistemlerinden oyun portalına kadar. Tasarım, kurulum ve yıllık bakım tek elden.</p>
+    <div class='svcs'>
+      <a class='svc' href='https://web.vumatech.net'>
+        <b data-i18n='svc_web'>Web Tasarım</b><span data-i18n='svc_web_d'>Kurumsal site, portfolyo, tanıtım sayfası</span></a>
+      <a class='svc' href='https://menu.vumatech.net'>
+        <b data-i18n='svc_menu'>QR Dijital Menü</b><span data-i18n='svc_menu_d'>Çok dilli menü, anlık güncelleme, baskı maliyeti yok</span></a>
+      <a class='svc' href='https://academy.vumatech.net'>
+        <b data-i18n='svc_acad'>Akademik Web</b><span data-i18n='svc_acad_d'>Akademisyen sitesi, özgeçmiş, yayın listesi</span></a>
+      <a class='svc' href='https://ojs.vumatech.net'>
+        <b data-i18n='svc_ojs'>OJS Dergi Sistemi</b><span data-i18n='svc_ojs_d'>Kurulum, tema, hakem süreci yönetimi</span></a>
+    </div>
+    <div class='cta'>
+      <a class='btn' id='tg-btn' href='https://t.me/vumatech' target='_blank' rel='noopener'><svg viewBox='0 0 24 24'><path d='M9.8 15.3l-.4 4c.5 0 .8-.2 1.1-.5l2.6-2.4 5.4 3.9c1 .5 1.7.3 2-1l3.6-16.8c.3-1.2-.5-1.8-1.4-1.4L1.3 9.9c-1.2.5-1.2 1.1-.2 1.4l5.3 1.6L18.6 5c.6-.4 1.1-.2.7.2z'/></svg>
+        <span data-i18n='promo_wa'>Telegram: @vumatech</span></a>
+      <a class='btn line' href='https://vumatech.net' data-i18n='promo_all'>Tüm hizmetler</a>
+    </div>
+  </div>
+
+  <div class='foot'>
+    <div class='cols'>
+      <div>
+        <a class='brand' href='https://vumatech.net'>VuMaTech <b>Studio</b></a>
+        <p data-i18n='foot_about'>Bişkek merkezli web tasarım ve dijital hizmet atölyesi. Türkiye ve Kırgızistan'da çalışır.</p>
+        <p data-i18n='foot_about2'>Bu sayfadaki bütün araçlar ücretsizdir ve tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</p>
+      </div>
+      <div>
+        <h3 data-i18n='foot_services'>Hizmetler</h3>
+        <ul>
+          <li><a href='https://web.vumatech.net'>Web tasarım</a></li>
+          <li><a href='https://menu.vumatech.net'>QR dijital menü</a></li>
+          <li><a href='https://academy.vumatech.net'>Akademik web</a></li>
+          <li><a href='https://ojs.vumatech.net'>OJS dergi sistemi</a></li>
+          <li><a href='https://game.vumatech.net'>Oyun portalı</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n='foot_contact'>İletişim</h3>
+        <ul>
+          <li><a id='tg-foot' href='https://t.me/vumatech'>Telegram · @vumatech</a></li>
+          <li><a href='mailto:vumatechnet@gmail.com'>vumatechnet@gmail.com</a></li>
+          <li><a href='https://vumatech.net'>vumatech.net</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class='base'>
+      <span>© VuMaTech Studio · Bişkek</span>
+      <span><a href="/hakkinda/">Hakkında</a> · <a href="/gizlilik-ve-kvkk/">Gizlilik ve KVKK</a> · </span><span><a href="/">araç dizini</a> · <a href='https://vumatech.net'>VuMaTech</a></span>
+    </div>
+  </div>
+
+</div>
+
+
+</div>
+<script src="/assets/site.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,68 @@
+<div class="tk-cols">
+<div>
+  <div class="tk-drop" id="b6-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M8 6l-5 6 5 6M16 6l5 6-5 6"/></svg>
+    <strong>Görsel bırakın</strong><span>Data URI olarak kodlanır</span>
+  </div>
+  <input type="file" id="b6-file" class="tk-hidden" accept="image/*">
+  <div class="tk-panel">
+    <p class="tk-h">Çıktı biçimi</p>
+    <div class="tk-field"><label for="b6-fmt">Nerede kullanacaksınız</label>
+      <select id="b6-fmt" class="tk-sel">
+        <option value="raw">Yalnız data URI</option>
+        <option value="css">CSS — background-image</option>
+        <option value="html">HTML — img etiketi</option>
+        <option value="md">Markdown</option>
+      </select></div>
+    <div class="tk-stats">
+      <div class="tk-stat"><b id="b6-s1">—</b><span>dosya</span></div>
+      <div class="tk-stat"><b id="b6-s2">—</b><span>kodlanmış</span></div>
+    </div>
+    <div class="tk-acts"><button class="tk-btn ghost" id="b6-copy">Panoya kopyala</button>
+      <span class="tk-msg" id="b6-msg">dosya bekleniyor</span></div>
+    <p class="tk-note">Base64 kodlama dosyayı yaklaşık %33 büyütür. 10 KB üstündeki
+       görselleri gömmek sayfa hızına zarar verir; ikon ve desen için uygundur.</p>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Kod</p>
+  <div class="tk-out" id="b6-out" style="max-height:520px"><span class="tk-blank">Kodlanmış çıktı burada belirir.</span></div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var drop=$("b6-drop"),inp=$("b6-file"),out=$("b6-out"),msg=$("b6-msg"),uri="",nm="";
+function kb(n){return n<1024?n+" B":n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB"}
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files[0])});
+inp.addEventListener("change",function(e){take(e.target.files[0])});
+$("b6-fmt").addEventListener("change",render);
+function take(f){
+  if(!f||!/^image\//.test(f.type)){msg.textContent="g\u00f6rsel bulunamad\u0131";msg.className="tk-msg err";return}
+  msg.className="tk-msg";nm=f.name;$("b6-s1").textContent=kb(f.size);
+  var r=new FileReader();
+  r.onload=function(){uri=r.result;$("b6-s2").textContent=kb(uri.length);render();
+    msg.textContent="kodland\u0131"};
+  r.readAsDataURL(f);
+}
+function render(){
+  if(!uri)return;
+  var m=$("b6-fmt").value,s;
+  if(m==="css")s=".ornek{\n  background-image: url("+uri+");\n}";
+  else if(m==="html")s='<img src="'+uri+'" alt="'+nm+'">';
+  else if(m==="md")s="!["+nm+"]("+uri+")";
+  else s=uri;
+  out.textContent=s;
+}
+$("b6-copy").addEventListener("click",function(){
+  if(!uri)return;
+  navigator.clipboard.writeText(out.textContent).then(function(){msg.textContent="panoya kopyaland\u0131"},
+    function(){msg.textContent="kopyalanamad\u0131 \u2014 elle se\u00e7in";msg.className="tk-msg err"});
+});
+})();
+//]]></script>

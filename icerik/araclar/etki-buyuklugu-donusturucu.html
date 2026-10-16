@@ -1,0 +1,83 @@
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Giriş</p>
+  <div class="tk-field"><label for="eb-from">Elimdeki değer</label>
+    <select id="eb-from" class="tk-sel">
+      <option value="d">Cohen d</option>
+      <option value="r">Korelasyon r</option>
+      <option value="eta">Eta kare (η²)</option>
+      <option value="f">Cohen f</option>
+      <option value="or">Odds ratio (OR)</option>
+      <option value="g">Hedges g</option>
+    </select></div>
+  <div class="tk-field"><label for="eb-val">Değer</label>
+    <input type="number" id="eb-val" class="tk-in" value="0.5" step="any"></div>
+  <div class="tk-field" id="eb-nw" style="display:none"><label for="eb-n">Örneklem (Hedges g için)</label>
+    <input type="number" id="eb-n" class="tk-in" value="40" min="4"></div>
+  <div class="tk-stats" style="margin-top:8px">
+    <div class="tk-stat ok"><b id="eb-lvl">—</b><span>etki düzeyi</span></div>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Bütün karşılıklar</p>
+  <div class="tk-out" id="eb-out">—</div>
+  <p class="tk-note">Dönüşümler d, r ve η² için tam; OR ise Cohen'in
+     logaritmik yaklaşımıyla d'ye çevrilir (d = ln(OR)·√3/π). Bu yaklaşık bir
+     bağdır, kesin değildir. Meta-analizde farklı çalışmalardan gelen etki
+     büyüklüklerini ortak bir ölçeğe getirmek için kullanılır.</p>
+  <p class="tk-note">Cohen ölçütleri: d için 0,20 küçük · 0,50 orta · 0,80 büyük;
+     r için 0,10 · 0,30 · 0,50; η² için 0,01 · 0,06 · 0,14; f için 0,10 · 0,25 · 0,40.
+     Bunlar genel ölçütlerdir; alanınızdaki tipik değerler farklı olabilir.</p>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+function fmt(n){return isFinite(n)?n.toFixed(3):"\u2014"}
+function toD(v,from,n){
+  if(from==="d")return v;
+  if(from==="g"){var J=1-3/(4*(n-2)-1);return v/J} // g -> d
+  if(from==="r")return 2*v/Math.sqrt(1-v*v);
+  if(from==="eta"){var r=Math.sqrt(v);return 2*r/Math.sqrt(1-r*r)}
+  if(from==="f")return 2*v;
+  if(from==="or")return Math.log(v)*Math.sqrt(3)/Math.PI;
+  return v;
+}
+function run(){
+  var from=$("eb-from").value,v=parseFloat($("eb-val").value),n=parseInt($("eb-n").value,10)||40;
+  $("eb-nw").style.display=(from==="g")?"":"none";
+  if(isNaN(v)){$("eb-out").textContent="\u2014";$("eb-lvl").textContent="\u2014";return}
+  var d=toD(v,from,n);
+  var r=d/Math.sqrt(d*d+4);
+  var eta=r*r;
+  var f=d/2;
+  var g=d*(1-3/(4*(2*n-2)-1));
+  var or=Math.exp(d*Math.PI/Math.sqrt(3));
+  var ad=Math.abs(d);
+  var lvl=ad<0.2?"ihmal edilebilir":ad<0.5?"k\u00fc\u00e7\u00fck":ad<0.8?"orta":ad<1.2?"b\u00fcy\u00fck":"\u00e7ok b\u00fcy\u00fck";
+  $("eb-lvl").textContent=lvl;
+  $("eb-out").textContent=
+    "Cohen d        "+fmt(d)+"\n"+
+    "Hedges g       "+fmt(g)+"  (n = "+n+")\n"+
+    "Korelasyon r   "+fmt(r)+"\n"+
+    "Eta kare \u03b7\u00b2    "+fmt(eta)+"\n"+
+    "Cohen f        "+fmt(f)+"\n"+
+    "Odds ratio     "+fmt(or)+"\n\n"+
+    "Ortak dilde a\u00e7\u0131klama:\n"+
+    "\u0130ki grup kar\u015f\u0131la\u015ft\u0131r\u0131ld\u0131\u011f\u0131nda, ortalamalar aras\u0131ndaki fark "+lvl+" d\u00fczeydedir. "+
+    "Bu, deney grubundaki tipik bir bireyin kontrol grubunun yakla\u015f\u0131k "+
+    "%"+Math.round(cdf(d)*100)+"'inden daha y\u00fcksek bir de\u011fere sahip olmas\u0131 demektir.";
+}
+function cdf(x){ // standart normal CDF (etki b\u00fcy\u00fckl\u00fc\u011f\u00fc y\u00fczdelik kar\u015f\u0131l\u0131\u011f\u0131)
+  var t=1/(1+0.2316419*Math.abs(x));
+  var d=0.3989423*Math.exp(-x*x/2);
+  var p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));
+  return x>0?1-p:p;
+}
+$("eb-from").addEventListener("change",run);
+$("eb-val").addEventListener("input",run);
+$("eb-n").addEventListener("input",run);
+run();
+})();
+//]]></script>

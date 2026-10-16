@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="tr" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f4f3f0">
+<title>DOI Kaynakça Üretici — VuMaTech Tools</title>
+<meta name="description" content="DOI listesinden APA 7, Vancouver, GOST, MLA, Chicago, BibTeX ve RIS kaynakçası üretir.">
+<link rel="canonical" href="https://tools.vumatech.net/araclar/doi-kaynakca-uretici/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="VuMaTech Tools">
+<meta property="og:title" content="DOI Kaynakça Üretici — VuMaTech Tools">
+<meta property="og:description" content="DOI listesinden APA 7, Vancouver, GOST, MLA, Chicago, BibTeX ve RIS kaynakçası üretir.">
+<meta property="og:url" content="https://tools.vumatech.net/araclar/doi-kaynakca-uretici/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/assets/kit.css">
+<script>
+/* Tema, sayfa çizilmeden uygulanır; yoksa karanlık temada bir an beyaz parlama olur.
+   Kayıtlı tercih yoksa işletim sistemi ayarı kullanılır. */
+(function(){try{
+  var t=localStorage.getItem("vmt_theme");
+  if(t!=="dark"&&t!=="light"){
+    t=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";
+  }
+  document.documentElement.setAttribute("data-theme",t);
+  var m=document.querySelector('meta[name="theme-color"]');
+  if(m)m.setAttribute("content", t==="dark"?"#0d1014":"#f4f3f0");
+}catch(e){document.documentElement.setAttribute("data-theme","light");}})();
+</script>
+</head>
+<body>
+<div class="shell">
+  <div class='crest'>
+    <a class='name' href="/">VuMaTech <b>Tools</b></a>
+    <span class='crest-right'>
+<div class='langpick' id='langpick' role='group' aria-label='Dil'>
+        <button class='langbtn' data-lang='tr' title='Türkçe' aria-label='Türkçe'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e30a17'/><circle cx='11.5' cy='10' r='5' fill='#fff'/><circle cx='13' cy='10' r='4' fill='#e30a17'/><path fill='#fff' d='M17.5 10l4.2-1.4-2.6 3.6v-4.4l2.6 3.6z'/></svg></button>
+        <button class='langbtn' data-lang='ky' title='Кыргызча' aria-label='Кыргызча'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e8112d'/><circle cx='15' cy='10' r='4.2' fill='#ffef00'/><circle cx='15' cy='10' r='2.4' fill='none' stroke='#e8112d' stroke-width='.5'/><g stroke='#ffef00' stroke-width='.5'><path d='M15 4v12M9 10h12M10.6 5.6l8.8 8.8M19.4 5.6l-8.8 8.8'/></g></svg></button>
+        <button class='langbtn' data-lang='ru' title='Русский' aria-label='Русский'><svg viewBox='0 0 30 20'><rect width='30' height='6.67' fill='#fff'/><rect y='6.67' width='30' height='6.67' fill='#0039a6'/><rect y='13.33' width='30' height='6.67' fill='#d52b1e'/></svg></button>
+        <button class='langbtn' data-lang='en' title='English' aria-label='English'><svg viewBox='0 0 30 20'><clipPath id='uk'><rect width='30' height='20'/></clipPath><g clip-path='url(#uk)'><rect width='30' height='20' fill='#012169'/><path d='M0 0l30 20M30 0L0 20' stroke='#fff' stroke-width='4'/><path d='M0 0l30 20M30 0L0 20' stroke='#c8102e' stroke-width='2'/><path d='M15 0v20M0 10h30' stroke='#fff' stroke-width='6'/><path d='M15 0v20M0 10h30' stroke='#c8102e' stroke-width='3.5'/></g></svg></button>
+      </div>
+      <button class='themebtn' id='themebtn' aria-label='Tema'>
+        <svg class='i-moon' viewBox='0 0 24 24'><path d='M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z'/></svg>
+        <svg class='i-sun' viewBox='0 0 24 24'><circle cx='12' cy='12' r='4.2'/><path d='M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8'/></svg>
+      </button>
+      <a class='up' href='https://vumatech.net'>vumatech.net</a>
+    </span>
+  </div>
+
+
+<a class="back" href="/" data-i18n="back">← bütün araçlar</a>
+<h1 class="view">DOI Kaynakça Üretici</h1>
+<p class="priv"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> <span data-i18n="priv">Bu araç tamamen tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</span></p>
+<div class="tk">
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">DOI listesi — her satıra bir tane</p>
+  <div class="tk-field"><label for="dk-in">Girdi</label>
+    <textarea id="dk-in" class="tk-area" spellcheck="false" placeholder="10.1038/nature12373&#10;https://doi.org/10.1016/j.cose.2021.102248"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="dk-go">Kaynakça üret</button>
+    <button class="tk-btn ghost" id="dk-copy">Kopyala</button>
+    <span class="tk-msg" id="dk-msg"></span>
+  </div>
+  <p class="tk-h2">Kaynakça</p>
+  <div class="tk-out" id="dk-out" style="max-height:420px"><span class="tk-blank">DOI yapıştırın. Veriler Crossref'ten çekilir.</span></div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Biçim</p>
+  <div class="tk-field"><label for="dk-style">Atıf stili</label>
+    <select id="dk-style" class="tk-sel">
+      <option value="apa">APA 7</option>
+      <option value="van">Vancouver</option>
+      <option value="gost">GOST R 7.0.5-2008</option>
+      <option value="mla">MLA 9</option>
+      <option value="chi">Chicago (yazar-tarih)</option>
+      <option value="bib">BibTeX</option>
+      <option value="ris">RIS — EndNote / Mendeley</option>
+    </select></div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="dk-sort" checked><span>Alfabetik sırala<em>BibTeX ve RIS dışında</em></span></label>
+    <label><input type="checkbox" id="dk-num"><span>Numaralandır</span></label>
+  </div>
+  <div class="tk-stats" style="margin-top:16px">
+    <div class="tk-stat"><b id="dk-ok">0</b><span>bulundu</span></div>
+    <div class="tk-stat warn"><b id="dk-no">0</b><span>bulunamadı</span></div>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Not</p>
+  <p class="tk-note">Kayıtlar Crossref veri tabanından gelir; yayıncının girdiği
+     üstveri eksikse kaynakça da eksik olur. Özellikle sayfa aralığı ve sayı
+     numarası sık eksiktir — çıktıyı dergi şablonunuza karşı gözden geçirin.
+     Kitap ve tez gibi DOI'siz kaynaklar bu araçla üretilemez.</p>
+</div>
+</div>
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var out=$("dk-out"),msg=$("dk-msg"),records=[];
+function ini(g){return (g||"").split(/[\s\-]+/).filter(Boolean).map(function(w){return w[0].toLocaleUpperCase("tr")+"."}).join(" ")}
+function iniTight(g){return (g||"").split(/[\s\-]+/).filter(Boolean).map(function(w){return w[0].toLocaleUpperCase("tr")}).join("")}
+function yr(m){try{return m.issued["date-parts"][0][0]||""}catch(e){return ""}}
+function T(m){return (m.title&&m.title[0])||"[başlıksız]"}
+function C(m){return (m["container-title"]&&m["container-title"][0])||""}
+function A(m){return m.author||[]}
+
+function apa(m){
+  var a=A(m),n=a.map(function(x){return (x.family||x.name||"")+", "+ini(x.given)});
+  var au=n.length===0?"":n.length===1?n[0]:
+    n.length<=20?n.slice(0,-1).join(", ")+", & "+n[n.length-1]:
+    n.slice(0,19).join(", ")+", … "+n[n.length-1];
+  var s=au+" ("+yr(m)+"). "+T(m)+".";
+  if(C(m))s+=" "+C(m);
+  if(m.volume)s+=", "+m.volume;
+  if(m.issue)s+="("+m.issue+")";
+  if(m.page)s+=", "+m.page;
+  s+=". https://doi.org/"+m.DOI;
+  return s;
+}
+function van(m){
+  var a=A(m).map(function(x){return (x.family||"")+" "+iniTight(x.given)});
+  var au=a.length>6?a.slice(0,6).join(", ")+", et al":a.join(", ");
+  var s=au+". "+T(m)+". "+(C(m)||"")+". "+yr(m);
+  if(m.volume)s+=";"+m.volume;
+  if(m.issue)s+="("+m.issue+")";
+  if(m.page)s+=":"+m.page;
+  return s+". doi:"+m.DOI;
+}
+function gost(m){
+  var a=A(m),first=a[0]?((a[0].family||"")+" "+ini(a[0].given)):"";
+  var all=a.map(function(x){return ini(x.given)+" "+(x.family||"")}).join(", ");
+  var s=(first?first+" ":"")+T(m)+" / "+all+" // "+(C(m)||"")+". — "+yr(m)+".";
+  if(m.volume)s+=" — Т. "+m.volume+".";
+  if(m.issue)s+=" — № "+m.issue+".";
+  if(m.page)s+=" — С. "+m.page+".";
+  return s+" — DOI "+m.DOI+".";
+}
+function mla(m){
+  var a=A(m),au="";
+  if(a.length===1)au=(a[0].family||"")+", "+(a[0].given||"");
+  else if(a.length===2)au=(a[0].family||"")+", "+(a[0].given||"")+", and "+(a[1].given||"")+" "+(a[1].family||"");
+  else if(a.length>2)au=(a[0].family||"")+", "+(a[0].given||"")+", et al";
+  var s=(au?au+". ":"")+'"'+T(m)+'." '+(C(m)||"");
+  if(m.volume)s+=", vol. "+m.volume;
+  if(m.issue)s+=", no. "+m.issue;
+  s+=", "+yr(m);
+  if(m.page)s+=", pp. "+m.page;
+  return s+", https://doi.org/"+m.DOI+".";
+}
+function chi(m){
+  var a=A(m),n=a.map(function(x,i){return i===0?(x.family||"")+", "+(x.given||""):(x.given||"")+" "+(x.family||"")});
+  var au=n.length<=1?n.join(""):n.slice(0,-1).join(", ")+", and "+n[n.length-1];
+  var s=(au?au+". ":"")+yr(m)+'. "'+T(m)+'." '+(C(m)||"");
+  if(m.volume)s+=" "+m.volume;
+  if(m.issue)s+=" ("+m.issue+")";
+  if(m.page)s+=": "+m.page;
+  return s+". https://doi.org/"+m.DOI+".";
+}
+function key(m){
+  var a=A(m)[0];
+  return ((a&&a.family)||"kaynak").toLowerCase().replace(/[^a-z]/g,"")+(yr(m)||"");
+}
+function bib(m){
+  var f=[["author",A(m).map(function(x){return (x.family||"")+", "+(x.given||"")}).join(" and ")],
+    ["title",T(m)],["journal",C(m)],["year",yr(m)],["volume",m.volume],
+    ["number",m.issue],["pages",(m.page||"").replace("-","--")],
+    ["publisher",m.publisher],["doi",m.DOI]];
+  return "@article{"+key(m)+",\n"+f.filter(function(x){return x[1]})
+    .map(function(x){return "  "+x[0]+" = {"+x[1]+"}"}).join(",\n")+"\n}";
+}
+function ris(m){
+  var L=["TY  - JOUR"];
+  A(m).forEach(function(x){L.push("AU  - "+(x.family||"")+", "+(x.given||""))});
+  L.push("TI  - "+T(m));
+  if(C(m))L.push("JO  - "+C(m));
+  if(yr(m))L.push("PY  - "+yr(m));
+  if(m.volume)L.push("VL  - "+m.volume);
+  if(m.issue)L.push("IS  - "+m.issue);
+  if(m.page){var p=String(m.page).split("-");L.push("SP  - "+p[0]);if(p[1])L.push("EP  - "+p[1])}
+  L.push("DO  - "+m.DOI);L.push("UR  - https://doi.org/"+m.DOI);L.push("ER  - ");
+  return L.join("\n");
+}
+var FN={apa:apa,van:van,gost:gost,mla:mla,chi:chi,bib:bib,ris:ris};
+
+function render(){
+  if(!records.length){out.innerHTML='<span class="tk-blank">DOI yapıştırın. Veriler Crossref\'ten çekilir.</span>';return}
+  var st=$("dk-style").value,fn=FN[st];
+  var rs=records.slice();
+  if($("dk-sort").checked&&st!=="bib"&&st!=="ris")
+    rs.sort(function(a,b){return fn(a).localeCompare(fn(b),"tr")});
+  var sep=(st==="bib"||st==="ris")?"\n\n":"\n\n";
+  out.textContent=rs.map(function(m,i){
+    return ($("dk-num").checked&&st!=="bib"&&st!=="ris"?(i+1)+". ":"")+fn(m)}).join(sep);
+}
+$("dk-style").addEventListener("change",render);
+$("dk-sort").addEventListener("change",render);
+$("dk-num").addEventListener("change",render);
+$("dk-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText(out.textContent).then(function(){msg.textContent="kopyalandı"})});
+
+$("dk-go").addEventListener("click",function(){
+  var dois=$("dk-in").value.split("\n").map(function(l){
+    return l.trim().replace(/^https?:\/\/(dx\.)?doi\.org\//i,"").replace(/^doi:\s*/i,"");
+  }).filter(function(d){return /^10\.\d{4,9}\//.test(d)});
+  if(!dois.length){msg.className="tk-msg err";msg.textContent="geçerli DOI bulunamadı";return}
+  if(dois.length>40){msg.className="tk-msg err";msg.textContent="en fazla 40 DOI";return}
+  msg.className="tk-msg";msg.textContent="Crossref sorgulanıyor…";
+  records=[];var miss=0,done=0;
+  dois.forEach(function(d){
+    fetch("https://api.crossref.org/works/"+encodeURIComponent(d)
+      +"?mailto=vumatechnet@gmail.com")
+      .then(function(r){if(!r.ok)throw 0;return r.json()})
+      .then(function(j){records.push(j.message)})
+      .catch(function(){miss++})
+      .then(function(){
+        if(++done===dois.length){
+          $("dk-ok").textContent=records.length;$("dk-no").textContent=miss;
+          msg.textContent=records.length+" kayıt geldi"+(miss?", "+miss+" bulunamadı":"");
+          render();
+        }
+      });
+  });
+});
+})();
+</script>
+</div>
+  <div class='adzone'>
+    <span class='lbl'>reklam</span>
+    <!-- AdSense birimi: Google'dan aldığınız data-ad-slot değerini yazıp
+         aşağıdaki iki satırın yorumunu kaldırın.
+    <script async='async' src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5193342573714090' crossorigin='anonymous'/>
+    <ins class='adsbygoogle' style='display:block' data-ad-client='ca-pub-5193342573714090' data-ad-slot='XXXXXXXXXX' data-ad-format='auto' data-full-width-responsive='true'/>
+    -->
+  </div>
+
+  <div class='promo'>
+    <p class='kicker' data-i18n='promo_kicker'>VuMaTech Studio · Bişkek</p>
+    <h2><span data-i18n='promo_h2_a'>Bu araçları yapan ekip </span><em data-i18n='promo_h2_b'>sizin sitenizi de yapar</em></h2>
+    <p class='lead' data-i18n='promo_lead'>Kurumsal siteden dijital menüye, akademik dergi sistemlerinden oyun portalına kadar. Tasarım, kurulum ve yıllık bakım tek elden.</p>
+    <div class='svcs'>
+      <a class='svc' href='https://web.vumatech.net'>
+        <b data-i18n='svc_web'>Web Tasarım</b><span data-i18n='svc_web_d'>Kurumsal site, portfolyo, tanıtım sayfası</span></a>
+      <a class='svc' href='https://menu.vumatech.net'>
+        <b data-i18n='svc_menu'>QR Dijital Menü</b><span data-i18n='svc_menu_d'>Çok dilli menü, anlık güncelleme, baskı maliyeti yok</span></a>
+      <a class='svc' href='https://academy.vumatech.net'>
+        <b data-i18n='svc_acad'>Akademik Web</b><span data-i18n='svc_acad_d'>Akademisyen sitesi, özgeçmiş, yayın listesi</span></a>
+      <a class='svc' href='https://ojs.vumatech.net'>
+        <b data-i18n='svc_ojs'>OJS Dergi Sistemi</b><span data-i18n='svc_ojs_d'>Kurulum, tema, hakem süreci yönetimi</span></a>
+    </div>
+    <div class='cta'>
+      <a class='btn' id='tg-btn' href='https://t.me/vumatech' target='_blank' rel='noopener'><svg viewBox='0 0 24 24'><path d='M9.8 15.3l-.4 4c.5 0 .8-.2 1.1-.5l2.6-2.4 5.4 3.9c1 .5 1.7.3 2-1l3.6-16.8c.3-1.2-.5-1.8-1.4-1.4L1.3 9.9c-1.2.5-1.2 1.1-.2 1.4l5.3 1.6L18.6 5c.6-.4 1.1-.2.7.2z'/></svg>
+        <span data-i18n='promo_wa'>Telegram: @vumatech</span></a>
+      <a class='btn line' href='https://vumatech.net' data-i18n='promo_all'>Tüm hizmetler</a>
+    </div>
+  </div>
+
+  <div class='foot'>
+    <div class='cols'>
+      <div>
+        <a class='brand' href='https://vumatech.net'>VuMaTech <b>Studio</b></a>
+        <p data-i18n='foot_about'>Bişkek merkezli web tasarım ve dijital hizmet atölyesi. Türkiye ve Kırgızistan'da çalışır.</p>
+        <p data-i18n='foot_about2'>Bu sayfadaki bütün araçlar ücretsizdir ve tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</p>
+      </div>
+      <div>
+        <h3 data-i18n='foot_services'>Hizmetler</h3>
+        <ul>
+          <li><a href='https://web.vumatech.net'>Web tasarım</a></li>
+          <li><a href='https://menu.vumatech.net'>QR dijital menü</a></li>
+          <li><a href='https://academy.vumatech.net'>Akademik web</a></li>
+          <li><a href='https://ojs.vumatech.net'>OJS dergi sistemi</a></li>
+          <li><a href='https://game.vumatech.net'>Oyun portalı</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n='foot_contact'>İletişim</h3>
+        <ul>
+          <li><a id='tg-foot' href='https://t.me/vumatech'>Telegram · @vumatech</a></li>
+          <li><a href='mailto:vumatechnet@gmail.com'>vumatechnet@gmail.com</a></li>
+          <li><a href='https://vumatech.net'>vumatech.net</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class='base'>
+      <span>© VuMaTech Studio · Bişkek</span>
+      <span><a href="/hakkinda/">Hakkında</a> · <a href="/gizlilik-ve-kvkk/">Gizlilik ve KVKK</a> · </span><span><a href="/">araç dizini</a> · <a href='https://vumatech.net'>VuMaTech</a></span>
+    </div>
+  </div>
+
+</div>
+
+
+</div>
+<script src="/assets/site.js"></script>
+
+</body>
+</html>

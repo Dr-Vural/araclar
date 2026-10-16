@@ -1,0 +1,60 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Başlıklar — her satır ayrı slug olur</p>
+  <div class="tk-field"><label for="sl-in">Girdi</label>
+    <textarea id="sl-in" class="tk-area" placeholder="Şehir Güncesi: Bişkek'te Bir Gün&#10;Öğrenci Değişim Programı 2026"></textarea></div>
+  <div class="tk-field"><label for="sl-out">Slug</label>
+    <textarea id="sl-out" class="tk-area" readonly></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn ghost" id="sl-copy">Panoya kopyala</button>
+    <span class="tk-msg" id="sl-msg"></span>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Ayarlar</p>
+  <div class="tk-field"><label for="sl-sep">Ayırıcı</label>
+    <select id="sl-sep" class="tk-sel"><option value="-">tire ( - )</option><option value="_">alt çizgi ( _ )</option></select></div>
+  <div class="tk-field"><label for="sl-max">En fazla karakter (0 = sınırsız)</label>
+    <input type="number" id="sl-max" class="tk-in" value="0" min="0"></div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="sl-stop"><span>Bağlaçları at<em>ve, ile, için, bir, bu, da, de</em></span></label>
+    <label><input type="checkbox" id="sl-num" checked><span>Rakamları koru</span></label>
+  </div>
+  <p class="tk-h2">Fark</p>
+  <p class="tk-note">İngilizce slug üreticileri Türkçe harfleri tanımadığı için siler:
+     "Şehir Güncesi" → <span class="tk-mark">ehir-gncesi</span>. Bu araç harf
+     karşılıklarına çevirir: <span class="tk-good">sehir-guncesi</span>.
+     Arama motoru için okunabilir sonuç budur.</p>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var MAP={"\u00e7":"c","\u00c7":"c","\u011f":"g","\u011e":"g","\u0131":"i","I":"i","\u0130":"i","i":"i",
+"\u00f6":"o","\u00d6":"o","\u015f":"s","\u015e":"s","\u00fc":"u","\u00dc":"u","\u00e2":"a","\u00c2":"a","\u00ee":"i","\u00ce":"i",
+"\u00fb":"u","\u00db":"u","\u00e9":"e","\u00c9":"e","\u00f1":"n","\u00df":"ss","\u0153":"oe","\u00e6":"ae"};
+var STOP=["ve","ile","i\u00e7in","bir","bu","da","de","ki","mi","m\u0131","the","a","an","of"];
+var inp=$("sl-in"),out=$("sl-out"),msg=$("sl-msg");
+function slug(s){
+  var sep=$("sl-sep").value,max=parseInt($("sl-max").value,10)||0;
+  var t=s.split("").map(function(c){return MAP[c]!==undefined?MAP[c]:c}).join("");
+  t=t.toLocaleLowerCase("tr").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  if(!$("sl-num").checked)t=t.replace(/[0-9]/g,"");
+  var w=t.split(/[^a-z0-9]+/).filter(Boolean);
+  if($("sl-stop").checked)w=w.filter(function(x){return STOP.indexOf(x)<0});
+  var r=w.join(sep);
+  if(max&&r.length>max){r=r.slice(0,max);r=r.replace(new RegExp("\\"+sep+"[^"+sep+"]*$"),"")}
+  return r;
+}
+function run(){
+  var lines=inp.value.split("\n");
+  out.value=lines.map(function(l){return l.trim()?slug(l):""}).join("\n");
+  msg.textContent=lines.filter(function(l){return l.trim()}).length+" sat\u0131r";
+}
+["sl-in","sl-sep","sl-max","sl-stop","sl-num"].forEach(function(id){
+  $(id).addEventListener("input",run);$(id).addEventListener("change",run)});
+$("sl-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText(out.value).then(function(){msg.textContent="kopyaland\u0131"})});
+})();
+//]]></script>

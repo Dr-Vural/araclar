@@ -1,0 +1,111 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<div class="tk-cols">
+<div>
+  <div class="tk-drop" id="pu-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6v20h12V8z M14 2v6h4"/><path d="M9 13h6M9 17h3"/></svg>
+    <strong>PDF bırakın</strong><span>İçindeki yazar ve üretici bilgisini görün</span>
+  </div>
+  <input type="file" id="pu-file" class="tk-hidden" accept="application/pdf,.pdf">
+  <div class="tk-panel">
+    <p class="tk-h">Yazılacak alanlar</p>
+    <div class="tk-field"><label for="pu-title">Başlık</label><input type="text" id="pu-title" class="tk-in"></div>
+    <div class="tk-field"><label for="pu-author">Yazar</label><input type="text" id="pu-author" class="tk-in"></div>
+    <div class="tk-field"><label for="pu-subject">Konu</label><input type="text" id="pu-subject" class="tk-in"></div>
+    <div class="tk-field"><label for="pu-keys">Anahtar kelimeler — virgülle</label><input type="text" id="pu-keys" class="tk-in"></div>
+    <div class="tk-two">
+      <div class="tk-field"><label for="pu-cre">Oluşturan program</label><input type="text" id="pu-cre" class="tk-in"></div>
+      <div class="tk-field"><label for="pu-pro">Üreten program</label><input type="text" id="pu-pro" class="tk-in"></div>
+    </div>
+    <div class="tk-checks">
+      <label><input type="checkbox" id="pu-wipe"><span>Bütün alanları boşalt<em>Yukarıdaki kutular yok sayılır, üstveri tümüyle silinir</em></span></label>
+      <label><input type="checkbox" id="pu-dates" checked><span>Tarihleri de yaz<em>Kapalıysa özgün oluşturma tarihi korunur</em></span></label>
+    </div>
+    <div class="tk-acts">
+      <button class="tk-btn" id="pu-go" disabled>Kaydet</button>
+      <span class="tk-msg" id="pu-msg">dosya bekleniyor</span>
+    </div>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Dosyanın içinde ne yazıyor</p>
+  <div class="tk-out" id="pu-read" style="max-height:340px"><span class="tk-blank">PDF bırakın; mevcut üstveri buraya dökülür.</span></div>
+  <div id="pu-out"></div>
+  <p class="tk-note">PDF üstverisi çoğu kişinin farkında olmadığı bir sızıntı
+     kaynağıdır: "Üreten program" alanı hangi Word sürümünü kullandığınızı,
+     "Yazar" alanı bilgisayarınızdaki hesap adını taşır. Kör hakemliğe
+     gönderilen dosyalarda ilk bakılan yer burasıdır.</p>
+  <p class="tk-note">Bu araç yalnız belge üstverisini değiştirir. Sayfa içeriği,
+     gömülü yazı tipleri ve varsa dijital imza olduğu gibi kalır — imza varsa
+     üstveriyi değiştirmek imzayı geçersiz kılabilir.</p>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var drop=$("pu-drop"),inp=$("pu-file"),msg=$("pu-msg"),go=$("pu-go");
+var buf=null,name="belge";
+var SIG=["word","acrobat","distiller","libreoffice","openoffice","latex","pdftex",
+"ghostscript","chrome","canva","indesign","photoshop","scanner","xerox","hp ",
+"claude","chatgpt","openai","anthropic","gemini","copilot"];
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}
+function mark(v){
+  var s=esc(v||"");
+  SIG.forEach(function(k){
+    s=s.replace(new RegExp("("+k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","ig"),
+      '<span class="tk-mark">$1</span>');
+  });
+  return s;
+}
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files[0])});
+inp.addEventListener("change",function(e){take(e.target.files[0])});
+function d2s(d){try{return d?d.toISOString().slice(0,19).replace("T"," "):""}catch(e){return ""}}
+function take(f){
+  if(!f)return;name=f.name.replace(/\.pdf$/i,"");
+  f.arrayBuffer().then(function(b){buf=b;
+    return PDFLib.PDFDocument.load(b,{ignoreEncryption:true,updateMetadata:false})})
+   .then(function(d){
+    var rows=[["Baslik",d.getTitle()],["Yazar",d.getAuthor()],["Konu",d.getSubject()],
+      ["Anahtar kelime",d.getKeywords()],["Olusturan",d.getCreator()],
+      ["Ureten",d.getProducer()],["Olusturma",d2s(d.getCreationDate())],
+      ["Degistirme",d2s(d.getModificationDate())],["Sayfa",d.getPageCount()]];
+    $("pu-read").innerHTML=rows.map(function(r){
+      return '<div class="row"><div class="k" style="display:inline-block;width:150px;color:var(--ink-3)">'
+        +r[0]+'</div>'+(r[1]?mark(r[1]):'<span class="tk-blank">(bos)</span>')+'</div>';
+    }).join("");
+    $("pu-title").value=d.getTitle()||"";
+    $("pu-author").value=d.getAuthor()||"";
+    $("pu-subject").value=d.getSubject()||"";
+    $("pu-keys").value=(d.getKeywords()||"");
+    $("pu-cre").value=d.getCreator()||"";
+    $("pu-pro").value=d.getProducer()||"";
+    go.disabled=false;msg.className="tk-msg";msg.textContent="uistveri okundu";
+   })
+   .catch(function(e){msg.className="tk-msg err";
+     msg.textContent=/encrypt|password/i.test(e.message)?"parola korumali dosya":"okunamadi"});
+}
+go.addEventListener("click",function(){
+  msg.className="tk-msg";msg.textContent="kaydediliyor...";go.disabled=true;
+  var wipe=$("pu-wipe").checked;
+  PDFLib.PDFDocument.load(buf,{ignoreEncryption:true,updateMetadata:false}).then(function(d){
+    d.setTitle(wipe?"":$("pu-title").value);
+    d.setAuthor(wipe?"":$("pu-author").value);
+    d.setSubject(wipe?"":$("pu-subject").value);
+    d.setKeywords(wipe?[]:$("pu-keys").value.split(",").map(function(x){return x.trim()}).filter(Boolean));
+    d.setCreator(wipe?"":$("pu-cre").value);
+    d.setProducer(wipe?"":$("pu-pro").value);
+    if($("pu-dates").checked){var now=new Date();d.setCreationDate(now);d.setModificationDate(now)}
+    return d.save();
+  }).then(function(b){
+    var blob=new Blob([b],{type:"application/pdf"});
+    $("pu-out").innerHTML='<div class="tk-acts"><a class="tk-btn" style="text-decoration:none" href="'
+      +URL.createObjectURL(blob)+'" download="'+esc(name)+'-ustveri.pdf">indir</a></div>';
+    msg.textContent=wipe?"ustveri silindi":"ustveri yazildi";go.disabled=false;
+  }).catch(function(e){msg.className="tk-msg err";msg.textContent=e.message;go.disabled=false});
+});
+})();
+//]]></script>

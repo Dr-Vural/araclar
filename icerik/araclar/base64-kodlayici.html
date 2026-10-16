@@ -1,0 +1,102 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Metin</p>
+  <div class="tk-field"><label for="bs-in">Girdi</label>
+    <textarea id="bs-in" class="tk-area" spellcheck="false" placeholder="Kodlanacak ya da çözülecek metin…"></textarea></div>
+  <div class="tk-field"><label for="bs-out">Çıktı</label>
+    <textarea id="bs-out" class="tk-area" readonly spellcheck="false"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="bs-enc">Kodla</button>
+    <button class="tk-btn ghost" id="bs-dec">Çöz</button>
+    <button class="tk-btn ghost" id="bs-copy">Kopyala</button>
+    <button class="tk-btn ghost" id="bs-swap">Sonucu girdiye al</button>
+    <span class="tk-msg" id="bs-msg"></span>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Ayar</p>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="bs-url"><span>URL güvenli değişke<em>+ ve / yerine - ve _ kullanır, = kaldırılır</em></span></label>
+    <label><input type="checkbox" id="bs-wrap"><span>76 karakterde satır kır<em>MIME / e-posta başlıkları için</em></span></label>
+  </div>
+  <div class="tk-stats" style="margin-top:16px">
+    <div class="tk-stat"><b id="bs-a">0</b><span>girdi</span></div>
+    <div class="tk-stat"><b id="bs-b">0</b><span>çıktı</span></div>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Dosya kodla</p>
+  <div class="tk-drop" id="bs-drop" tabindex="0" role="button" style="padding:24px">
+    <strong style="font-size:15px">Dosya bırakın</strong>
+    <span>Her tür dosya — Base64 metne çevrilir</span>
+  </div>
+  <input type="file" id="bs-file" class="tk-hidden">
+  <p class="tk-note">Base64 şifreleme değildir, yalnızca kodlamadır. Herkes geri
+     çözebilir; gizli veri saklamak için kullanmayın.</p>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var msg=$("bs-msg");
+function post(s){
+  if($("bs-url").checked)s=s.replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+  if($("bs-wrap").checked)s=s.replace(/(.{76})/g,"$1\n");
+  return s;
+}
+function pre(s){
+  s=s.replace(/\s/g,"").replace(/-/g,"+").replace(/_/g,"/");
+  while(s.length%4)s+="=";
+  return s;
+}
+function enc(){
+  try{
+    var b=new TextEncoder().encode($("bs-in").value);
+    var bin="";b.forEach(function(v){bin+=String.fromCharCode(v)});
+    $("bs-out").value=post(btoa(bin));
+    msg.className="tk-msg";msg.textContent="kodland\u0131";
+  }catch(e){msg.className="tk-msg err";msg.textContent="kodlanamad\u0131"}
+  count();
+}
+function dec(){
+  try{
+    var bin=atob(pre($("bs-in").value));
+    var b=new Uint8Array(bin.length);
+    for(var i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);
+    $("bs-out").value=new TextDecoder("utf-8").decode(b);
+    msg.className="tk-msg";msg.textContent="\u00e7\u00f6z\u00fcld\u00fc";
+  }catch(e){msg.className="tk-msg err";msg.textContent="ge\u00e7erli Base64 de\u011fil"}
+  count();
+}
+function count(){
+  $("bs-a").textContent=$("bs-in").value.length;
+  $("bs-b").textContent=$("bs-out").value.length;
+}
+$("bs-enc").addEventListener("click",enc);
+$("bs-dec").addEventListener("click",dec);
+$("bs-in").addEventListener("input",count);
+$("bs-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("bs-out").value).then(function(){msg.textContent="kopyaland\u0131"})});
+$("bs-swap").addEventListener("click",function(){$("bs-in").value=$("bs-out").value;count()});
+var drop=$("bs-drop"),inp=$("bs-file");
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+function takeFile(f){
+  if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){
+    var s=String(r.result).split(",")[1]||"";
+    $("bs-out").value=post(s);count();
+    msg.className="tk-msg";msg.textContent=f.name+" kodland\u0131";
+  };
+  r.readAsDataURL(f);
+}
+drop.addEventListener("drop",function(e){takeFile(e.dataTransfer.files[0])});
+inp.addEventListener("change",function(e){takeFile(e.target.files[0])});
+})();
+//]]></script>

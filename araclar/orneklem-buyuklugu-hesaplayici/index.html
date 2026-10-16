@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="tr" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f4f3f0">
+<title>Örneklem Büyüklüğü Hesaplayıcı — VuMaTech Tools</title>
+<meta name="description" content="Anket, t testi, korelasyon ve ANOVA için gereken katılımcı sayısı. Yöntem bölümüne hazır cümleyle birlikte.">
+<link rel="canonical" href="https://tools.vumatech.net/araclar/orneklem-buyuklugu-hesaplayici/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="VuMaTech Tools">
+<meta property="og:title" content="Örneklem Büyüklüğü Hesaplayıcı — VuMaTech Tools">
+<meta property="og:description" content="Anket, t testi, korelasyon ve ANOVA için gereken katılımcı sayısı. Yöntem bölümüne hazır cümleyle birlikte.">
+<meta property="og:url" content="https://tools.vumatech.net/araclar/orneklem-buyuklugu-hesaplayici/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/assets/kit.css">
+<script>
+/* Tema, sayfa çizilmeden uygulanır; yoksa karanlık temada bir an beyaz parlama olur.
+   Kayıtlı tercih yoksa işletim sistemi ayarı kullanılır. */
+(function(){try{
+  var t=localStorage.getItem("vmt_theme");
+  if(t!=="dark"&&t!=="light"){
+    t=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";
+  }
+  document.documentElement.setAttribute("data-theme",t);
+  var m=document.querySelector('meta[name="theme-color"]');
+  if(m)m.setAttribute("content", t==="dark"?"#0d1014":"#f4f3f0");
+}catch(e){document.documentElement.setAttribute("data-theme","light");}})();
+</script>
+</head>
+<body>
+<div class="shell">
+  <div class='crest'>
+    <a class='name' href="/">VuMaTech <b>Tools</b></a>
+    <span class='crest-right'>
+<div class='langpick' id='langpick' role='group' aria-label='Dil'>
+        <button class='langbtn' data-lang='tr' title='Türkçe' aria-label='Türkçe'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e30a17'/><circle cx='11.5' cy='10' r='5' fill='#fff'/><circle cx='13' cy='10' r='4' fill='#e30a17'/><path fill='#fff' d='M17.5 10l4.2-1.4-2.6 3.6v-4.4l2.6 3.6z'/></svg></button>
+        <button class='langbtn' data-lang='ky' title='Кыргызча' aria-label='Кыргызча'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e8112d'/><circle cx='15' cy='10' r='4.2' fill='#ffef00'/><circle cx='15' cy='10' r='2.4' fill='none' stroke='#e8112d' stroke-width='.5'/><g stroke='#ffef00' stroke-width='.5'><path d='M15 4v12M9 10h12M10.6 5.6l8.8 8.8M19.4 5.6l-8.8 8.8'/></g></svg></button>
+        <button class='langbtn' data-lang='ru' title='Русский' aria-label='Русский'><svg viewBox='0 0 30 20'><rect width='30' height='6.67' fill='#fff'/><rect y='6.67' width='30' height='6.67' fill='#0039a6'/><rect y='13.33' width='30' height='6.67' fill='#d52b1e'/></svg></button>
+        <button class='langbtn' data-lang='en' title='English' aria-label='English'><svg viewBox='0 0 30 20'><clipPath id='uk'><rect width='30' height='20'/></clipPath><g clip-path='url(#uk)'><rect width='30' height='20' fill='#012169'/><path d='M0 0l30 20M30 0L0 20' stroke='#fff' stroke-width='4'/><path d='M0 0l30 20M30 0L0 20' stroke='#c8102e' stroke-width='2'/><path d='M15 0v20M0 10h30' stroke='#fff' stroke-width='6'/><path d='M15 0v20M0 10h30' stroke='#c8102e' stroke-width='3.5'/></g></svg></button>
+      </div>
+      <button class='themebtn' id='themebtn' aria-label='Tema'>
+        <svg class='i-moon' viewBox='0 0 24 24'><path d='M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z'/></svg>
+        <svg class='i-sun' viewBox='0 0 24 24'><circle cx='12' cy='12' r='4.2'/><path d='M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8'/></svg>
+      </button>
+      <a class='up' href='https://vumatech.net'>vumatech.net</a>
+    </span>
+  </div>
+
+
+<a class="back" href="/" data-i18n="back">← bütün araçlar</a>
+<h1 class="view">Örneklem Büyüklüğü Hesaplayıcı</h1>
+<p class="priv"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> <span data-i18n="priv">Bu araç tamamen tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</span></p>
+<div class="tk">
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Hesap</p>
+  <div class="tk-field"><label for="or-mode">Araştırma deseni</label>
+    <select id="or-mode" class="tk-sel">
+      <option value="survey">Anket / tarama — oran kestirimi</option>
+      <option value="ttest">İki grup karşılaştırması — bağımsız t testi</option>
+      <option value="paired">Eşleştirilmiş t testi / öntest-sontest</option>
+      <option value="corr">Korelasyon</option>
+      <option value="anova">Tek yönlü ANOVA</option>
+    </select></div>
+  <div id="or-fields"></div>
+  <div class="tk-stats" style="margin-top:8px">
+    <div class="tk-stat ok"><b id="or-n">—</b><span id="or-lbl">gereken örneklem</span></div>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Açıklama</p>
+  <div class="tk-out" id="or-exp">—</div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Yöntem bölümü için hazır cümle</p>
+  <div class="tk-out" id="or-sent" style="font-family:var(--sans);font-size:14.5px">—</div>
+  <div class="tk-acts"><button class="tk-btn ghost" id="or-copy">Kopyala</button>
+    <span class="tk-msg" id="or-msg"></span></div>
+  <p class="tk-note">Etki büyüklüğü değerleri için Cohen'in ölçütleri: d için
+     küçük 0,20 · orta 0,50 · büyük 0,80; korelasyon için 0,10 · 0,30 · 0,50;
+     f için 0,10 · 0,25 · 0,40. Alan yazınında benzer çalışmalardan bir etki
+     büyüklüğü kestirimi varsa onu kullanmak, Cohen'in genel ölçütlerinden
+     daha doğrudur.</p>
+</div>
+</div>
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var Z={90:1.6449,95:1.9600,99:2.5758};
+var ZP={80:0.8416,85:1.0364,90:1.2816,95:1.6449};
+var F={
+ survey:[["N","Evren büyüklüğü (bilinmiyorsa 0)","0"],["p","Beklenen oran (0–1)","0.5"],
+         ["d","Kabul edilen hata payı (0–1)","0.05"],["cl","Güven düzeyi (%)","95"]],
+ ttest:[["es","Beklenen etki büyüklüğü — Cohen d","0.5"],["a","Alfa (%)","5"],
+        ["pw","İstenen güç (%)","80"]],
+ paired:[["es","Beklenen etki büyüklüğü — Cohen d","0.5"],["a","Alfa (%)","5"],
+        ["pw","İstenen güç (%)","80"]],
+ corr:[["es","Beklenen korelasyon r","0.3"],["a","Alfa (%)","5"],["pw","İstenen güç (%)","80"]],
+ anova:[["es","Beklenen etki büyüklüğü — Cohen f","0.25"],["k","Grup sayısı","3"],
+        ["a","Alfa (%)","5"],["pw","İstenen güç (%)","80"]]
+};
+function build(){
+  var m=$("or-mode").value;
+  $("or-fields").innerHTML=F[m].map(function(f){
+    return '<div class="tk-field"><label for="or-'+f[0]+'">'+f[1]+'</label>'
+      +'<input type="number" step="any" id="or-'+f[0]+'" class="tk-in orf" value="'+f[2]+'"></div>';
+  }).join("");
+  Array.prototype.forEach.call(document.querySelectorAll(".orf"),function(x){
+    x.addEventListener("input",run)});
+  run();
+}
+function g(k){var e=$("or-"+k);return e?parseFloat(e.value):NaN}
+function za(a){ // iki yönlü
+  var cl=100-a;
+  return Z[Math.round(cl)]|| (Math.abs(cl-90)<Math.abs(cl-95)?Z[90]:Z[95]);
+}
+function zp(p){return ZP[Math.round(p)]||ZP[80]}
+function run(){
+  var m=$("or-mode").value,n,exp,sent,lbl="gereken örneklem";
+  if(m==="survey"){
+    var N=g("N"),p=g("p"),d=g("d"),cl=g("cl"),z=Z[Math.round(cl)]||Z[95];
+    if(!(p>0&&p<1)||!(d>0&&d<1)){$("or-n").textContent="—";return}
+    var n0=z*z*p*(1-p)/(d*d);
+    n=(N&&N>0)?(N*n0)/(n0+N-1):n0;
+    n=Math.ceil(n);
+    exp="Formül  n = z²·p·(1−p) / d²"+(N>0?"  (sonlu evren düzeltmesiyle)":"")
+      +"\nz       "+z.toFixed(4)+"   (%"+cl+" güven)"
+      +"\np       "+p+"\nd       "+d
+      +(N>0?"\nN       "+N:"\nN       sonsuz varsayıldı")
+      +"\n\nDüzeltilmemiş n₀ = "+Math.ceil(n0);
+    sent="Evreni "+(N>0?N+" kişi olan":"büyüklüğü bilinmeyen")+" araştırmada, %"+cl
+      +" güven düzeyi ve ±"+(d*100).toFixed(0)+" hata payı ile ulaşılması gereken "
+      +"en az örneklem büyüklüğü "+n+" olarak hesaplanmıştır.";
+  }else if(m==="ttest"||m==="paired"){
+    var es=g("es"),a=g("a"),pw=g("pw");
+    if(!(es>0)){$("or-n").textContent="—";return}
+    var k=Math.pow(za(a)+zp(pw),2);
+    // Normal yaklaşım t dağılımını hafife alır; z²/4 düzeltmesi G*Power ile
+    // aynı sonucu verir (d=0.5, α=.05, güç=.80 → 64).
+    var corr2=Math.pow(za(a),2)/4;
+    if(m==="ttest"){
+      n=Math.ceil(2*k/(es*es)+corr2);
+      lbl="her grup için";
+      exp="Formül  n(grup) = 2·(z₁₋α/₂ + z₁₋β)² / d²"
+        +"\nd       "+es+"\nα       "+a+"%   z = "+za(a).toFixed(4)
+        +"\nGüç     "+pw+"%   z = "+zp(pw).toFixed(4)
+        +"\n\nToplam gereken katılımcı: "+(n*2)
+        +"\n\n(t dağılımı için z²/4 düzeltmesi uygulandı; sonuç G*Power ile aynıdır)";
+      sent="Cohen d = "+es+" etki büyüklüğü, α = 0,"+String(a).padStart(2,"0")
+        +" ve %"+pw+" güç için yapılan güç analizinde her grup için en az "+n
+        +" (toplam "+(n*2)+") katılımcıya ulaşılması gerektiği belirlenmiştir.";
+    }else{
+      n=Math.ceil(k/(es*es)+corr2)+1;
+      exp="Formül  n = (z₁₋α/₂ + z₁₋β)² / d²  + 1"
+        +"\nd       "+es+"\nα       "+a+"%\nGüç     "+pw+"%";
+      sent="Eşleştirilmiş ölçümler için Cohen d = "+es+", α = 0,"
+        +String(a).padStart(2,"0")+" ve %"+pw+" güç koşulunda en az "+n
+        +" katılımcı gerektiği hesaplanmıştır.";
+    }
+  }else if(m==="corr"){
+    var r=g("es"),a2=g("a"),pw2=g("pw");
+    if(!(Math.abs(r)>0&&Math.abs(r)<1)){$("or-n").textContent="—";return}
+    var C=0.5*Math.log((1+r)/(1-r));
+    n=Math.ceil(Math.pow((za(a2)+zp(pw2))/C,2))+3;
+    exp="Fisher z dönüşümü ile\nC = ½·ln((1+r)/(1−r)) = "+C.toFixed(4)
+      +"\nn = ((z₁₋α/₂ + z₁₋β)/C)² + 3"
+      +"\nr       "+r+"\nα       "+a2+"%\nGüç     "+pw2+"%";
+    sent="r = "+r+" büyüklüğünde bir ilişkiyi α = 0,"+String(a2).padStart(2,"0")
+      +" düzeyinde ve %"+pw2+" güçle saptayabilmek için en az "+n
+      +" katılımcıya ulaşılması gerekmektedir.";
+  }else{
+    var f=g("es"),kk=g("k"),a3=g("a"),pw3=g("pw");
+    if(!(f>0)||!(kk>=2)){$("or-n").textContent="—";return}
+    var lam=Math.pow(za(a3)+zp(pw3),2);
+    var per=Math.ceil(lam/(f*f)/kk + kk);
+    n=per;lbl="her grup için";
+    exp="Yaklaşık güç hesabı (λ = N·f²)"
+      +"\nf       "+f+"\nGrup    "+kk+"\nα       "+a3+"%\nGüç     "+pw3+"%"
+      +"\n\nToplam gereken katılımcı: "+(per*kk)
+      +"\n\nNot: ANOVA için bu bir yaklaşımdır; kesin sonuç için G*Power kullanın.";
+    sent="Cohen f = "+f+" etki büyüklüğü, "+kk+" grup, α = 0,"
+      +String(a3).padStart(2,"0")+" ve %"+pw3+" güç için her grupta en az "+per
+      +" (toplam "+(per*kk)+") katılımcı gerekmektedir.";
+  }
+  $("or-n").textContent=n;
+  $("or-lbl").textContent=lbl;
+  $("or-exp").textContent=exp;
+  $("or-sent").textContent=sent;
+}
+$("or-mode").addEventListener("change",build);
+$("or-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("or-sent").textContent).then(function(){
+    $("or-msg").textContent="kopyalandı"})});
+build();
+})();
+</script>
+</div>
+  <div class='adzone'>
+    <span class='lbl'>reklam</span>
+    <!-- AdSense birimi: Google'dan aldığınız data-ad-slot değerini yazıp
+         aşağıdaki iki satırın yorumunu kaldırın.
+    <script async='async' src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5193342573714090' crossorigin='anonymous'/>
+    <ins class='adsbygoogle' style='display:block' data-ad-client='ca-pub-5193342573714090' data-ad-slot='XXXXXXXXXX' data-ad-format='auto' data-full-width-responsive='true'/>
+    -->
+  </div>
+
+  <div class='promo'>
+    <p class='kicker' data-i18n='promo_kicker'>VuMaTech Studio · Bişkek</p>
+    <h2><span data-i18n='promo_h2_a'>Bu araçları yapan ekip </span><em data-i18n='promo_h2_b'>sizin sitenizi de yapar</em></h2>
+    <p class='lead' data-i18n='promo_lead'>Kurumsal siteden dijital menüye, akademik dergi sistemlerinden oyun portalına kadar. Tasarım, kurulum ve yıllık bakım tek elden.</p>
+    <div class='svcs'>
+      <a class='svc' href='https://web.vumatech.net'>
+        <b data-i18n='svc_web'>Web Tasarım</b><span data-i18n='svc_web_d'>Kurumsal site, portfolyo, tanıtım sayfası</span></a>
+      <a class='svc' href='https://menu.vumatech.net'>
+        <b data-i18n='svc_menu'>QR Dijital Menü</b><span data-i18n='svc_menu_d'>Çok dilli menü, anlık güncelleme, baskı maliyeti yok</span></a>
+      <a class='svc' href='https://academy.vumatech.net'>
+        <b data-i18n='svc_acad'>Akademik Web</b><span data-i18n='svc_acad_d'>Akademisyen sitesi, özgeçmiş, yayın listesi</span></a>
+      <a class='svc' href='https://ojs.vumatech.net'>
+        <b data-i18n='svc_ojs'>OJS Dergi Sistemi</b><span data-i18n='svc_ojs_d'>Kurulum, tema, hakem süreci yönetimi</span></a>
+    </div>
+    <div class='cta'>
+      <a class='btn' id='tg-btn' href='https://t.me/vumatech' target='_blank' rel='noopener'><svg viewBox='0 0 24 24'><path d='M9.8 15.3l-.4 4c.5 0 .8-.2 1.1-.5l2.6-2.4 5.4 3.9c1 .5 1.7.3 2-1l3.6-16.8c.3-1.2-.5-1.8-1.4-1.4L1.3 9.9c-1.2.5-1.2 1.1-.2 1.4l5.3 1.6L18.6 5c.6-.4 1.1-.2.7.2z'/></svg>
+        <span data-i18n='promo_wa'>Telegram: @vumatech</span></a>
+      <a class='btn line' href='https://vumatech.net' data-i18n='promo_all'>Tüm hizmetler</a>
+    </div>
+  </div>
+
+  <div class='foot'>
+    <div class='cols'>
+      <div>
+        <a class='brand' href='https://vumatech.net'>VuMaTech <b>Studio</b></a>
+        <p data-i18n='foot_about'>Bişkek merkezli web tasarım ve dijital hizmet atölyesi. Türkiye ve Kırgızistan'da çalışır.</p>
+        <p data-i18n='foot_about2'>Bu sayfadaki bütün araçlar ücretsizdir ve tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</p>
+      </div>
+      <div>
+        <h3 data-i18n='foot_services'>Hizmetler</h3>
+        <ul>
+          <li><a href='https://web.vumatech.net'>Web tasarım</a></li>
+          <li><a href='https://menu.vumatech.net'>QR dijital menü</a></li>
+          <li><a href='https://academy.vumatech.net'>Akademik web</a></li>
+          <li><a href='https://ojs.vumatech.net'>OJS dergi sistemi</a></li>
+          <li><a href='https://game.vumatech.net'>Oyun portalı</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n='foot_contact'>İletişim</h3>
+        <ul>
+          <li><a id='tg-foot' href='https://t.me/vumatech'>Telegram · @vumatech</a></li>
+          <li><a href='mailto:vumatechnet@gmail.com'>vumatechnet@gmail.com</a></li>
+          <li><a href='https://vumatech.net'>vumatech.net</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class='base'>
+      <span>© VuMaTech Studio · Bişkek</span>
+      <span><a href="/hakkinda/">Hakkında</a> · <a href="/gizlilik-ve-kvkk/">Gizlilik ve KVKK</a> · </span><span><a href="/">araç dizini</a> · <a href='https://vumatech.net'>VuMaTech</a></span>
+    </div>
+  </div>
+
+</div>
+
+
+</div>
+<script src="/assets/site.js"></script>
+
+</body>
+</html>

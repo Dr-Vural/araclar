@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="tr" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f4f3f0">
+<title>ISBN Kitap Künyesi — VuMaTech Tools</title>
+<meta name="description" content="ISBN numaralarından kitap künyesi çeker; APA, GOST, Chicago, BibTeX ve CSV olarak verir.">
+<link rel="canonical" href="https://tools.vumatech.net/araclar/isbn-kitap-kunyesi/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="VuMaTech Tools">
+<meta property="og:title" content="ISBN Kitap Künyesi — VuMaTech Tools">
+<meta property="og:description" content="ISBN numaralarından kitap künyesi çeker; APA, GOST, Chicago, BibTeX ve CSV olarak verir.">
+<meta property="og:url" content="https://tools.vumatech.net/araclar/isbn-kitap-kunyesi/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/assets/kit.css">
+<script>
+/* Tema, sayfa çizilmeden uygulanır; yoksa karanlık temada bir an beyaz parlama olur.
+   Kayıtlı tercih yoksa işletim sistemi ayarı kullanılır. */
+(function(){try{
+  var t=localStorage.getItem("vmt_theme");
+  if(t!=="dark"&&t!=="light"){
+    t=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";
+  }
+  document.documentElement.setAttribute("data-theme",t);
+  var m=document.querySelector('meta[name="theme-color"]');
+  if(m)m.setAttribute("content", t==="dark"?"#0d1014":"#f4f3f0");
+}catch(e){document.documentElement.setAttribute("data-theme","light");}})();
+</script>
+</head>
+<body>
+<div class="shell">
+  <div class='crest'>
+    <a class='name' href="/">VuMaTech <b>Tools</b></a>
+    <span class='crest-right'>
+<div class='langpick' id='langpick' role='group' aria-label='Dil'>
+        <button class='langbtn' data-lang='tr' title='Türkçe' aria-label='Türkçe'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e30a17'/><circle cx='11.5' cy='10' r='5' fill='#fff'/><circle cx='13' cy='10' r='4' fill='#e30a17'/><path fill='#fff' d='M17.5 10l4.2-1.4-2.6 3.6v-4.4l2.6 3.6z'/></svg></button>
+        <button class='langbtn' data-lang='ky' title='Кыргызча' aria-label='Кыргызча'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e8112d'/><circle cx='15' cy='10' r='4.2' fill='#ffef00'/><circle cx='15' cy='10' r='2.4' fill='none' stroke='#e8112d' stroke-width='.5'/><g stroke='#ffef00' stroke-width='.5'><path d='M15 4v12M9 10h12M10.6 5.6l8.8 8.8M19.4 5.6l-8.8 8.8'/></g></svg></button>
+        <button class='langbtn' data-lang='ru' title='Русский' aria-label='Русский'><svg viewBox='0 0 30 20'><rect width='30' height='6.67' fill='#fff'/><rect y='6.67' width='30' height='6.67' fill='#0039a6'/><rect y='13.33' width='30' height='6.67' fill='#d52b1e'/></svg></button>
+        <button class='langbtn' data-lang='en' title='English' aria-label='English'><svg viewBox='0 0 30 20'><clipPath id='uk'><rect width='30' height='20'/></clipPath><g clip-path='url(#uk)'><rect width='30' height='20' fill='#012169'/><path d='M0 0l30 20M30 0L0 20' stroke='#fff' stroke-width='4'/><path d='M0 0l30 20M30 0L0 20' stroke='#c8102e' stroke-width='2'/><path d='M15 0v20M0 10h30' stroke='#fff' stroke-width='6'/><path d='M15 0v20M0 10h30' stroke='#c8102e' stroke-width='3.5'/></g></svg></button>
+      </div>
+      <button class='themebtn' id='themebtn' aria-label='Tema'>
+        <svg class='i-moon' viewBox='0 0 24 24'><path d='M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z'/></svg>
+        <svg class='i-sun' viewBox='0 0 24 24'><circle cx='12' cy='12' r='4.2'/><path d='M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8'/></svg>
+      </button>
+      <a class='up' href='https://vumatech.net'>vumatech.net</a>
+    </span>
+  </div>
+
+
+<a class="back" href="/" data-i18n="back">← bütün araçlar</a>
+<h1 class="view">ISBN Kitap Künyesi</h1>
+<p class="priv"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> <span data-i18n="priv">Bu araç tamamen tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</span></p>
+<div class="tk">
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">ISBN listesi — her satıra bir tane</p>
+  <div class="tk-field"><label for="ib-in">Girdi</label>
+    <textarea id="ib-in" class="tk-area" spellcheck="false" placeholder="978-0-306-40615-7&#10;9789750718533"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="ib-go">Künyeleri getir</button>
+    <button class="tk-btn ghost" id="ib-copy">Kopyala</button>
+    <span class="tk-msg" id="ib-msg"></span>
+  </div>
+  <p class="tk-h2">Künye</p>
+  <div class="tk-out" id="ib-out" style="max-height:420px"><span class="tk-blank">ISBN yapıştırın. Veriler Open Library'den çekilir.</span></div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Biçim</p>
+  <div class="tk-field"><label for="ib-style">Çıktı</label>
+    <select id="ib-style" class="tk-sel">
+      <option value="apa">APA 7 — kaynakça satırı</option>
+      <option value="gost">GOST R 7.0.5-2008</option>
+      <option value="chi">Chicago</option>
+      <option value="card">Kütüphane künyesi — alan alan</option>
+      <option value="bib">BibTeX</option>
+      <option value="csv">CSV — tablo için</option>
+    </select></div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="ib-sort" checked><span>Alfabetik sırala</span></label>
+  </div>
+  <div class="tk-stats" style="margin-top:16px">
+    <div class="tk-stat ok"><b id="ib-ok">0</b><span>bulundu</span></div>
+    <div class="tk-stat warn"><b id="ib-no">0</b><span>bulunamadı</span></div>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Kapsam</p>
+  <p class="tk-note">Kaynak Open Library'dir; kapsamı Batı yayıncılığında geniş,
+     Türkçe ve Rusça yayınlarda sınırlıdır. Bulunamayan kitapları elle
+     tamamlamanız gerekir. ISBN'in kontrol basamağı önce yerel olarak denetlenir;
+     hatalı numara sorgulanmadan işaretlenir.</p>
+  <p class="tk-note">Bu araç ISBN numarasını Open Library sunucusuna gönderir —
+     dışarı çıkan tek veri budur.</p>
+</div>
+</div>
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var out=$("ib-out"),msg=$("ib-msg"),recs=[];
+function clean(s){return s.replace(/[\s\-–—]/g,"").toUpperCase()}
+function valid(raw){
+  var s=clean(raw);
+  if(/^\d{9}[\dX]$/.test(s)){var t=0;for(var i=0;i<10;i++)t+=(s[i]==="X"?10:+s[i])*(10-i);
+    return t%11===0?s:null}
+  if(/^\d{13}$/.test(s)){var u=0;for(var j=0;j<13;j++)u+=+s[j]*(j%2?3:1);
+    return u%10===0?s:null}
+  return null;
+}
+function yr(d){var m=String(d||"").match(/\d{4}/);return m?m[0]:""}
+function authors(b){return (b.authors||[]).map(function(a){return a.name}).filter(Boolean)}
+function pub(b){return (b.publishers||[]).map(function(p){return p.name}).join(", ")}
+function place(b){return (b.publish_places||[]).map(function(p){return p.name}).join(", ")}
+function pages(b){return b.number_of_pages||""}
+function split(n){
+  var p=String(n).trim().split(/\s+/);
+  var fam=p.pop()||"",giv=p.join(" ");
+  return {f:fam,g:giv};
+}
+function ini(g){return g.split(/\s+/).filter(Boolean).map(function(w){return w[0].toLocaleUpperCase("tr")+"."}).join(" ")}
+function fmt(b,st){
+  var A=authors(b),y=yr(b.publish_date),t=b.title+(b.subtitle?": "+b.subtitle:"");
+  if(st==="apa"){
+    var n=A.map(function(a){var s=split(a);return s.f+", "+ini(s.g)});
+    var au=n.length<=1?n.join(""):n.slice(0,-1).join(", ")+", & "+n[n.length-1];
+    return (au?au+" ":"")+"("+(y||"t.y.")+"). "+t+". "+(pub(b)||"[yayınevi belirtilmemiş]")+".";
+  }
+  if(st==="gost"){
+    var f=A[0]?split(A[0]):null;
+    return (f?f.f+" "+ini(f.g)+" ":"")+t+(A.length?" / "+A.join(", "):"")+". — "
+      +(place(b)||"Б.м.")+": "+(pub(b)||"Б.и.")+", "+(y||"б.г.")+". — "
+      +(pages(b)?pages(b)+" с.":"")+" — ISBN "+b._isbn+".";
+  }
+  if(st==="chi"){
+    var n2=A.map(function(a,i){var s=split(a);return i===0?s.f+", "+s.g:s.g+" "+s.f});
+    return (n2.join(", ")||"")+". "+(y||"n.d.")+". "+t+". "+(place(b)?place(b)+": ":"")
+      +(pub(b)||"")+".";
+  }
+  if(st==="bib"){
+    var key=((A[0]?split(A[0]).f:"kitap")+y).toLowerCase().replace(/[^a-z0-9]/g,"");
+    var L=[["author",A.map(function(a){var s=split(a);return s.f+", "+s.g}).join(" and ")],
+      ["title",t],["publisher",pub(b)],["address",place(b)],["year",y],
+      ["pages",pages(b)],["isbn",b._isbn]];
+    return "@book{"+key+",\n"+L.filter(function(x){return x[1]})
+      .map(function(x){return "  "+x[0]+" = {"+x[1]+"}"}).join(",\n")+"\n}";
+  }
+  if(st==="csv"){
+    var q=function(v){return '"'+String(v||"").replace(/"/g,'""')+'"'};
+    return [b._isbn,A.join("; "),t,pub(b),place(b),y,pages(b)].map(q).join(";");
+  }
+  return "ISBN      "+b._isbn+"\nBaşlık    "+t
+    +"\nYazar     "+(A.join(", ")||"—")
+    +"\nYayınevi  "+(pub(b)||"—")+"\nYer       "+(place(b)||"—")
+    +"\nYıl       "+(y||"—")+"\nSayfa     "+(pages(b)||"—");
+}
+function render(){
+  if(!recs.length){out.innerHTML='<span class="tk-blank">ISBN yapıştırın. Veriler Open Library\'den çekilir.</span>';return}
+  var st=$("ib-style").value,rs=recs.slice();
+  if($("ib-sort").checked)rs.sort(function(a,b){return fmt(a,st).localeCompare(fmt(b,st),"tr")});
+  var head=st==="csv"?'"ISBN";"Yazar";"Başlık";"Yayınevi";"Yer";"Yıl";"Sayfa"\n':"";
+  out.textContent=head+rs.map(function(b){return fmt(b,st)}).join(st==="card"?"\n\n"+"─".repeat(40)+"\n\n":"\n\n");
+}
+["ib-style","ib-sort"].forEach(function(id){$(id).addEventListener("change",render)});
+$("ib-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText(out.textContent).then(function(){msg.textContent="kopyalandı"})});
+$("ib-go").addEventListener("click",function(){
+  var lines=$("ib-in").value.split("\n").map(function(l){return l.trim()}).filter(Boolean);
+  var good=[],bad=0;
+  lines.forEach(function(l){var v=valid(l);if(v)good.push(v);else bad++});
+  if(!good.length){msg.className="tk-msg err";
+    msg.textContent=bad?"geçerli ISBN yok (kontrol basamağı tutmuyor)":"girdi boş";return}
+  if(good.length>30){msg.className="tk-msg err";msg.textContent="en fazla 30 ISBN";return}
+  msg.className="tk-msg";msg.textContent="Open Library sorgulanıyor…";
+  recs=[];var miss=bad,done=0;
+  good.forEach(function(is){
+    fetch("https://openlibrary.org/api/books?bibkeys=ISBN:"+is+"&format=json&jscmd=data")
+      .then(function(r){return r.json()})
+      .then(function(j){
+        var b=j["ISBN:"+is];
+        if(b){b._isbn=is;recs.push(b)}else miss++;
+      })
+      .catch(function(){miss++})
+      .then(function(){
+        if(++done===good.length){
+          $("ib-ok").textContent=recs.length;$("ib-no").textContent=miss;
+          msg.textContent=recs.length+" künye geldi"+(miss?", "+miss+" bulunamadı":"");
+          render();
+        }
+      });
+  });
+});
+})();
+</script>
+</div>
+  <div class='adzone'>
+    <span class='lbl'>reklam</span>
+    <!-- AdSense birimi: Google'dan aldığınız data-ad-slot değerini yazıp
+         aşağıdaki iki satırın yorumunu kaldırın.
+    <script async='async' src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5193342573714090' crossorigin='anonymous'/>
+    <ins class='adsbygoogle' style='display:block' data-ad-client='ca-pub-5193342573714090' data-ad-slot='XXXXXXXXXX' data-ad-format='auto' data-full-width-responsive='true'/>
+    -->
+  </div>
+
+  <div class='promo'>
+    <p class='kicker' data-i18n='promo_kicker'>VuMaTech Studio · Bişkek</p>
+    <h2><span data-i18n='promo_h2_a'>Bu araçları yapan ekip </span><em data-i18n='promo_h2_b'>sizin sitenizi de yapar</em></h2>
+    <p class='lead' data-i18n='promo_lead'>Kurumsal siteden dijital menüye, akademik dergi sistemlerinden oyun portalına kadar. Tasarım, kurulum ve yıllık bakım tek elden.</p>
+    <div class='svcs'>
+      <a class='svc' href='https://web.vumatech.net'>
+        <b data-i18n='svc_web'>Web Tasarım</b><span data-i18n='svc_web_d'>Kurumsal site, portfolyo, tanıtım sayfası</span></a>
+      <a class='svc' href='https://menu.vumatech.net'>
+        <b data-i18n='svc_menu'>QR Dijital Menü</b><span data-i18n='svc_menu_d'>Çok dilli menü, anlık güncelleme, baskı maliyeti yok</span></a>
+      <a class='svc' href='https://academy.vumatech.net'>
+        <b data-i18n='svc_acad'>Akademik Web</b><span data-i18n='svc_acad_d'>Akademisyen sitesi, özgeçmiş, yayın listesi</span></a>
+      <a class='svc' href='https://ojs.vumatech.net'>
+        <b data-i18n='svc_ojs'>OJS Dergi Sistemi</b><span data-i18n='svc_ojs_d'>Kurulum, tema, hakem süreci yönetimi</span></a>
+    </div>
+    <div class='cta'>
+      <a class='btn' id='tg-btn' href='https://t.me/vumatech' target='_blank' rel='noopener'><svg viewBox='0 0 24 24'><path d='M9.8 15.3l-.4 4c.5 0 .8-.2 1.1-.5l2.6-2.4 5.4 3.9c1 .5 1.7.3 2-1l3.6-16.8c.3-1.2-.5-1.8-1.4-1.4L1.3 9.9c-1.2.5-1.2 1.1-.2 1.4l5.3 1.6L18.6 5c.6-.4 1.1-.2.7.2z'/></svg>
+        <span data-i18n='promo_wa'>Telegram: @vumatech</span></a>
+      <a class='btn line' href='https://vumatech.net' data-i18n='promo_all'>Tüm hizmetler</a>
+    </div>
+  </div>
+
+  <div class='foot'>
+    <div class='cols'>
+      <div>
+        <a class='brand' href='https://vumatech.net'>VuMaTech <b>Studio</b></a>
+        <p data-i18n='foot_about'>Bişkek merkezli web tasarım ve dijital hizmet atölyesi. Türkiye ve Kırgızistan'da çalışır.</p>
+        <p data-i18n='foot_about2'>Bu sayfadaki bütün araçlar ücretsizdir ve tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</p>
+      </div>
+      <div>
+        <h3 data-i18n='foot_services'>Hizmetler</h3>
+        <ul>
+          <li><a href='https://web.vumatech.net'>Web tasarım</a></li>
+          <li><a href='https://menu.vumatech.net'>QR dijital menü</a></li>
+          <li><a href='https://academy.vumatech.net'>Akademik web</a></li>
+          <li><a href='https://ojs.vumatech.net'>OJS dergi sistemi</a></li>
+          <li><a href='https://game.vumatech.net'>Oyun portalı</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n='foot_contact'>İletişim</h3>
+        <ul>
+          <li><a id='tg-foot' href='https://t.me/vumatech'>Telegram · @vumatech</a></li>
+          <li><a href='mailto:vumatechnet@gmail.com'>vumatechnet@gmail.com</a></li>
+          <li><a href='https://vumatech.net'>vumatech.net</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class='base'>
+      <span>© VuMaTech Studio · Bişkek</span>
+      <span><a href="/hakkinda/">Hakkında</a> · <a href="/gizlilik-ve-kvkk/">Gizlilik ve KVKK</a> · </span><span><a href="/">araç dizini</a> · <a href='https://vumatech.net'>VuMaTech</a></span>
+    </div>
+  </div>
+
+</div>
+
+
+</div>
+<script src="/assets/site.js"></script>
+
+</body>
+</html>

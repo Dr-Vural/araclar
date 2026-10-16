@@ -1,0 +1,124 @@
+<div class="tk-cols">
+<div>
+  <div class="tk-drop" id="rz-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4M4 20h16"/></svg>
+    <strong>Görselleri bırakın</strong>
+    <span>PNG · JPEG · WebP · GIF &nbsp;·&nbsp; birden çok dosya olabilir</span>
+  </div>
+  <input type="file" id="rz-file" class="tk-hidden" multiple accept="image/*">
+
+  <div class="tk-panel">
+    <p class="tk-h">Hedef boyut</p>
+    <div class="tk-two">
+      <div class="tk-field"><label for="rz-w">Genişlik (px)</label>
+        <input type="number" id="rz-w" class="tk-in" min="1" placeholder="1200"></div>
+      <div class="tk-field"><label for="rz-h">Yükseklik (px)</label>
+        <input type="number" id="rz-h" class="tk-in" min="1" placeholder="otomatik"></div>
+    </div>
+    <div class="tk-checks">
+      <label><input type="checkbox" id="rz-lock" checked>
+        <span>En-boy oranını koru<em>Tek kenar verirseniz diğeri kendiliğinden hesaplanır</em></span></label>
+      <label><input type="checkbox" id="rz-noup" checked>
+        <span>Büyütme yapma<em>Küçük görseller olduğu boyutta kalır, bulanıklaşmaz</em></span></label>
+    </div>
+    <div class="tk-field" style="margin-top:15px"><label for="rz-fmt">Çıktı biçimi</label>
+      <select id="rz-fmt" class="tk-sel">
+        <option value="keep">Kaynakla aynı</option>
+        <option value="image/jpeg">JPEG</option>
+        <option value="image/png">PNG</option>
+        <option value="image/webp">WebP</option>
+      </select></div>
+    <div class="tk-field"><label for="rz-q">JPEG / WebP kalitesi — <span class="tk-val" id="rz-qv">88</span></label>
+      <input type="range" id="rz-q" class="tk-range" min="40" max="100" value="88"></div>
+    <div class="tk-acts">
+      <button class="tk-btn" id="rz-go" disabled>Boyutlandır</button>
+      <span class="tk-msg" id="rz-msg">dosya bekleniyor</span>
+    </div>
+  </div>
+</div>
+
+<div class="tk-panel">
+  <p class="tk-h">Sonuç</p>
+  <div id="rz-out"><p class="tk-blank">Görsel bırakın, hedef genişliği yazın ve “Boyutlandır”a basın. İşlem cihazınızda yapılır.</p></div>
+</div>
+</div>
+
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var drop=$("rz-drop"),inp=$("rz-file"),msg=$("rz-msg"),go=$("rz-go"),out=$("rz-out");
+var files=[];
+function kb(n){return n<1024?n+" B":n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB"}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files)});
+inp.addEventListener("change",function(e){take(e.target.files)});
+$("rz-q").addEventListener("input",function(){$("rz-qv").textContent=this.value});
+
+function take(fl){
+  files=Array.prototype.filter.call(fl,function(f){return /^image\//.test(f.type)});
+  go.disabled=!files.length;
+  msg.textContent=files.length?files.length+" g\u00f6rsel haz\u0131r":"g\u00f6rsel bulunamad\u0131";
+  out.innerHTML='<ul class="tk-list">'+files.map(function(f){
+    return '<li><span class="nm">'+esc(f.name)+'</span><span class="sz">'+kb(f.size)+'</span></li>';
+  }).join("")+"</ul>";
+}
+
+function load(f){return new Promise(function(res,rej){
+  var u=URL.createObjectURL(f),im=new Image();
+  im.onload=function(){res({im:im,url:u})};
+  im.onerror=function(){URL.revokeObjectURL(u);rej(new Error("a\u00e7\u0131lamad\u0131"))};
+  im.src=u;
+});}
+
+go.addEventListener("click",function(){
+  var tw=parseInt($("rz-w").value,10)||0, th=parseInt($("rz-h").value,10)||0;
+  if(!tw&&!th){msg.textContent="en az bir kenar girin";msg.className="tk-msg err";return}
+  msg.className="tk-msg"; msg.textContent="i\u015fleniyor\u2026"; go.disabled=true;
+  var lock=$("rz-lock").checked, noup=$("rz-noup").checked;
+  var fmt=$("rz-fmt").value, q=parseInt($("rz-q").value,10)/100;
+  var rows=[], done=0;
+
+  files.forEach(function(f,idx){
+    load(f).then(function(o){
+      var iw=o.im.naturalWidth, ih=o.im.naturalHeight, w=tw, h=th;
+      if(lock){
+        if(tw&&!th){w=tw;h=Math.round(ih*tw/iw)}
+        else if(th&&!tw){h=th;w=Math.round(iw*th/ih)}
+        else{var s=Math.min(tw/iw,th/ih);w=Math.round(iw*s);h=Math.round(ih*s)}
+      }else{w=tw||iw;h=th||ih}
+      if(noup&&(w>iw||h>ih)){w=iw;h=ih}
+      var c=document.createElement("canvas");c.width=w;c.height=h;
+      var x=c.getContext("2d");x.imageSmoothingQuality="high";
+      var type=fmt==="keep"?(f.type==="image/gif"?"image/png":f.type):fmt;
+      if(type==="image/jpeg"){x.fillStyle="#fff";x.fillRect(0,0,w,h)}
+      x.drawImage(o.im,0,0,w,h);
+      URL.revokeObjectURL(o.url);
+      c.toBlob(function(b){
+        var ext=type.split("/")[1].replace("jpeg","jpg");
+        var nm=f.name.replace(/\.[^.]+$/,"")+"-"+w+"x"+h+"."+ext;
+        var d=b.size-f.size, sign=d<0?"\u2212":"+";
+        rows[idx]='<li><span class="nm"><a class="tk-dl" href="'+URL.createObjectURL(b)
+          +'" download="'+esc(nm)+'">'+esc(nm)+'</a></span>'
+          +'<span class="sz">'+iw+'\u00d7'+ih+' \u2192 '+w+'\u00d7'+h+'</span>'
+          +'<span class="sz">'+kb(b.size)+' ('+sign+kb(Math.abs(d))+')</span></li>';
+        if(++done===files.length){
+          out.innerHTML='<ul class="tk-list">'+rows.join("")+'</ul>'
+            +'<p class="tk-note">Dosya adlar\u0131na t\u0131klayarak indirin. '
+            +'Kaynak dosyalar\u0131n\u0131z de\u011fi\u015ftirilmedi.</p>';
+          msg.textContent=done+" g\u00f6rsel boyutland\u0131r\u0131ld\u0131"; go.disabled=false;
+        }
+      },type,q);
+    }).catch(function(){
+      rows[idx]='<li><span class="nm">'+esc(f.name)+'</span><span class="sz">a\u00e7\u0131lamad\u0131</span></li>';
+      if(++done===files.length){out.innerHTML='<ul class="tk-list">'+rows.join("")+'</ul>';go.disabled=false}
+    });
+  });
+});
+})();
+//]]></script>

@@ -1,0 +1,79 @@
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Hesap</p>
+  <div class="tk-field"><label for="kd-country">Ülke ve oran</label>
+    <select id="kd-country" class="tk-sel">
+      <option value="20">Türkiye — genel %20</option>
+      <option value="10">Türkiye — indirimli %10</option>
+      <option value="1">Türkiye — temel gıda %1</option>
+      <option value="12">Kırgızistan — НДС %12</option>
+      <option value="0">Kırgızistan — muaf %0</option>
+      <option value="x">Elle gir</option>
+    </select></div>
+  <div class="tk-field"><label for="kd-rate">Oran (%)</label>
+    <input type="number" id="kd-rate" class="tk-in" value="20" min="0" max="100" step="0.1"></div>
+  <div class="tk-field"><label for="kd-amount">Tutar</label>
+    <input type="number" id="kd-amount" class="tk-in" value="1000" min="0" step="0.01"></div>
+  <div class="tk-field"><label for="kd-mode">Girilen tutar</label>
+    <select id="kd-mode" class="tk-sel">
+      <option value="net">KDV hariç (matrah) — üstüne ekle</option>
+      <option value="gross">KDV dahil (brüt) — içinden ayır</option>
+    </select></div>
+  <div class="tk-field"><label for="kd-cur">Para birimi</label>
+    <select id="kd-cur" class="tk-sel"><option value="₺">₺ TL</option><option value="сом">сом KGS</option>
+    <option value="$">$ USD</option><option value="€">€ EUR</option></select></div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Sonuç</p>
+  <div class="tk-stats">
+    <div class="tk-stat"><b id="kd-net">—</b><span>matrah</span></div>
+    <div class="tk-stat"><b id="kd-vat">—</b><span>KDV</span></div>
+    <div class="tk-stat ok"><b id="kd-gross">—</b><span>toplam</span></div>
+  </div>
+  <div class="tk-out" id="kd-detail">—</div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Fatura satırı</p>
+  <div class="tk-out" id="kd-line">—</div>
+  <p class="tk-note">Türkiye'de genel KDV oranı %20; temel gıda %1, bazı hizmetler
+     %10 olarak uygulanır. Kırgızistan'da НДС oranı %12'dir ve belirli mal
+     gruplarında muafiyet vardır. Oranlar mevzuata göre değişebilir; nihai
+     hesaplamada güncel tebliği esas alın.</p>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+function fmt(n,c){return new Intl.NumberFormat("tr-TR",{minimumFractionDigits:2,
+  maximumFractionDigits:2}).format(n)+" "+c}
+function run(){
+  var r=parseFloat($("kd-rate").value)||0,a=parseFloat($("kd-amount").value)||0;
+  var mode=$("kd-mode").value,c=$("kd-cur").value,net,vat,gross;
+  if(mode==="net"){net=a;vat=a*r/100;gross=net+vat}
+  else{gross=a;net=a/(1+r/100);vat=gross-net}
+  $("kd-net").textContent=fmt(net,c);
+  $("kd-vat").textContent=fmt(vat,c);
+  $("kd-gross").textContent=fmt(gross,c);
+  $("kd-detail").textContent=
+    "Matrah        "+fmt(net,c)+"\n"+
+    "KDV (%"+r+")"+" ".repeat(Math.max(1,8-String(r).length))+fmt(vat,c)+"\n"+
+    "\u2500".repeat(30)+"\n"+
+    "Genel toplam  "+fmt(gross,c);
+  $("kd-line").textContent=
+    "Hizmet bedeli : "+fmt(net,c)+"\n"+
+    "Hesaplanan KDV: "+fmt(vat,c)+" (%"+r+")\n"+
+    "\u00d6denecek tutar: "+fmt(gross,c);
+}
+$("kd-country").addEventListener("change",function(){
+  if(this.value!=="x")$("kd-rate").value=this.value;
+  if(this.value==="12"||this.value==="0")$("kd-cur").value="\u0441\u043e\u043c";
+  run();
+});
+["kd-rate","kd-amount"].forEach(function(id){$(id).addEventListener("input",run)});
+["kd-mode","kd-cur"].forEach(function(id){$(id).addEventListener("change",run)});
+run();
+})();
+//]]></script>

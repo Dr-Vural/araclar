@@ -1,0 +1,91 @@
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">Kredi</p>
+  <div class="tk-field"><label for="kr-amt">Anapara</label>
+    <input type="number" id="kr-amt" class="tk-in" value="500000" min="0" step="1000"></div>
+  <div class="tk-two">
+    <div class="tk-field"><label for="kr-rate">Aylık faiz (%)</label>
+      <input type="number" id="kr-rate" class="tk-in" value="3.5" step="0.01" min="0"></div>
+    <div class="tk-field"><label for="kr-n">Vade (ay)</label>
+      <input type="number" id="kr-n" class="tk-in" value="24" min="1" max="480"></div>
+  </div>
+  <div class="tk-field"><label for="kr-cur">Para birimi</label>
+    <select id="kr-cur" class="tk-sel"><option value="₺">₺ TL</option>
+    <option value="сом">сом KGS</option><option value="$">$ USD</option>
+    <option value="€">€ EUR</option></select></div>
+  <div class="tk-field"><label for="kr-tax">Vergi ve masraf (%) — <span class="tk-val" id="kr-tv">15</span></label>
+    <input type="range" id="kr-tax" class="tk-range" min="0" max="30" step="0.5" value="15">
+    <span class="tk-msg">Türkiye'de faiz üzerinden BSMV + KKDF toplamı</span></div>
+  <p class="tk-note">Bu hesap eşit taksitli (anüite) yöntemi kullanır. Bankaların
+     ilan ettiği yıllık maliyet oranı dosya masrafı, sigorta ve tahsis ücreti
+     içerebilir; buradaki sonuç bağlayıcı bir teklif değildir.</p>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Sonuç</p>
+  <div class="tk-stats">
+    <div class="tk-stat ok"><b id="kr-pay">—</b><span>aylık taksit</span></div>
+    <div class="tk-stat"><b id="kr-tot">—</b><span>toplam ödeme</span></div>
+    <div class="tk-stat warn"><b id="kr-int">—</b><span>toplam faiz</span></div>
+  </div>
+  <div class="tk-out" id="kr-sum">—</div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Ödeme planı</p>
+  <div class="tk-out" id="kr-plan" style="max-height:340px;font-size:12.5px">—</div>
+  <div class="tk-acts"><button class="tk-btn ghost" id="kr-csv">CSV indir</button></div>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var rows=[];
+function f(n,c){return new Intl.NumberFormat("tr-TR",{minimumFractionDigits:2,
+  maximumFractionDigits:2}).format(n)+" "+c}
+function run(){
+  var P=+$("kr-amt").value||0,r=(+$("kr-rate").value||0)/100,n=+$("kr-n").value||1;
+  var tax=(+$("kr-tax").value||0)/100,c=$("kr-cur").value;
+  $("kr-tv").textContent=$("kr-tax").value;
+  var re=r*(1+tax);
+  var pay=re>0?P*re*Math.pow(1+re,n)/(Math.pow(1+re,n)-1):P/n;
+  var tot=pay*n,intr=tot-P;
+  $("kr-pay").textContent=f(pay,c);
+  $("kr-tot").textContent=f(tot,c);
+  $("kr-int").textContent=f(intr,c);
+  $("kr-sum").textContent=
+    "Anapara       "+f(P,c)+"\n"+
+    "Ayl\u0131k faiz    %"+$("kr-rate").value+"  (vergiyle %"+(re*100).toFixed(3)+")\n"+
+    "Vade          "+n+" ay\n"+
+    "Y\u0131ll\u0131k maliyet %"+((Math.pow(1+re,12)-1)*100).toFixed(2)+"\n"+
+    "\u2500".repeat(34)+"\n"+
+    "Faiz / anapara oran\u0131  %"+(P?(intr/P*100).toFixed(1):0);
+  rows=[];var bal=P;
+  for(var i=1;i<=n;i++){
+    var fz=bal*re,ana=pay-fz;bal-=ana;
+    if(i===n)bal=0;
+    rows.push([i,pay,fz,ana,Math.max(0,bal)]);
+  }
+  var head="Ay".padEnd(5)+"Taksit".padStart(14)+"Faiz".padStart(14)
+    +"Anapara".padStart(14)+"Kalan".padStart(15);
+  var body=rows.slice(0,240).map(function(x){
+    return String(x[0]).padEnd(5)
+      +f(x[1],"").trim().padStart(14)+f(x[2],"").trim().padStart(14)
+      +f(x[3],"").trim().padStart(14)+f(x[4],"").trim().padStart(15);
+  }).join("\n");
+  $("kr-plan").textContent=head+"\n"+"\u2500".repeat(62)+"\n"+body;
+}
+["kr-amt","kr-rate","kr-n","kr-tax"].forEach(function(id){$(id).addEventListener("input",run)});
+$("kr-cur").addEventListener("change",run);
+$("kr-csv").addEventListener("click",function(){
+  var csv="Ay;Taksit;Faiz;Anapara;Kalan\n"+rows.map(function(x){
+    return x[0]+";"+x[1].toFixed(2)+";"+x[2].toFixed(2)+";"+x[3].toFixed(2)+";"+x[4].toFixed(2);
+  }).join("\n");
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));
+  a.download="odeme-plani.csv";a.click();
+});
+run();
+})();
+//]]></script>

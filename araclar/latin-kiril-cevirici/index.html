@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="tr" class="wide">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f4f3f0">
+<title>Latin Kiril Çevirici — VuMaTech Tools</title>
+<meta name="description" content="Kırgızca ve Rusça metni Latin ile Kiril arasında çevirir; Türkçe metni Rusça Kiril&#x27;e sesletimle aktarır. Dört sistem.">
+<link rel="canonical" href="https://tools.vumatech.net/araclar/latin-kiril-cevirici/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="VuMaTech Tools">
+<meta property="og:title" content="Latin Kiril Çevirici — VuMaTech Tools">
+<meta property="og:description" content="Kırgızca ve Rusça metni Latin ile Kiril arasında çevirir; Türkçe metni Rusça Kiril&#x27;e sesletimle aktarır. Dört sistem.">
+<meta property="og:url" content="https://tools.vumatech.net/araclar/latin-kiril-cevirici/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/assets/kit.css">
+<script>
+/* Tema, sayfa çizilmeden uygulanır; yoksa karanlık temada bir an beyaz parlama olur.
+   Kayıtlı tercih yoksa işletim sistemi ayarı kullanılır. */
+(function(){try{
+  var t=localStorage.getItem("vmt_theme");
+  if(t!=="dark"&&t!=="light"){
+    t=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";
+  }
+  document.documentElement.setAttribute("data-theme",t);
+  var m=document.querySelector('meta[name="theme-color"]');
+  if(m)m.setAttribute("content", t==="dark"?"#0d1014":"#f4f3f0");
+}catch(e){document.documentElement.setAttribute("data-theme","light");}})();
+</script>
+</head>
+<body>
+<div class="shell">
+  <div class='crest'>
+    <a class='name' href="/">VuMaTech <b>Tools</b></a>
+    <span class='crest-right'>
+<div class='langpick' id='langpick' role='group' aria-label='Dil'>
+        <button class='langbtn' data-lang='tr' title='Türkçe' aria-label='Türkçe'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e30a17'/><circle cx='11.5' cy='10' r='5' fill='#fff'/><circle cx='13' cy='10' r='4' fill='#e30a17'/><path fill='#fff' d='M17.5 10l4.2-1.4-2.6 3.6v-4.4l2.6 3.6z'/></svg></button>
+        <button class='langbtn' data-lang='ky' title='Кыргызча' aria-label='Кыргызча'><svg viewBox='0 0 30 20'><rect width='30' height='20' fill='#e8112d'/><circle cx='15' cy='10' r='4.2' fill='#ffef00'/><circle cx='15' cy='10' r='2.4' fill='none' stroke='#e8112d' stroke-width='.5'/><g stroke='#ffef00' stroke-width='.5'><path d='M15 4v12M9 10h12M10.6 5.6l8.8 8.8M19.4 5.6l-8.8 8.8'/></g></svg></button>
+        <button class='langbtn' data-lang='ru' title='Русский' aria-label='Русский'><svg viewBox='0 0 30 20'><rect width='30' height='6.67' fill='#fff'/><rect y='6.67' width='30' height='6.67' fill='#0039a6'/><rect y='13.33' width='30' height='6.67' fill='#d52b1e'/></svg></button>
+        <button class='langbtn' data-lang='en' title='English' aria-label='English'><svg viewBox='0 0 30 20'><clipPath id='uk'><rect width='30' height='20'/></clipPath><g clip-path='url(#uk)'><rect width='30' height='20' fill='#012169'/><path d='M0 0l30 20M30 0L0 20' stroke='#fff' stroke-width='4'/><path d='M0 0l30 20M30 0L0 20' stroke='#c8102e' stroke-width='2'/><path d='M15 0v20M0 10h30' stroke='#fff' stroke-width='6'/><path d='M15 0v20M0 10h30' stroke='#c8102e' stroke-width='3.5'/></g></svg></button>
+      </div>
+      <button class='themebtn' id='themebtn' aria-label='Tema'>
+        <svg class='i-moon' viewBox='0 0 24 24'><path d='M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z'/></svg>
+        <svg class='i-sun' viewBox='0 0 24 24'><circle cx='12' cy='12' r='4.2'/><path d='M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8'/></svg>
+      </button>
+      <a class='up' href='https://vumatech.net'>vumatech.net</a>
+    </span>
+  </div>
+
+
+<a class="back" href="/" data-i18n="back">← bütün araçlar</a>
+<h1 class="view">Latin Kiril Çevirici</h1>
+<p class="priv"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> <span data-i18n="priv">Bu araç tamamen tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</span></p>
+<div class="tk">
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Metin</p>
+  <div class="tk-field"><label for="lk-in">Girdi</label>
+    <textarea id="lk-in" class="tk-area" placeholder="Кыргыз Республикасынын билим берүү системасы"></textarea></div>
+  <div class="tk-field"><label for="lk-out">Çeviri</label>
+    <textarea id="lk-out" class="tk-area" readonly></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn ghost" id="lk-copy">Kopyala</button>
+    <button class="tk-btn ghost" id="lk-swap">Yönü çevir</button>
+    <button class="tk-btn ghost" id="lk-demo">Örnek</button>
+    <span class="tk-msg" id="lk-msg"></span>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Ayar</p>
+  <div class="tk-field"><label for="lk-sys">Sistem</label>
+    <select id="lk-sys" class="tk-sel">
+      <option value="kg">Kırgızca — Türkçe temelli latin</option>
+      <option value="ru">Rusça — uluslararası (BGN/PCGN)</option>
+      <option value="iso">Rusça — ISO 9 bilimsel</option>
+      <option value="tr2ru">Türkçe → Rusça Kiril (sesletim)</option>
+    </select></div>
+  <div class="tk-field"><label for="lk-dir">Yön</label>
+    <select id="lk-dir" class="tk-sel">
+      <option value="c2l">Kiril → Latin</option>
+      <option value="l2c">Latin → Kiril</option>
+    </select></div>
+  <p class="tk-h2">Sistemler arasındaki fark</p>
+  <p class="tk-note">Kırgızca sistemi <code>ө</code> → <code>ö</code>,
+     <code>ү</code> → <code>ü</code>, <code>ң</code> → <code>ñ</code> karşılıklarını
+     kullanır; Türkçe okuyan biri için doğal sonuç verir.
+     BGN/PCGN pasaport ve harita adlarında kullanılan İngilizce temelli sistemdir
+     (<code>ш</code> → <code>sh</code>). ISO 9 her Kiril harfine tek Latin harf
+     verir ve geri dönüştürülebilir (<code>ш</code> → <code>š</code>);
+     akademik metinlerde tercih edilir.</p>
+  <p class="tk-note">Latin → Kiril yönü sesletim tahminine dayanır ve her zaman
+     kusursuz değildir; özellikle <code>e</code>, <code>y</code> ve yumuşak
+     işaretlerde sonucu gözden geçirin.</p>
+</div>
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var KG={"а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"yo","ж":"c","з":"z",
+"и":"i","й":"y","к":"k","л":"l","м":"m","н":"n","ң":"ñ","о":"o","ө":"ö","п":"p",
+"р":"r","с":"s","т":"t","у":"u","ү":"ü","ф":"f","х":"h","ц":"ts","ч":"ç","ш":"ş",
+"щ":"şç","ъ":"","ы":"ı","ь":"","э":"e","ю":"yu","я":"ya"};
+var RU={"а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"ye","ж":"zh","з":"z",
+"и":"i","й":"y","к":"k","л":"l","м":"m","н":"n","о":"o","п":"p","р":"r","с":"s",
+"т":"t","у":"u","ф":"f","х":"kh","ц":"ts","ч":"ch","ш":"sh","щ":"shch","ъ":"”",
+"ы":"y","ь":"’","э":"e","ю":"yu","я":"ya","ң":"ng","ө":"o","ү":"u"};
+var ISO={"а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"ë","ж":"ž","з":"z",
+"и":"i","й":"j","к":"k","л":"l","м":"m","н":"n","о":"o","п":"p","р":"r","с":"s",
+"т":"t","у":"u","ф":"f","х":"h","ц":"c","ч":"č","ш":"š","щ":"ŝ","ъ":"ʺ","ы":"y",
+"ь":"ʹ","э":"è","ю":"û","я":"â","ң":"n̦","ө":"ô","ү":"ù"};
+/* Türkçe -> Rusça Kiril sesletim eşlemesi. Bu bir harf çevirisi (transliteration)
+   değil, sesletim aktarımıdır: Türkçe harflerin Rusçada doğrudan karşılığı olmadığı
+   için en yakın ses verilir. ğ genelde düşer ya da önceki ünlüyü uzatır; burada
+   sadeleştirme için atılır. Sonucu her zaman gözden geçirin. */
+var TR2RU={"a":"а","b":"б","c":"дж","ç":"ч","d":"д","e":"е","f":"ф","g":"г",
+"ğ":"","h":"х","ı":"ы","i":"и","j":"ж","k":"к","l":"л","m":"м","n":"н","o":"о",
+"ö":"ё","p":"п","r":"р","s":"с","ş":"ш","t":"т","u":"у","ü":"ю","v":"в","y":"й",
+"z":"з","â":"а","î":"и","û":"у","q":"к","w":"в","x":"кс"};
+var MAPS={kg:KG,ru:RU,iso:ISO};
+
+function cap(s,src){
+  // İlk harf büyükse çıktının ilk harfini de büyüt
+  if(!s)return s;
+  if(src[0]===src[0].toLocaleUpperCase("tr")&&src[0]!==src[0].toLocaleLowerCase("tr"))
+    return s[0].toLocaleUpperCase("tr")+s.slice(1);
+  return s;
+}
+function c2l(text,map){
+  var out="";
+  for(var i=0;i<text.length;i++){
+    var ch=text[i],low=ch.toLowerCase();
+    if(map[low]!==undefined)out+=cap(map[low],ch);
+    else out+=ch;
+  }
+  return out;
+}
+function buildReverse(map){
+  var pairs=Object.keys(map).filter(function(k){return map[k]})
+    .map(function(k){return [map[k],k]});
+  pairs.sort(function(a,b){return b[0].length-a[0].length});
+  return pairs;
+}
+function l2c(text,map){
+  var pairs=buildReverse(map),out="",i=0;
+  outer:
+  while(i<text.length){
+    for(var p=0;p<pairs.length;p++){
+      var lat=pairs[p][0],cyr=pairs[p][1],n=lat.length;
+      var seg=text.substr(i,n);
+      if(seg.toLocaleLowerCase("tr")===lat.toLocaleLowerCase("tr")){
+        out+=cap(cyr,seg);i+=n;continue outer;
+      }
+    }
+    out+=text[i];i++;
+  }
+  return out;
+}
+function tr2ruConv(text){
+  var out="";
+  for(var i=0;i<text.length;i++){
+    var ch=text[i],low=ch.toLocaleLowerCase("tr");
+    if(TR2RU[low]!==undefined)out+=cap(TR2RU[low],ch);
+    else out+=ch;
+  }
+  return out;
+}
+function run(){
+  var sys=$("lk-sys").value,s=$("lk-in").value;
+  if(sys==="tr2ru"){
+    // bu mod tek yönlü: Türkçe latin -> Rusça kiril
+    $("lk-out").value=tr2ruConv(s);
+    $("lk-msg").textContent=(s.length?s.length+" karakter":"")+" · tek yönlü (Türkçe→Rusça)";
+    return;
+  }
+  var map=MAPS[sys];
+  $("lk-out").value=$("lk-dir").value==="c2l"?c2l(s,map):l2c(s,map);
+  $("lk-msg").textContent=s.length?s.length+" karakter":"";
+}
+["lk-in"].forEach(function(id){$(id).addEventListener("input",run)});
+["lk-sys","lk-dir"].forEach(function(id){$(id).addEventListener("change",run)});
+$("lk-sys").addEventListener("change",function(){
+  var t2r=this.value==="tr2ru";
+  var dw=$("lk-dir").closest(".tk-field");
+  if(dw)dw.style.display=t2r?"none":"";
+});
+$("lk-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("lk-out").value).then(function(){$("lk-msg").textContent="kopyalandı"})});
+$("lk-swap").addEventListener("click",function(){
+  var d=$("lk-dir");d.value=d.value==="c2l"?"l2c":"c2l";
+  $("lk-in").value=$("lk-out").value;run()});
+$("lk-demo").addEventListener("click",function(){
+  $("lk-in").value="Кыргыз-Түрк Манас университети, Бишкек шаары.\nӨзгөчө билим берүү программасы жөнүндө маалымат.";
+  $("lk-dir").value="c2l";run()});
+run();
+})();
+</script>
+</div>
+  <div class='adzone'>
+    <span class='lbl'>reklam</span>
+    <!-- AdSense birimi: Google'dan aldığınız data-ad-slot değerini yazıp
+         aşağıdaki iki satırın yorumunu kaldırın.
+    <script async='async' src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5193342573714090' crossorigin='anonymous'/>
+    <ins class='adsbygoogle' style='display:block' data-ad-client='ca-pub-5193342573714090' data-ad-slot='XXXXXXXXXX' data-ad-format='auto' data-full-width-responsive='true'/>
+    -->
+  </div>
+
+  <div class='promo'>
+    <p class='kicker' data-i18n='promo_kicker'>VuMaTech Studio · Bişkek</p>
+    <h2><span data-i18n='promo_h2_a'>Bu araçları yapan ekip </span><em data-i18n='promo_h2_b'>sizin sitenizi de yapar</em></h2>
+    <p class='lead' data-i18n='promo_lead'>Kurumsal siteden dijital menüye, akademik dergi sistemlerinden oyun portalına kadar. Tasarım, kurulum ve yıllık bakım tek elden.</p>
+    <div class='svcs'>
+      <a class='svc' href='https://web.vumatech.net'>
+        <b data-i18n='svc_web'>Web Tasarım</b><span data-i18n='svc_web_d'>Kurumsal site, portfolyo, tanıtım sayfası</span></a>
+      <a class='svc' href='https://menu.vumatech.net'>
+        <b data-i18n='svc_menu'>QR Dijital Menü</b><span data-i18n='svc_menu_d'>Çok dilli menü, anlık güncelleme, baskı maliyeti yok</span></a>
+      <a class='svc' href='https://academy.vumatech.net'>
+        <b data-i18n='svc_acad'>Akademik Web</b><span data-i18n='svc_acad_d'>Akademisyen sitesi, özgeçmiş, yayın listesi</span></a>
+      <a class='svc' href='https://ojs.vumatech.net'>
+        <b data-i18n='svc_ojs'>OJS Dergi Sistemi</b><span data-i18n='svc_ojs_d'>Kurulum, tema, hakem süreci yönetimi</span></a>
+    </div>
+    <div class='cta'>
+      <a class='btn' id='tg-btn' href='https://t.me/vumatech' target='_blank' rel='noopener'><svg viewBox='0 0 24 24'><path d='M9.8 15.3l-.4 4c.5 0 .8-.2 1.1-.5l2.6-2.4 5.4 3.9c1 .5 1.7.3 2-1l3.6-16.8c.3-1.2-.5-1.8-1.4-1.4L1.3 9.9c-1.2.5-1.2 1.1-.2 1.4l5.3 1.6L18.6 5c.6-.4 1.1-.2.7.2z'/></svg>
+        <span data-i18n='promo_wa'>Telegram: @vumatech</span></a>
+      <a class='btn line' href='https://vumatech.net' data-i18n='promo_all'>Tüm hizmetler</a>
+    </div>
+  </div>
+
+  <div class='foot'>
+    <div class='cols'>
+      <div>
+        <a class='brand' href='https://vumatech.net'>VuMaTech <b>Studio</b></a>
+        <p data-i18n='foot_about'>Bişkek merkezli web tasarım ve dijital hizmet atölyesi. Türkiye ve Kırgızistan'da çalışır.</p>
+        <p data-i18n='foot_about2'>Bu sayfadaki bütün araçlar ücretsizdir ve tarayıcınızda çalışır — dosyalarınız sunucuya yüklenmez.</p>
+      </div>
+      <div>
+        <h3 data-i18n='foot_services'>Hizmetler</h3>
+        <ul>
+          <li><a href='https://web.vumatech.net'>Web tasarım</a></li>
+          <li><a href='https://menu.vumatech.net'>QR dijital menü</a></li>
+          <li><a href='https://academy.vumatech.net'>Akademik web</a></li>
+          <li><a href='https://ojs.vumatech.net'>OJS dergi sistemi</a></li>
+          <li><a href='https://game.vumatech.net'>Oyun portalı</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n='foot_contact'>İletişim</h3>
+        <ul>
+          <li><a id='tg-foot' href='https://t.me/vumatech'>Telegram · @vumatech</a></li>
+          <li><a href='mailto:vumatechnet@gmail.com'>vumatechnet@gmail.com</a></li>
+          <li><a href='https://vumatech.net'>vumatech.net</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class='base'>
+      <span>© VuMaTech Studio · Bişkek</span>
+      <span><a href="/hakkinda/">Hakkında</a> · <a href="/gizlilik-ve-kvkk/">Gizlilik ve KVKK</a> · </span><span><a href="/">araç dizini</a> · <a href='https://vumatech.net'>VuMaTech</a></span>
+    </div>
+  </div>
+
+</div>
+
+
+</div>
+<script src="/assets/site.js"></script>
+
+</body>
+</html>

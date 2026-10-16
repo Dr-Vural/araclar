@@ -1,0 +1,130 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Veri</p>
+  <div class="tk-field"><label for="cb-in">Satır = katılımcı, sütun = madde. Excel'den doğrudan yapıştırabilirsiniz.</label>
+    <textarea id="cb-in" class="tk-area" style="min-height:230px" spellcheck="false" placeholder="4	5	3	4	5&#10;3	3	2	4	3&#10;5	5	5	5	4"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="cb-go">Hesapla</button>
+    <button class="tk-btn ghost" id="cb-demo">Örnek veri</button>
+    <span class="tk-msg" id="cb-msg"></span>
+  </div>
+  <p class="tk-h2">Madde analizi</p>
+  <div class="tk-out" id="cb-items" style="max-height:340px">—</div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Sonuç</p>
+  <div class="tk-stats">
+    <div class="tk-stat ok"><b id="cb-a">—</b><span>Cronbach α</span></div>
+    <div class="tk-stat"><b id="cb-k">—</b><span>madde</span></div>
+    <div class="tk-stat"><b id="cb-n">—</b><span>katılımcı</span></div>
+  </div>
+  <div class="tk-out" id="cb-verdict">—</div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Ayar ve ters maddeler</p>
+  <div class="tk-field"><label for="cb-rev">Ters kodlanacak madde numaraları (virgülle)</label>
+    <input type="text" id="cb-rev" class="tk-in" placeholder="3, 7"></div>
+  <div class="tk-two">
+    <div class="tk-field"><label for="cb-min">Ölçek en küçük</label>
+      <input type="number" id="cb-min" class="tk-in" value="1"></div>
+    <div class="tk-field"><label for="cb-max">Ölçek en büyük</label>
+      <input type="number" id="cb-max" class="tk-in" value="5"></div>
+  </div>
+  <p class="tk-note">Yorum ölçütleri: α ≥ 0,90 mükemmel · 0,80–0,90 iyi ·
+     0,70–0,80 kabul edilebilir · 0,60–0,70 sınırda · 0,60 altı yetersiz.
+     Madde-toplam korelasyonu 0,30'un altında kalan maddeler gözden geçirilmeli;
+     "madde silinirse α" sütunu genel α'dan yüksekse o madde ölçeği zayıflatıyor
+     demektir.</p>
+  <p class="tk-note">Eksik veri bulunan satırlar analiz dışı bırakılır
+     (listwise). Ters madde numaraları 1'den başlar.</p>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+function parse(t){
+  var rows=t.split("\n").map(function(l){return l.trim()}).filter(Boolean)
+    .map(function(l){return l.split(/[\t;,]+|\s{2,}| +/).map(function(x){
+      return x.trim()===""?NaN:parseFloat(x.replace(",","."))})});
+  return rows;
+}
+function mean(a){return a.reduce(function(s,x){return s+x},0)/a.length}
+function vari(a){var m=mean(a);return a.reduce(function(s,x){return s+(x-m)*(x-m)},0)/(a.length-1)}
+function corr(a,b){
+  var ma=mean(a),mb=mean(b),sa=0,sb=0,sab=0;
+  for(var i=0;i<a.length;i++){var x=a[i]-ma,y=b[i]-mb;sa+=x*x;sb+=y*y;sab+=x*y}
+  return (sa&&sb)?sab/Math.sqrt(sa*sb):0;
+}
+function alpha(cols){
+  var k=cols.length,n=cols[0].length;
+  var sv=cols.reduce(function(s,c){return s+vari(c)},0);
+  var tot=[];for(var i=0;i<n;i++){var s=0;for(var j=0;j<k;j++)s+=cols[j][i];tot.push(s)}
+  var tv=vari(tot);
+  return {a:tv?(k/(k-1))*(1-sv/tv):0, tot:tot};
+}
+$("cb-demo").addEventListener("click",function(){
+  var rows=[];
+  for(var i=0;i<30;i++){
+    var base=1+Math.random()*4,r=[];
+    for(var j=0;j<6;j++){
+      var v=Math.round(Math.max(1,Math.min(5,base+(Math.random()-0.5)*1.6)));
+      if(j===2)v=6-v;              // \u00fc\u00e7\u00fcnc\u00fc madde ters kodlu
+      r.push(v);
+    }
+    rows.push(r.join("\t"));
+  }
+  $("cb-in").value=rows.join("\n");
+  $("cb-rev").value="3";
+});
+$("cb-go").addEventListener("click",function(){
+  var rows=parse($("cb-in").value);
+  if(rows.length<3){$("cb-msg").className="tk-msg err";$("cb-msg").textContent="en az 3 sat\u0131r gerekir";return}
+  var k=rows[0].length;
+  var bad=rows.filter(function(r){return r.length!==k||r.some(isNaN)}).length;
+  rows=rows.filter(function(r){return r.length===k&&!r.some(isNaN)});
+  if(k<2||rows.length<3){$("cb-msg").className="tk-msg err";
+    $("cb-msg").textContent="en az 2 s\u00fctun ve 3 ge\u00e7erli sat\u0131r gerekir";return}
+  $("cb-msg").className="tk-msg";
+  var lo=parseFloat($("cb-min").value),hi=parseFloat($("cb-max").value);
+  var rev=$("cb-rev").value.split(",").map(function(x){return parseInt(x,10)-1})
+    .filter(function(x){return x>=0&&x<k});
+  var cols=[];
+  for(var j=0;j<k;j++){
+    cols.push(rows.map(function(r){
+      return rev.indexOf(j)>-1 ? (lo+hi-r[j]) : r[j]}));
+  }
+  var A=alpha(cols),tot=A.tot;
+  $("cb-a").textContent=A.a.toFixed(3);
+  $("cb-k").textContent=k;
+  $("cb-n").textContent=rows.length;
+  var v=A.a>=0.9?"m\u00fckemmel":A.a>=0.8?"iyi":A.a>=0.7?"kabul edilebilir":
+        A.a>=0.6?"s\u0131n\u0131rda":"yetersiz";
+  $("cb-verdict").textContent=
+    "G\u00fcvenirlik    "+v+"\n"
+    +"Ters madde    "+(rev.length?rev.map(function(x){return x+1}).join(", "):"yok")+"\n"
+    +(bad?"Elenen sat\u0131r  "+bad+" (eksik ya da hatal\u0131 veri)\n":"")
+    +"\nAPA bi\u00e7iminde:\n"
+    +"\u00d6l\u00e7e\u011fin i\u00e7 tutarl\u0131l\u0131k katsay\u0131s\u0131 Cronbach \u03b1 = "+A.a.toFixed(2).replace(".",",")
+    +" olarak hesaplanm\u0131\u015ft\u0131r (k = "+k+", n = "+rows.length+").";
+  var L=["Madde   Ort.    SS     Md-Tpl r   \u03b1 (silinirse)"];
+  for(var j2=0;j2<k;j2++){
+    var rest=tot.map(function(t,i){return t-cols[j2][i]});
+    var r=corr(cols[j2],rest);
+    var sub=cols.filter(function(_,x){return x!==j2});
+    var ad=sub.length>1?alpha(sub).a:NaN;
+    var flag=r<0.30?"  \u2039 d\u00fc\u015f\u00fck":"";
+    if(!isNaN(ad)&&ad>A.a+0.005)flag+="  \u2039 silinirse \u03b1 artar";
+    L.push(String(j2+1).padEnd(8)
+      +mean(cols[j2]).toFixed(2).padEnd(8)
+      +Math.sqrt(vari(cols[j2])).toFixed(2).padEnd(7)
+      +r.toFixed(3).padEnd(11)
+      +(isNaN(ad)?"\u2014":ad.toFixed(3))+flag);
+  }
+  $("cb-items").textContent=L.join("\n");
+  $("cb-msg").textContent="\u03b1 = "+A.a.toFixed(3);
+});
+})();
+//]]></script>

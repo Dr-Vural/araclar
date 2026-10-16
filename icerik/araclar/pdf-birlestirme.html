@@ -1,0 +1,120 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<div class="tk-cols">
+<div>
+  <div class="tk-drop" id="pm-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6v20h12V8z M14 2v6h4"/><path d="M9 14h6M12 11v6"/></svg>
+    <strong>PDF dosyalarını bırakın</strong>
+    <span>Birden çok dosya seçebilirsiniz — sıralamayı sonra değiştirirsiniz</span>
+  </div>
+  <input type="file" id="pm-file" class="tk-hidden" multiple accept="application/pdf,.pdf">
+  <div class="tk-panel">
+    <p class="tk-h">Ayar</p>
+    <div class="tk-field"><label for="pm-name">Çıktı dosya adı</label>
+      <input type="text" id="pm-name" class="tk-in" value="birlesik.pdf"></div>
+    <div class="tk-checks">
+      <label><input type="checkbox" id="pm-out"><span>Her dosya için yer imi ekle<em>PDF içinde bölüm listesi oluşur</em></span></label>
+    </div>
+    <div class="tk-acts">
+      <button class="tk-btn" id="pm-go" disabled>Birleştir</button>
+      <button class="tk-btn ghost" id="pm-clear">Temizle</button>
+      <span class="tk-msg" id="pm-msg">dosya bekleniyor</span>
+    </div>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Sıra — yukarıdan aşağı birleştirilir</p>
+  <div id="pm-list"><p class="tk-blank">Dosyaları bırakın; buradan sırayı değiştirebilirsiniz.</p></div>
+  <div id="pm-res"></div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var drop=$("pm-drop"),inp=$("pm-file"),msg=$("pm-msg"),go=$("pm-go"),list=$("pm-list"),res=$("pm-res");
+var items=[];
+function kb(n){return n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB"}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files)});
+inp.addEventListener("change",function(e){take(e.target.files)});
+$("pm-clear").addEventListener("click",function(){items=[];render();res.innerHTML=""});
+
+function take(fl){
+  Array.prototype.forEach.call(fl,function(f){
+    if(/\.pdf$/i.test(f.name)||f.type==="application/pdf")items.push({f:f,n:0});
+  });
+  render();loadCounts();
+}
+function loadCounts(){
+  if(typeof PDFLib==="undefined")return;
+  items.forEach(function(it,i){
+    if(it.n)return;
+    it.f.arrayBuffer().then(function(b){
+      return PDFLib.PDFDocument.load(b,{ignoreEncryption:true});
+    }).then(function(d){it.n=d.getPageCount();render()}).catch(function(){it.n=-1;render()});
+  });
+}
+function render(){
+  go.disabled=items.length<1;
+  if(!items.length){list.innerHTML='<p class="tk-blank">Dosyalar\u0131 b\u0131rak\u0131n; buradan s\u0131ray\u0131 de\u011fi\u015ftirebilirsiniz.</p>';
+    msg.textContent="dosya bekleniyor";return}
+  var total=items.reduce(function(a,it){return a+(it.n>0?it.n:0)},0);
+  msg.textContent=items.length+" dosya \u00b7 "+total+" sayfa";
+  list.innerHTML='<ul class="tk-list">'+items.map(function(it,i){
+    return '<li><span class="sz">'+(i+1)+'</span>'
+      +'<span class="nm">'+esc(it.f.name)+'</span>'
+      +'<span class="sz">'+(it.n>0?it.n+" sf":it.n<0?"okunamad\u0131":"\u2026")+'</span>'
+      +'<span class="sz">'+kb(it.f.size)+'</span>'
+      +'<span><button class="tk-btn ghost" data-up="'+i+'" style="padding:3px 9px;font-size:12px">\u2191</button> '
+      +'<button class="tk-btn ghost" data-dn="'+i+'" style="padding:3px 9px;font-size:12px">\u2193</button> '
+      +'<button class="tk-btn ghost" data-rm="'+i+'" style="padding:3px 9px;font-size:12px">\u00d7</button></span></li>';
+  }).join("")+'</ul>';
+}
+list.addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  var u=b.getAttribute("data-up"),d=b.getAttribute("data-dn"),r=b.getAttribute("data-rm");
+  if(u!==null&&+u>0){var i=+u;var t=items[i];items[i]=items[i-1];items[i-1]=t}
+  else if(d!==null&&+d<items.length-1){var j=+d;var s=items[j];items[j]=items[j+1];items[j+1]=s}
+  else if(r!==null)items.splice(+r,1);
+  render();
+});
+go.addEventListener("click",function(){
+  if(typeof PDFLib==="undefined"){msg.className="tk-msg err";msg.textContent="pdf-lib y\u00fcklenemedi";return}
+  msg.className="tk-msg";msg.textContent="birle\u015ftiriliyor\u2026";go.disabled=true;
+  var out,marks=[];
+  PDFLib.PDFDocument.create().then(function(doc){
+    out=doc;
+    var chain=Promise.resolve();
+    items.forEach(function(it){
+      chain=chain.then(function(){
+        return it.f.arrayBuffer().then(function(b){
+          return PDFLib.PDFDocument.load(b,{ignoreEncryption:true});
+        }).then(function(src){
+          marks.push({t:it.f.name.replace(/\.pdf$/i,""),p:out.getPageCount()});
+          return out.copyPages(src,src.getPageIndices());
+        }).then(function(pages){pages.forEach(function(p){out.addPage(p)})});
+      });
+    });
+    return chain;
+  }).then(function(){
+    return out.save();
+  }).then(function(bytes){
+    var blob=new Blob([bytes],{type:"application/pdf"});
+    var nm=($("pm-name").value||"birlesik.pdf").replace(/(\.pdf)?$/i,".pdf");
+    res.innerHTML='<p class="tk-h2">Sonu\u00e7</p><div class="tk-out">'
+      +out.getPageCount()+' sayfa \u00b7 '+kb(blob.size)+'</div>'
+      +'<div class="tk-acts"><a class="tk-btn" style="text-decoration:none" href="'
+      +URL.createObjectURL(blob)+'" download="'+esc(nm)+'">'+esc(nm)+' indir</a></div>';
+    msg.textContent="birle\u015ftirildi";go.disabled=false;
+  }).catch(function(e){
+    msg.className="tk-msg err";
+    msg.textContent="hata: "+(/encrypt|password/i.test(e.message)?"parola korumal\u0131 dosya":e.message);
+    go.disabled=false;
+  });
+});
+})();
+//]]></script>

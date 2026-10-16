@@ -1,0 +1,118 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Makale metni</p>
+  <div class="tk-field"><label for="kh-in">Girdi</label>
+    <textarea id="kh-in" class="tk-area" spellcheck="false" placeholder="Makalenin tam metnini yapıştırın…"></textarea></div>
+  <div class="tk-field"><label for="kh-out">Anonimleştirilmiş</label>
+    <textarea id="kh-out" class="tk-area" readonly spellcheck="false"></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="kh-go">Anonimleştir</button>
+    <button class="tk-btn ghost" id="kh-copy">Kopyala</button>
+    <span class="tk-msg" id="kh-msg"></span>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Gizlenecekler</p>
+  <div class="tk-field"><label for="kh-names">Yazar adları — her satıra bir kişi</label>
+    <textarea id="kh-names" class="tk-area" style="min-height:80px" placeholder="Mahmut Vural&#10;Nasikat Alieva"></textarea></div>
+  <div class="tk-field"><label for="kh-inst">Kurum, şehir, proje adı — her satıra bir tane</label>
+    <textarea id="kh-inst" class="tk-area" style="min-height:80px" placeholder="Kırgızistan-Türkiye Manas Üniversitesi&#10;KTMÜ&#10;Bişkek"></textarea></div>
+  <div class="tk-field"><label for="kh-tag">Yerine yazılacak</label>
+    <input type="text" id="kh-tag" class="tk-in" value="[GİZLENDİ]"></div>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="kh-self" checked><span>Kendi atıflarını işaretle<em>Yazar soyadını içeren atıflar raporda listelenir</em></span></label>
+    <label><input type="checkbox" id="kh-ack" checked><span>Teşekkür ve destek bölümünü ayıkla</span></label>
+    <label><input type="checkbox" id="kh-mail" checked><span>E-posta, ORCID ve bağlantıları gizle</span></label>
+  </div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Denetim raporu</p>
+  <div class="tk-out" id="kh-rep" style="max-height:300px"><span class="tk-blank">“Anonimleştir”e basın.</span></div>
+  <p class="tk-note">Metin anonimleşse bile <strong>dosyanın kendisi kimliğinizi
+     taşır</strong>: Word belgesinin yazar alanı, düzenleme geçmişi ve oturum
+     kimlikleri. Anonim dosyayı göndermeden önce
+     <em>Meta Data Cleaner</em> aracından da geçirin.</p>
+  <p class="tk-note">Kendi atıflarınızı silmeyin — hakemlerin çalışmayı
+     değerlendirebilmesi için gereklidirler. Yaygın uygulama, üçüncü şahıs
+     ağzına çevirmektir: "kendi önceki çalışmamızda" yerine "Vural (2021)".</p>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+function esc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}
+function lines(id){return $(id).value.split("\n").map(function(x){return x.trim()}).filter(Boolean)}
+var FIRST=/\b(kendi (?:\u00f6nceki )?\u00e7al\u0131\u015fma(?:m|m\u0131z)(?:da|\u0131zda)?|\u00e7al\u0131\u015fmam\u0131zda|makalemizde|taraf\u0131m\u0131zdan|yazar(?:\u0131n|lar\u0131n) (?:kendi )?(?:\u00f6nceki )?\u00e7al\u0131\u015fma)/gi;
+var ACK=/(^|\n)\s*(te\u015fekk\u00fcr|te\u015fekk\u00fcrler|acknowledg(?:e)?ments?|destek(?:leyen)? (?:kurum|beyan)|funding)\s*:?\s*\n?[\s\S]{0,700}?(?=\n\s*\n|\n\s*[A-Z\u00c7\u011e\u0130\u00d6\u015e\u00dc][^\n]{0,60}\n|$)/gi;
+$("kh-go").addEventListener("click",function(){
+  var t=$("kh-in").value;
+  if(!t.trim()){$("kh-msg").className="tk-msg err";$("kh-msg").textContent="metin girin";return}
+  $("kh-msg").className="tk-msg";
+  var tag=$("kh-tag").value||"[G\u0130ZLEND\u0130]";
+  var names=lines("kh-names"),inst=lines("kh-inst");
+  var rep=[],hits=0;
+
+  // soyadlar\u0131 da tek ba\u015f\u0131na yakala
+  var terms=[];
+  names.forEach(function(n){
+    terms.push(n);
+    var p=n.split(/\s+/);
+    if(p.length>1)terms.push(p[p.length-1]);
+  });
+  inst.forEach(function(i){terms.push(i)});
+  terms=terms.filter(function(v,i,a){return v.length>2&&a.indexOf(v)===i})
+             .sort(function(a,b){return b.length-a.length});
+
+  var selfCites=[];
+  if($("kh-self").checked){
+    names.forEach(function(n){
+      var sur=n.split(/\s+/).pop();
+      var re=new RegExp("[^\\n]{0,60}\\b"+esc(sur)+"\\b[^\\n]{0,20}\\(?\\d{4}[^\\n]{0,20}","g"),m;
+      while((m=re.exec(t))!==null)if(/\d{4}/.test(m[0]))selfCites.push(m[0].trim());
+    });
+  }
+  var out=t;
+  if($("kh-ack").checked){
+    var found=out.match(ACK);
+    if(found){rep.push("Ay\u0131klanan b\u00f6l\u00fcm: te\u015fekk\u00fcr / destek ("+found.length+" adet)");
+      out=out.replace(ACK,"\n\n"+tag+" (te\u015fekk\u00fcr ve destek beyan\u0131 k\u00f6r s\u00fcr\u00fcmden \u00e7\u0131kar\u0131ld\u0131)\n\n")}
+  }
+  if($("kh-mail").checked){
+    var c=(out.match(/[\w.+-]+@[\w.-]+\.\w{2,}/g)||[]).length;
+    out=out.replace(/[\w.+-]+@[\w.-]+\.\w{2,}/g,tag);
+    var o=(out.match(/\b\d{4}-\d{4}-\d{4}-\d{3}[\dX]\b/g)||[]).length;
+    out=out.replace(/\b\d{4}-\d{4}-\d{4}-\d{3}[\dX]\b/g,tag);
+    var u=(out.match(/https?:\/\/\S+/g)||[]).length;
+    out=out.replace(/https?:\/\/\S+/g,tag);
+    if(c+o+u)rep.push("Gizlenen ileti\u015fim verisi: "+c+" e-posta, "+o+" ORCID, "+u+" ba\u011flant\u0131");
+  }
+  terms.forEach(function(w){
+    var re=new RegExp("\\b"+esc(w)+"\\b","gi");
+    var n=(out.match(re)||[]).length;
+    if(n){out=out.replace(re,tag);hits+=n;rep.push("  "+w.padEnd(42).slice(0,42)+n+" kez gizlendi")}
+  });
+  if(hits)rep.unshift("G\u0130ZLENEN ADLAR VE KURUMLAR ("+hits+" ge\u00e7i\u015f)");
+
+  var fp=(out.match(FIRST)||[]);
+  if(fp.length){
+    rep.push("");
+    rep.push("B\u0130R\u0130NC\u0130 \u015eAHIS \u0130FADELER\u0130 ("+fp.length+") \u2014 elle d\u00fczeltin");
+    fp.slice(0,8).forEach(function(x){rep.push("  \u201c"+x+"\u201d")});
+  }
+  if(selfCites.length){
+    rep.push("");
+    rep.push("KEND\u0130 ATIFLARINIZ ("+selfCites.length+") \u2014 silmeyin, \u00fc\u00e7\u00fcnc\u00fc \u015fah\u0131s a\u011fz\u0131na \u00e7evirin");
+    selfCites.slice(0,10).forEach(function(x){rep.push("  \u2026"+x.slice(0,80)+"\u2026")});
+  }
+  if(!rep.length)rep.push("Gizlenecek bir \u015fey bulunamad\u0131. Yazar ve kurum adlar\u0131n\u0131 girdi\u011finizden emin olun.");
+  $("kh-out").value=out;
+  $("kh-rep").textContent=rep.join("\n");
+  $("kh-msg").textContent=hits+" ge\u00e7i\u015f gizlendi";
+});
+$("kh-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText($("kh-out").value).then(function(){$("kh-msg").textContent="kopyaland\u0131"})});
+})();
+//]]></script>

@@ -1,0 +1,105 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<div class="tk-cols">
+<div class="tk-panel">
+  <p class="tk-h">İçerik</p>
+  <div class="tk-field"><label for="qr-type">Tür</label>
+    <select id="qr-type" class="tk-sel">
+      <option value="url">Bağlantı (URL)</option>
+      <option value="text">Düz metin</option>
+      <option value="wifi">WiFi ağı</option>
+      <option value="wa">WhatsApp mesajı</option>
+      <option value="tel">Telefon</option>
+      <option value="mail">E-posta</option>
+      <option value="vcard">Kartvizit (vCard)</option>
+    </select></div>
+  <div id="qr-fields"></div>
+  <p class="tk-h2">Görünüm</p>
+  <div class="tk-two">
+    <div class="tk-field"><label for="qr-size">Boyut (px)</label>
+      <input type="number" id="qr-size" class="tk-in" value="512" min="128" max="2000" step="64"></div>
+    <div class="tk-field"><label for="qr-ec">Hata düzeltme</label>
+      <select id="qr-ec" class="tk-sel"><option value="L">L — %7</option><option value="M" selected>M — %15</option>
+      <option value="Q">Q — %25</option><option value="H">H — %30</option></select></div>
+  </div>
+  <div class="tk-two">
+    <div class="tk-field"><label for="qr-fg">Kod rengi</label>
+      <input type="color" id="qr-fg" class="tk-in" value="#15171a" style="height:44px;padding:4px"></div>
+    <div class="tk-field"><label for="qr-bg">Zemin</label>
+      <input type="color" id="qr-bg" class="tk-in" value="#ffffff" style="height:44px;padding:4px"></div>
+  </div>
+  <p class="tk-note">Baskıda kullanacaksanız hata düzeltmeyi Q veya H seçin; kodun
+     bir kısmı zarar görse bile okunur. Menü ve afiş için en küçük basım boyutu
+     2,5 cm'dir.</p>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">QR kod</p>
+  <div class="tk-prev" id="qr-prev"><p class="tk-blank">İçerik girin, kod anında oluşur.</p></div>
+  <div class="tk-acts">
+    <a class="tk-btn" id="qr-dl" style="display:none;text-decoration:none">PNG indir</a>
+    <span class="tk-msg" id="qr-msg"></span>
+  </div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var F={
+ url:[["u","Adres","https://vumatech.net"]],
+ text:[["t","Metin",""]],
+ wifi:[["s","A\u011f ad\u0131 (SSID)",""],["p","Parola",""],["e","\u015eifreleme (WPA/WEP/nopass)","WPA"]],
+ wa:[["n","Telefon (\u00fclke koduyla)","905xxxxxxxxx"],["m","Haz\u0131r mesaj",""]],
+ tel:[["n","Telefon","+90 555 000 00 00"]],
+ mail:[["a","E-posta",""],["s","Konu",""],["b","\u0130leti",""]],
+ vcard:[["n","Ad Soyad",""],["o","Kurum",""],["t","\u00dcnvan",""],["p","Telefon",""],["e","E-posta",""],["w","Web",""]]
+};
+var box=$("qr-fields"),prev=$("qr-prev"),msg=$("qr-msg"),dl=$("qr-dl"),tmr=null;
+function build(){
+  var t=$("qr-type").value;
+  box.innerHTML=F[t].map(function(f){
+    return '<div class="tk-field"><label for="qf-'+f[0]+'">'+f[1]+'</label>'
+      +'<input type="text" id="qf-'+f[0]+'" class="tk-in qf" value="'+(f[2]||"")+'"></div>';
+  }).join("");
+  Array.prototype.forEach.call(box.querySelectorAll(".qf"),function(n){
+    n.addEventListener("input",queue)});
+  queue();
+}
+function esc(s){return String(s).replace(/([\\;,:"])/g,"\\$1")}
+function payload(){
+  var t=$("qr-type").value,g=function(k){var e=$("qf-"+k);return e?e.value.trim():""};
+  if(t==="url")return g("u");
+  if(t==="text")return g("t");
+  if(t==="wifi")return "WIFI:T:"+(g("e")||"WPA")+";S:"+esc(g("s"))+";P:"+esc(g("p"))+";;";
+  if(t==="wa")return "https://wa.me/"+g("n").replace(/\D/g,"")+(g("m")?"?text="+encodeURIComponent(g("m")):"");
+  if(t==="tel")return "tel:"+g("n").replace(/\s/g,"");
+  if(t==="mail")return "mailto:"+g("a")+"?subject="+encodeURIComponent(g("s"))+"&body="+encodeURIComponent(g("b"));
+  return "BEGIN:VCARD\nVERSION:3.0\nFN:"+g("n")+"\nORG:"+g("o")+"\nTITLE:"+g("t")
+    +"\nTEL:"+g("p")+"\nEMAIL:"+g("e")+"\nURL:"+g("w")+"\nEND:VCARD";
+}
+function queue(){clearTimeout(tmr);tmr=setTimeout(draw,180)}
+function draw(){
+  var data=payload();
+  if(!data||data.length<3){prev.innerHTML='<p class="tk-blank">\u0130\u00e7erik girin, kod an\u0131nda olu\u015fur.</p>';
+    dl.style.display="none";msg.textContent="";return}
+  if(typeof QRCode==="undefined"){msg.textContent="QR k\u00fct\u00fcphanesi y\u00fcklenemedi";msg.className="tk-msg err";return}
+  msg.className="tk-msg";
+  var size=Math.min(2000,Math.max(128,parseInt($("qr-size").value,10)||512));
+  prev.innerHTML="";
+  var holder=document.createElement("div");prev.appendChild(holder);
+  try{
+    new QRCode(holder,{text:data,width:size,height:size,
+      colorDark:$("qr-fg").value,colorLight:$("qr-bg").value,
+      correctLevel:QRCode.CorrectLevel[$("qr-ec").value]});
+    setTimeout(function(){
+      var c=holder.querySelector("canvas");
+      if(c){c.style.maxWidth="100%";c.style.height="auto";
+        dl.href=c.toDataURL("image/png");dl.download="qr-kod.png";dl.style.display="inline-block"}
+      msg.textContent=data.length+" karakter kodland\u0131";
+    },60);
+  }catch(e){msg.textContent="i\u00e7erik \u00e7ok uzun \u2014 hata d\u00fczeltmeyi d\u00fc\u015f\u00fcr\u00fcn";msg.className="tk-msg err"}
+}
+$("qr-type").addEventListener("change",build);
+["qr-size","qr-ec","qr-fg","qr-bg"].forEach(function(id){$(id).addEventListener("input",queue)});
+build();
+})();
+//]]></script>

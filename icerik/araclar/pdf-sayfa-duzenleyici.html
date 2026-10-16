@@ -1,0 +1,149 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Sayfalar — tıklayarak seçin</p>
+  <div id="pe-grid"><p class="tk-blank">PDF bırakın; sayfalar küçük resim olarak listelenir.</p></div>
+</div>
+<div>
+  <div class="tk-drop" id="pe-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z"/></svg>
+    <strong>PDF bırakın</strong><span>Sayfaları silin, döndürün, sırasını değiştirin</span>
+  </div>
+  <input type="file" id="pe-file" class="tk-hidden" accept="application/pdf,.pdf">
+  <div class="tk-panel">
+    <p class="tk-h">Seçili sayfalara</p>
+    <div class="tk-acts" style="margin-top:0">
+      <button class="tk-btn ghost" id="pe-del">Sil</button>
+      <button class="tk-btn ghost" id="pe-l">↺ 90°</button>
+      <button class="tk-btn ghost" id="pe-r">↻ 90°</button>
+      <button class="tk-btn ghost" id="pe-lt">← taşı</button>
+      <button class="tk-btn ghost" id="pe-rt">taşı →</button>
+    </div>
+    <div class="tk-acts">
+      <button class="tk-btn ghost" id="pe-all">Tümünü seç</button>
+      <button class="tk-btn ghost" id="pe-none">Seçimi bırak</button>
+      <button class="tk-btn ghost" id="pe-undo">Geri al</button>
+    </div>
+    <div class="tk-stats" style="margin-top:16px">
+      <div class="tk-stat"><b id="pe-t">—</b><span>sayfa</span></div>
+      <div class="tk-stat ok"><b id="pe-s">0</b><span>seçili</span></div>
+    </div>
+    <div class="tk-acts">
+      <button class="tk-btn" id="pe-go" disabled>PDF olarak kaydet</button>
+      <span class="tk-msg" id="pe-msg">dosya bekleniyor</span>
+    </div>
+    <div id="pe-res"></div>
+  </div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var drop=$("pe-drop"),inp=$("pe-file"),grid=$("pe-grid"),msg=$("pe-msg"),go=$("pe-go");
+var buf=null,name="belge",pages=[],thumbs=[],hist=[];
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+drop.addEventListener("click",function(){inp.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}});
+["dragenter","dragover"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.add("hot")})});
+["dragleave","drop"].forEach(function(v){drop.addEventListener(v,function(e){e.preventDefault();drop.classList.remove("hot")})});
+drop.addEventListener("drop",function(e){take(e.dataTransfer.files[0])});
+inp.addEventListener("change",function(e){take(e.target.files[0])});
+
+function take(f){
+  if(!f)return;
+  if(typeof pdfjsLib==="undefined"){msg.className="tk-msg err";msg.textContent="pdf.js y\u00fcklenemedi";return}
+  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  name=f.name.replace(/\.pdf$/i,"");
+  msg.className="tk-msg";msg.textContent="sayfalar \u00e7iziliyor\u2026";
+  f.arrayBuffer().then(function(b){
+    buf=b.slice(0);
+    return pdfjsLib.getDocument({data:b.slice(0)}).promise;
+  }).then(function(doc){
+    pages=[];thumbs=[];hist=[];
+    var chain=Promise.resolve();
+    for(var i=1;i<=doc.numPages;i++)(function(n){
+      chain=chain.then(function(){
+        return doc.getPage(n).then(function(p){
+          var vp=p.getViewport({scale:1});
+          var s=Math.min(150/vp.width,190/vp.height);
+          var v=p.getViewport({scale:s});
+          var c=document.createElement("canvas");c.width=v.width;c.height=v.height;
+          return p.render({canvasContext:c.getContext("2d"),viewport:v}).promise.then(function(){
+            thumbs[n-1]=c.toDataURL("image/jpeg",0.7);
+          });
+        });
+      });
+    })(i);
+    return chain.then(function(){
+      for(var k=0;k<doc.numPages;k++)pages.push({i:k,rot:0,sel:false});
+      go.disabled=false;render();
+      msg.textContent=doc.numPages+" sayfa y\u00fcklendi";
+    });
+  }).catch(function(e){
+    msg.className="tk-msg err";
+    msg.textContent=/password/i.test(String(e.message))?"parola korumal\u0131 dosya":"okunamad\u0131";
+  });
+}
+function render(){
+  if(!pages.length){grid.innerHTML='<p class="tk-blank">PDF b\u0131rak\u0131n; sayfalar k\u00fc\u00e7\u00fck resim olarak listelenir.</p>';return}
+  grid.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:12px">'+pages.map(function(p,pos){
+    return '<div data-pos="'+pos+'" style="cursor:pointer;text-align:center;padding:6px;border-radius:8px;'
+      +'border:2px solid '+(p.sel?"#0d6357":"transparent")+';background:'+(p.sel?"#e8f2f0":"transparent")+'">'
+      +'<img src="'+thumbs[p.i]+'" style="max-height:150px;border:1px solid #e3e1dc;border-radius:4px;'
+      +'display:block;transform:rotate('+p.rot+'deg)">'
+      +'<div style="font:11px var(--mono);color:var(--ink-3);margin-top:6px">'+(pos+1)
+      +(p.i!==pos?' <span style="color:var(--gold)">('+(p.i+1)+')</span>':'')
+      +(p.rot?' '+p.rot+'\u00b0':'')+'</div></div>';
+  }).join("")+'</div>';
+  $("pe-t").textContent=pages.length;
+  $("pe-s").textContent=pages.filter(function(p){return p.sel}).length;
+}
+grid.addEventListener("click",function(e){
+  var d=e.target.closest("[data-pos]");if(!d)return;
+  var p=pages[+d.getAttribute("data-pos")];p.sel=!p.sel;render();
+});
+function snap(){hist.push(JSON.stringify(pages));if(hist.length>20)hist.shift()}
+function sel(){return pages.filter(function(p){return p.sel})}
+$("pe-del").addEventListener("click",function(){
+  if(!sel().length)return;snap();
+  pages=pages.filter(function(p){return !p.sel});render()});
+$("pe-l").addEventListener("click",function(){snap();sel().forEach(function(p){p.rot=(p.rot+270)%360});render()});
+$("pe-r").addEventListener("click",function(){snap();sel().forEach(function(p){p.rot=(p.rot+90)%360});render()});
+$("pe-lt").addEventListener("click",function(){snap();
+  for(var i=1;i<pages.length;i++)if(pages[i].sel&&!pages[i-1].sel){
+    var t=pages[i];pages[i]=pages[i-1];pages[i-1]=t}
+  render()});
+$("pe-rt").addEventListener("click",function(){snap();
+  for(var i=pages.length-2;i>=0;i--)if(pages[i].sel&&!pages[i+1].sel){
+    var t=pages[i];pages[i]=pages[i+1];pages[i+1]=t}
+  render()});
+$("pe-all").addEventListener("click",function(){pages.forEach(function(p){p.sel=true});render()});
+$("pe-none").addEventListener("click",function(){pages.forEach(function(p){p.sel=false});render()});
+$("pe-undo").addEventListener("click",function(){
+  if(!hist.length)return;pages=JSON.parse(hist.pop());render()});
+go.addEventListener("click",function(){
+  if(!buf||!pages.length){msg.className="tk-msg err";msg.textContent="en az bir sayfa kalmal\u0131";return}
+  msg.className="tk-msg";msg.textContent="kaydediliyor\u2026";go.disabled=true;
+  PDFLib.PDFDocument.load(buf,{ignoreEncryption:true}).then(function(src){
+    return PDFLib.PDFDocument.create().then(function(d){
+      return d.copyPages(src,pages.map(function(p){return p.i})).then(function(ps){
+        ps.forEach(function(pg,k){
+          var r=pages[k].rot;
+          if(r)pg.setRotation(PDFLib.degrees((pg.getRotation().angle+r)%360));
+          d.addPage(pg);
+        });
+        return d.save();
+      });
+    });
+  }).then(function(b){
+    var blob=new Blob([b],{type:"application/pdf"});
+    $("pe-res").innerHTML='<div class="tk-acts"><a class="tk-btn" style="text-decoration:none" href="'
+      +URL.createObjectURL(blob)+'" download="'+esc(name)+'-duzenli.pdf">'
+      +esc(name)+'-duzenli.pdf indir</a></div>';
+    msg.textContent=pages.length+" sayfa kaydedildi";go.disabled=false;
+  }).catch(function(e){msg.className="tk-msg err";msg.textContent=e.message;go.disabled=false});
+});
+})();
+//]]></script>

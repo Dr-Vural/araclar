@@ -1,0 +1,87 @@
+<div class="tk-cols rev">
+<div class="tk-panel">
+  <p class="tk-h">Metin</p>
+  <div class="tk-field"><label for="iv-in">Girdi</label>
+    <textarea id="iv-in" class="tk-area" placeholder="Bir yerden kopyaladığınız metni yapıştırın…"></textarea></div>
+  <div class="tk-field"><label for="iv-out">Temizlenmiş</label>
+    <textarea id="iv-out" class="tk-area" readonly></textarea></div>
+  <div class="tk-acts">
+    <button class="tk-btn" id="iv-clean">Temizle</button>
+    <button class="tk-btn ghost" id="iv-copy">Panoya kopyala</button>
+    <span class="tk-msg" id="iv-msg"></span>
+  </div>
+</div>
+<div>
+<div class="tk-panel">
+  <p class="tk-h">Bulunanlar</p>
+  <div class="tk-out" id="iv-list" style="max-height:260px"><span class="tk-blank">Metin yapıştırın; içindeki görünmez karakterler burada listelenir.</span></div>
+</div>
+<div class="tk-panel">
+  <p class="tk-h">Ayar</p>
+  <div class="tk-checks">
+    <label><input type="checkbox" id="iv-join"><span>ZWNJ / ZWJ karakterlerini koru<em>Arapça, Farsça ve Hint yazıları için gereklidir</em></span></label>
+    <label><input type="checkbox" id="iv-sp" checked><span>Sıra dışı boşlukları normal boşluğa çevir<em>Kesintisiz boşluk, ince boşluk, em boşluğu</em></span></label>
+  </div>
+  <p class="tk-note">Web sayfalarından ve bazı düzenleyicilerden kopyalanan metinlerde
+     gözle görünmeyen karakterler bulunur. Bunlar arama, sıralama ve veri eşleştirmede
+     sessiz hatalara yol açar; kelime aralarına düşerse baskıda kelimeleri birleştirir.</p>
+</div>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var NAMES={"200B":"s\u0131f\u0131r geni\u015flikli bo\u015fluk","200C":"s\u0131f\u0131r geni\u015flikli ay\u0131r\u0131c\u0131 (ZWNJ)",
+"200D":"s\u0131f\u0131r geni\u015flikli birle\u015ftirici (ZWJ)","2060":"kelime birle\u015ftirici",
+"FEFF":"bayt s\u0131ras\u0131 imi (BOM)","00AD":"yumu\u015fak tire","180E":"Mo\u011folca ay\u0131r\u0131c\u0131",
+"061C":"Arap\u00e7a harf imi","200E":"soldan sa\u011fa im","200F":"sa\u011fdan sola im",
+"202A":"soldan sa\u011fa g\u00f6mme","202B":"sa\u011fdan sola g\u00f6mme","202C":"y\u00f6n bi\u00e7imlendirme sonu",
+"202D":"soldan sa\u011fa dayatma","202E":"sa\u011fdan sola dayatma","2066":"soldan sa\u011fa yal\u0131t\u0131m",
+"2067":"sa\u011fdan sola yal\u0131t\u0131m","2068":"ilk g\u00fc\u00e7l\u00fc yal\u0131t\u0131m","2069":"yal\u0131t\u0131m sonu",
+"00A0":"kesintisiz bo\u015fluk","2002":"en bo\u015flu\u011fu","2003":"em bo\u015flu\u011fu","2007":"rakam bo\u015flu\u011fu",
+"2009":"ince bo\u015fluk","200A":"k\u0131l bo\u015flu\u011fu","202F":"dar kesintisiz bo\u015fluk",
+"205F":"orta matematik bo\u015flu\u011fu","3000":"ideografik bo\u015fluk"};
+var ALWAYS="\u200b\u2060\ufeff\u180e\u061c\u200e\u200f\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069\u00ad";
+var JOIN="\u200c\u200d";
+var SPACE=/[\u00a0\u2002\u2003\u2007\u2009\u200a\u202f\u205f\u3000]/g;
+var inp=$("iv-in"),out=$("iv-out"),list=$("iv-list"),msg=$("iv-msg");
+function re(){
+  var cls=($("iv-join").checked?ALWAYS:ALWAYS+JOIN).replace(/[-\\\]^]/g,function(c){return "\\"+c});
+  return new RegExp("["+cls+"\\ufe00-\\ufe0f\\u{e0000}-\\u{e007f}]","gu");
+}
+function cp(c){return c.codePointAt(0).toString(16).toUpperCase().padStart(4,"0")}
+function run(){
+  var s=inp.value,pat=re(),found={},fused=[];
+  var m;
+  while((m=pat.exec(s))!==null){
+    var k=cp(m[0]);found[k]=(found[k]||0)+1;
+    var b=s[m.index-1]||"",a=s[m.index+1]||"";
+    if(/[\p{L}\p{N}]/u.test(b)&&/[\p{L}\p{N}]/u.test(a))
+      fused.push(s.slice(Math.max(0,m.index-10),m.index)+"|"+s.slice(m.index+1,m.index+11));
+  }
+  if($("iv-sp").checked){
+    var sm=s.match(SPACE)||[];
+    sm.forEach(function(c){var k=cp(c);found[k]=(found[k]||0)+1});
+  }
+  var keys=Object.keys(found);
+  if(!s){list.innerHTML='<span class="tk-blank">Metin yap\u0131\u015ft\u0131r\u0131n; i\u00e7indeki g\u00f6r\u00fcnmez karakterler burada listelenir.</span>';msg.textContent="";return}
+  if(!keys.length){list.innerHTML='<span class="tk-good">Temiz.</span> G\u00f6r\u00fcnmez karakter bulunamad\u0131.';msg.textContent="temiz";return}
+  var total=keys.reduce(function(a,k){return a+found[k]},0);
+  list.innerHTML=keys.sort().map(function(k){
+    return "U+"+k+"  \u00d7"+found[k]+"   "+(NAMES[k]||"tan\u0131ms\u0131z")}).join("\n")
+    +(fused.length?"\n\nKelime aras\u0131na d\u00fc\u015fenler:\n"+fused.slice(0,5).map(function(f){
+      return "  \u2026"+f.replace(/</g,"&lt;")+"\u2026"}).join("\n"):"");
+  msg.textContent=total+" karakter bulundu";
+}
+$("iv-clean").addEventListener("click",function(){
+  var s=inp.value.replace(re(),"");
+  if($("iv-sp").checked)s=s.replace(SPACE," ");
+  out.value=s;msg.textContent=(inp.value.length-s.length)+" karakter silindi";
+});
+["iv-in","iv-join","iv-sp"].forEach(function(id){
+  $(id).addEventListener("input",run);$(id).addEventListener("change",run)});
+$("iv-copy").addEventListener("click",function(){
+  navigator.clipboard.writeText(out.value||inp.value).then(function(){msg.textContent="kopyaland\u0131"})});
+})();
+//]]></script>
