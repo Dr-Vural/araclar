@@ -1,0 +1,1035 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<style>
+.mv-dosya{margin:0 0 18px;padding:0 0 14px;border-bottom:1px solid var(--line-2)}
+.mv-dosya:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0}
+.mv-bas{display:flex;gap:9px;align-items:baseline;flex-wrap:wrap;margin:0 0 8px}
+.mv-bas b{font-weight:600;word-break:break-all}
+.mv-rozet{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;padding:1px 7px;
+  border:1px solid var(--line);border-radius:99px;color:var(--ink-2)}
+.mv-sayac{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-left:auto}
+.mv-satir{display:flex;gap:12px;padding:3px 0 3px 10px;font-size:13.5px;border-left:2px solid transparent}
+.mv-satir.risk{border-left-color:var(--alarm)}
+.mv-satir.iz{border-left-color:var(--gold)}
+.mv-satir.bilgi{border-left-color:var(--line)}
+.mv-k{flex:0 0 170px;color:var(--ink-3)}
+.mv-v{flex:1;min-width:0;word-break:break-word;font-family:var(--mono);font-size:12.5px}
+.mv-satir.risk .mv-v{color:var(--alarm)}
+.mv-temiz{color:var(--accent);font-weight:600}
+.mv-lejant{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-3);margin:0 0 14px}
+.mv-lejant i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.mv-list{list-style:none;margin:12px 0 0;padding:0;font-size:13.5px}
+.mv-list li{display:flex;gap:9px;align-items:baseline;padding:5px 0;border-bottom:1px solid var(--line-2)}
+.mv-list li:last-child{border-bottom:0}
+.mv-ad{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mv-boy{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+@media(max-width:560px){.mv-k{flex-basis:118px}}
+</style>
+<div class="tk-cols">
+<div>
+  <div class="tk-drop" id="mv-drop" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6v20h12V8z M14 2v6h4"/><path d="M9 14l2 2 4-4"/></svg>
+    <strong>Dosyaları bırakın</strong>
+    <span>Word · PowerPoint · Excel · OpenDocument · PDF · JPEG · PNG · WebP · GIF</span>
+  </div>
+  <input type="file" id="mv-file" class="tk-hidden" multiple
+         accept=".docx,.docm,.dotx,.pptx,.pptm,.potx,.ppsx,.xlsx,.xlsm,.xltx,.odt,.ods,.odp,.odg,.pdf,.jpg,.jpeg,.jpe,.png,.webp,.gif">
+  <ul class="mv-list" id="mv-liste"></ul>
+
+  <div class="tk-panel" style="margin-top:16px">
+    <p class="tk-h">Temizlik ayarları</p>
+    <div class="tk-two">
+      <div class="tk-field"><label for="mv-yazar">Yazılacak yazar — isteğe bağlı</label>
+        <input type="text" id="mv-yazar" class="tk-in" placeholder="boş bırakılırsa silinir"></div>
+      <div class="tk-field"><label for="mv-baslik">Yazılacak başlık — isteğe bağlı</label>
+        <input type="text" id="mv-baslik" class="tk-in" placeholder="boş bırakılırsa silinir"></div>
+    </div>
+    <div class="tk-field"><label for="mv-tarih">Oluşturma ve değiştirme tarihleri</label>
+      <select id="mv-tarih" class="tk-sel">
+        <option value="sil">Sil</option>
+        <option value="koru">Olduğu gibi koru</option>
+      </select></div>
+
+    <p class="tk-h2">Belgeler</p>
+    <div class="tk-checks">
+      <label><input type="checkbox" id="mv-anonim" checked><span>Yorum ve değişiklik yazarlarını gizle
+        <em>Yorumlar ve izlenen değişiklikler kalır, yazar adları “Yazar” olur</em></span></label>
+      <label><input type="checkbox" id="mv-yorum"><span>Yorumları tamamen kaldır
+        <em>Word ve OpenDocument belgelerinde</em></span></label>
+      <label><input type="checkbox" id="mv-rsid" checked><span>Revizyon oturum kimliklerini kaldır
+        <em>Word'ün her düzenleme oturumuna verdiği kimlikler; aynı kişinin belgelerini birbirine bağlayabilir</em></span></label>
+      <label><input type="checkbox" id="mv-ozel" checked><span>Özel özellikleri sil
+        <em>Kurum şablonlarının ve eklentilerin bıraktığı alanlar</em></span></label>
+      <label><input type="checkbox" id="mv-gorunmez" checked><span>Görünmez Unicode karakterlerini sök
+        <em>Sıfır genişlikli boşluk, yön işaretleri, yumuşak tire</em></span></label>
+      <label><input type="checkbox" id="mv-birlestir"><span>ZWNJ / ZWJ karakterlerini koru
+        <em>Farsça, Arapça ve Hint yazıları için gerekli</em></span></label>
+      <label><input type="checkbox" id="mv-medya" checked><span>Belge içindeki fotoğrafları da temizle
+        <em>Word'e yapıştırılan telefon fotoğrafı konum bilgisini taşır</em></span></label>
+      <label><input type="checkbox" id="mv-zaman" checked><span>Arşiv içi zaman damgalarını sabitle
+        <em>Temizlik anının dosyaya yazılmasını önler</em></span></label>
+    </div>
+
+    <p class="tk-h2">PDF ve görseller</p>
+    <div class="tk-checks">
+      <label><input type="checkbox" id="mv-xmp" checked><span>PDF'teki XMP üstverisini de sil</span></label>
+      <label><input type="checkbox" id="mv-icc"><span>Renk profilini de at
+        <em>Görüntünün rengi değişebilir; varsayılan olarak korunur</em></span></label>
+    </div>
+
+    <div class="tk-acts">
+      <button class="tk-btn" id="mv-go" disabled>Temizle</button>
+      <button class="tk-btn ghost" id="mv-yeniden" disabled>Yeniden denetle</button>
+      <span class="tk-msg" id="mv-msg">dosya bekleniyor</span>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="tk-panel">
+    <p class="tk-h" id="mv-rapor-baslik">Denetim</p>
+    <div class="tk-stats" id="mv-ozet" style="display:none">
+      <div class="tk-stat"><b id="mv-s-dosya">0</b><span>dosya</span></div>
+      <div class="tk-stat warn"><b id="mv-s-risk">0</b><span>kişisel bilgi</span></div>
+      <div class="tk-stat"><b id="mv-s-iz">0</b><span>iz</span></div>
+    </div>
+    <div class="mv-lejant" id="mv-lejant" style="display:none">
+      <span><i style="background:var(--alarm)"></i>kimliğinizi veya konumunuzu açığa vurur</span>
+      <span><i style="background:var(--gold)"></i>dosyanın geçmişini anlatır</span>
+      <span><i style="background:var(--line)"></i>içerik bilgisi</span>
+    </div>
+    <div id="mv-rapor"><p class="tk-blank">Dosya bırakın; içinde ne yazdığını hiçbir şeyi
+      değiştirmeden gösterir.</p></div>
+    <div id="mv-sonuc"></div>
+  </div>
+  <p class="tk-note">Belgeler, fotoğraflar ve PDF'ler görünen içeriğin yanında başka
+     bilgiler de taşır: bilgisayarınızdaki kullanıcı adı, kurumunuzun adı, yorum
+     yazan kişiler, belgenin kaç dakika düzenlendiği, fotoğrafın çekildiği yerin
+     koordinatları. Bu araç önce bunları gösterir, siz isterseniz temizler.</p>
+  <p class="tk-note">Görsellerde piksel verisine dokunulmaz, yeniden sıkıştırma yapılmaz;
+     yalnız üstveri blokları çıkarılır. Telefon fotoğraflarının yön bilgisi korunur,
+     böylece temizlenen fotoğraf yan dönmez.</p>
+  <p class="tk-note">Kör hakemliğe gönderilecek makaleler için metindeki adlar ve
+     atıflar da önemlidir; onlar için <a href="/araclar/kor-hakemlik-anonimlestirici/">Kör
+     Hakemlik Anonimleştirici</a>'yi kullanın.</p>
+</div>
+</div>
+<script>//<![CDATA[
+(function(){
+"use strict";
+
+/* ------------------------------------------------------------ yardımcılar */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")
+                          .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const latin = new TextDecoder("latin1");
+const utf8 = new TextDecoder("utf-8");
+
+const NUMREF = /&#(?:x([0-9A-Fa-f]+)|(\d+));/g;
+function xmlCoz(s){
+  return s.replace(NUMREF, (m,h,d) => String.fromCodePoint(h ? parseInt(h,16) : parseInt(d,10)))
+          .replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"')
+          .replace(/&apos;/g,"'").replace(/&amp;/g,"&");
+}
+const xmlMetin = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const rx = s => s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+
+function etiket(xml, ad){
+  const m = xml.match(new RegExp("<"+rx(ad)+"(?:\\s[^>]*)?>([\\s\\S]*?)</"+rx(ad)+">"));
+  return m ? xmlCoz(m[1]).trim() : "";
+}
+function etiketSil(xml, ad){
+  const a = rx(ad);
+  return xml.replace(new RegExp("<"+a+"(?:\\s[^>]*)?>[\\s\\S]*?</"+a+">","g"),"")
+            .replace(new RegExp("<"+a+"(?:\\s[^>]*)?/>","g"),"");
+}
+function boyut(n){
+  if (n < 1024) return n+" bayt";
+  if (n < 1048576) return (n/1024).toFixed(n < 10240 ? 1 : 0).replace(".",",")+" KB";
+  return (n/1048576).toFixed(1).replace(".",",")+" MB";
+}
+function birlestir(liste){
+  let n = 0; for (const a of liste) n += a.length;
+  const out = new Uint8Array(n); let i = 0;
+  for (const a of liste){ out.set(a,i); i += a.length; }
+  return out;
+}
+const S = (t,k,v,h) => ({t, k, v:String(v), h});
+
+/* Bilgisayardaki kullanıcı adını taşıyan dosya yolları */
+const YOL = /(?:[A-Za-z]:[\\\/]+(?:Users|Documents and Settings)[\\\/]+([^\\\/"<>&;]+))|(?:\/(?:Users|home)\/([^\/"<>&;\s]+))/g;
+const SIRADAN = /^(public|default|all users|shared)$/i;
+function yollariBul(metin, kume){
+  for (const m of metin.matchAll(YOL)){
+    const ad = (m[1] || m[2] || "").trim();
+    if (ad && !SIRADAN.test(ad)) kume.add(ad);
+  }
+}
+
+/* Görünmez karakterler */
+const HER_ZAMAN = "\u200b\u2060\ufeff\u180e\u061c\u200e\u200f\u202a\u202b"
+                + "\u202c\u202d\u202e\u2066\u2067\u2068\u2069\u00ad";
+const BIRLESTIRICI = "\u200c\u200d";
+function gorunmezRe(koru){
+  const sinif = (koru ? HER_ZAMAN : HER_ZAMAN + BIRLESTIRICI).replace(/[-\\\]^]/g, c => "\\"+c);
+  return new RegExp("["+sinif+"\\u{e0000}-\\u{e007f}]","gu");
+}
+const kodNoktasi = ch => "U+"+ch.codePointAt(0).toString(16).toUpperCase().padStart(4,"0");
+
+/* ------------------------------------------------------------ EXIF */
+function tiffOku(u8, bas){
+  try {
+    const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+    const le = u8[bas] === 0x49;
+    const r16 = o => dv.getUint16(bas+o, le), r32 = o => dv.getUint32(bas+o, le);
+    if (r16(2) !== 42) return null;
+    const BOY = {1:1,2:1,3:2,4:4,5:8,7:1,9:4,10:8};
+    const ifd = off => {
+      const t = {};
+      if (off < 8 || bas+off+2 > u8.length) return t;
+      const n = Math.min(r16(off), 400);
+      for (let i = 0; i < n; i++){
+        const e = off+2+i*12;
+        if (bas+e+12 > u8.length) break;
+        const tag = r16(e), tur = r16(e+2), adet = r32(e+4);
+        const top = (BOY[tur]||1) * adet;
+        const vo = top <= 4 ? e+8 : r32(e+8);
+        if (bas+vo+top > u8.length || adet > 1e5) continue;
+        let v;
+        if (tur === 2) v = latin.decode(u8.subarray(bas+vo, bas+vo+adet)).replace(/\0+$/,"").trim();
+        else if (tur === 3) v = r16(vo);
+        else if (tur === 4) v = r32(vo);
+        else if (tur === 5 || tur === 10){
+          const k = Math.min(adet, 4), d = [];
+          for (let j = 0; j < k; j++){
+            const a = tur === 5 ? r32(vo+8*j) : dv.getInt32(bas+vo+8*j, le);
+            const b = tur === 5 ? r32(vo+8*j+4) : dv.getInt32(bas+vo+8*j+4, le);
+            d.push(b ? a/b : 0);
+          }
+          v = adet === 1 ? d[0] : d;
+        }
+        if (v !== undefined) t[tag] = v;
+      }
+      return t;
+    };
+    const t0 = ifd(r32(4));
+    return { t0, exif: t0[0x8769] ? ifd(t0[0x8769]) : {}, gps: t0[0x8825] ? ifd(t0[0x8825]) : {} };
+  } catch(e){ return null; }
+}
+
+function derece(d, ref){
+  if (!Array.isArray(d)) return null;
+  let v = (d[0]||0) + (d[1]||0)/60 + (d[2]||0)/3600;
+  if (ref === "S" || ref === "W") v = -v;
+  return Math.round(v*1e5)/1e5;
+}
+
+function exifSatirlari(t, satirlar, on){
+  if (!t) return { yon:1, konum:false };
+  const T = t.t0, E = t.exif, G = t.gps, p = on ? on+" — " : "";
+  const cihaz = [T[0x010F], T[0x0110]].filter(Boolean).join(" ");
+  if (cihaz) satirlar.push(S("iz", p+"Cihaz", cihaz));
+  if (E[0xA434]) satirlar.push(S("iz", p+"Objektif", E[0xA434]));
+  if (T[0x0131]) satirlar.push(S("iz", p+"Yazılım", T[0x0131]));
+  const ta = E[0x9003] || T[0x0132];
+  if (ta) satirlar.push(S("iz", p+"Çekim tarihi", ta));
+  if (T[0x013B]) satirlar.push(S("risk", p+"Sanatçı / yazar", T[0x013B]));
+  if (E[0xA430]) satirlar.push(S("risk", p+"Cihaz sahibi", E[0xA430]));
+  if (E[0xA431]) satirlar.push(S("risk", p+"Cihaz seri no", E[0xA431]));
+  if (T[0x8298]) satirlar.push(S("bilgi", p+"Telif", T[0x8298]));
+  const en = derece(G[2], G[1]), boy = derece(G[4], G[3]);
+  let konum = false;
+  if (en !== null && boy !== null && (en || boy)){
+    konum = true;
+    const yazi = en.toFixed(5)+", "+boy.toFixed(5);
+    satirlar.push(S("risk", p+"Konum (GPS)", yazi,
+      esc(yazi)+' · <a href="https://www.openstreetmap.org/?mlat='+en+'&amp;mlon='+boy
+      +'#map=16/'+en+'/'+boy+'" target="_blank" rel="noopener">haritada gör</a>'));
+  }
+  return { yon: T[0x0112] || 1, konum };
+}
+
+/* Yalnız yön etiketini taşıyan en küçük EXIF bloğu: temizlenen
+   telefon fotoğrafının yan dönmesini önler. */
+function yonBlogu(yon){
+  const govde = [0x45,0x78,0x69,0x66,0,0, 0x4D,0x4D,0,0x2A,0,0,0,8, 0,1,
+                 0x01,0x12, 0,3, 0,0,0,1, 0,yon,0,0, 0,0,0,0];
+  const n = govde.length + 2;
+  return new Uint8Array([0xFF,0xE1,(n>>8)&255,n&255].concat(govde));
+}
+
+function xmpSatirlari(metin, satirlar, on){
+  const p = on ? on+" — " : "";
+  const al = re => { const m = metin.match(re); return m ? xmlCoz(m[1]).trim() : ""; };
+  const arac = al(/<xmp:CreatorTool>([^<]+)</) || al(/xmp:CreatorTool="([^"]+)"/);
+  const kisi = al(/<dc:creator>[\s\S]*?<rdf:li[^>]*>([^<]+)</);
+  if (arac) satirlar.push(S("iz", p+"XMP oluşturan araç", arac));
+  if (kisi) satirlar.push(S("risk", p+"XMP yazar", kisi));
+  if (!arac && !kisi) satirlar.push(S("iz", p+"XMP bloğu", boyut(metin.length)));
+}
+
+/* ------------------------------------------------------------ görseller */
+const PNG_UST = new Set(["tEXt","zTXt","iTXt","eXIf","tIME","caBX","dSIG","sPLT","hIST","prVW","vpAg"]);
+const PNG_RENK = new Set(["iCCP","gAMA","cHRM","sRGB","cICP","mDCv","cLLi"]);
+const PNG_RISK = /^(author|copyright|artist|owner)$/i;
+const u32 = (u8,i) => (u8[i]<<24 | u8[i+1]<<16 | u8[i+2]<<8 | u8[i+3]) >>> 0;
+
+function pngIsle(u8, ayar, sadeceBak, on){
+  for (let i = 0; i < 8; i++) if (u8[i] !== [0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a][i]) throw new Error("PNG imzası yok");
+  const tut = [u8.subarray(0,8)], satirlar = [], dusen = [];
+  let i = 8, konum = false;
+  while (i + 8 <= u8.length){
+    const n = u32(u8,i), tur = latin.decode(u8.subarray(i+4,i+8));
+    const govde = u8.subarray(i+8, i+8+n), tum = u8.subarray(i, i+12+n);
+    if (tur === "tEXt" || tur === "iTXt"){
+      const sifir = govde.indexOf(0), anahtar = latin.decode(govde.subarray(0, sifir));
+      let deger;
+      if (tur === "tEXt") deger = latin.decode(govde.subarray(sifir+1));
+      else if (govde[sifir+1]) deger = "(sıkıştırılmış)";
+      else {
+        let j = govde.indexOf(0, sifir+3); j = govde.indexOf(0, j+1);
+        deger = utf8.decode(govde.subarray(j+1));
+      }
+      deger = deger.trim();
+      if (/xmp/i.test(anahtar)) xmpSatirlari(deger, satirlar, on);
+      else satirlar.push(S(PNG_RISK.test(anahtar) ? "risk" : "iz", (on?on+" — ":"")+"PNG "+anahtar, deger.slice(0,160)));
+    } else if (tur === "zTXt") satirlar.push(S("iz", (on?on+" — ":"")+"PNG sıkıştırılmış metin", latin.decode(govde.subarray(0, govde.indexOf(0)))));
+    else if (tur === "eXIf") konum = exifSatirlari(tiffOku(u8, i+8), satirlar, on).konum || konum;
+    else if (tur === "caBX") satirlar.push(S("iz", (on?on+" — ":"")+"Köken bildirimi", "C2PA / JUMBF"));
+    else if (tur === "tIME") satirlar.push(S("iz", (on?on+" — ":"")+"Son değiştirme damgası", "PNG tIME"));
+    const at = PNG_UST.has(tur) || (ayar.icc && PNG_RENK.has(tur));
+    if (at) dusen.push(tur);
+    if (!(at && !sadeceBak)) tut.push(tum);
+    i += 12 + n;
+    if (tur === "IEND") break;
+  }
+  return { out: birlestir(tut), satirlar, dusen, konum };
+}
+
+function jpegIsle(u8, ayar, sadeceBak, on){
+  if (u8[0] !== 0xFF || u8[1] !== 0xD8) throw new Error("JPEG imzası yok");
+  const tut = [u8.subarray(0,2)], satirlar = [], dusen = [];
+  const p = on ? on+" — " : "";
+  let i = 2, yon = 1, konum = false;
+  while (i < u8.length){
+    if (u8[i] !== 0xFF){ tut.push(u8.subarray(i)); break; }
+    const isaret = u8[i+1];
+    if (isaret === 0xD8 || (isaret >= 0xD0 && isaret <= 0xD7) || isaret === 0x01 || isaret === 0xFF){
+      tut.push(u8.subarray(i, i+2)); i += 2; continue;
+    }
+    if (isaret === 0xDA){ tut.push(u8.subarray(i)); break; }
+    const n = (u8[i+2]<<8) | u8[i+3];
+    const govde = u8.subarray(i+4, i+2+n);
+    const bas = latin.decode(govde.subarray(0, 32));
+    let at = false;
+    if (isaret === 0xE1){
+      at = true;
+      if (bas.startsWith("Exif")){
+        const r = exifSatirlari(tiffOku(u8, i+10), satirlar, on);
+        yon = r.yon; konum = konum || r.konum;
+      } else if (/ns\.adobe\.com\/xap/.test(bas)) xmpSatirlari(utf8.decode(govde), satirlar, on);
+      else satirlar.push(S("iz", p+"APP1 bloğu", boyut(n)));
+    } else if (isaret === 0xEB || /jumb|c2pa/i.test(bas)){
+      at = true; satirlar.push(S("iz", p+"Köken bildirimi", "C2PA / JUMBF"));
+    } else if (isaret === 0xED){
+      at = true; satirlar.push(S("iz", p+"Photoshop / IPTC", boyut(n)));
+    } else if (isaret === 0xE2 && bas.startsWith("ICC_PROFILE")){
+      at = ayar.icc;
+    } else if (isaret >= 0xE3 && isaret <= 0xEF && isaret !== 0xEE){
+      at = true; satirlar.push(S("iz", p+"APP"+(isaret-0xE0)+" bloğu", boyut(n)));
+    } else if (isaret === 0xFE){
+      at = true; satirlar.push(S("iz", p+"JPEG yorumu", utf8.decode(govde).slice(0,160)));
+    }
+    if (at) dusen.push(isaret === 0xFE ? "COM" : "APP"+(isaret-0xE0));
+    if (!(at && !sadeceBak)) tut.push(u8.subarray(i, i+2+n));
+    i += 2 + n;
+  }
+  if (!sadeceBak && yon > 1 && yon <= 8){
+    const yer = (tut[1] && tut[1][0] === 0xFF && tut[1][1] === 0xE0) ? 2 : 1;
+    tut.splice(yer, 0, yonBlogu(yon));
+  }
+  return { out: birlestir(tut), satirlar, dusen, konum };
+}
+
+const WEBP_UST = new Set(["EXIF","XMP "]);
+function webpIsle(u8, ayar, sadeceBak, on){
+  if (latin.decode(u8.subarray(0,4)) !== "RIFF" || latin.decode(u8.subarray(8,12)) !== "WEBP")
+    throw new Error("WebP imzası yok");
+  const satirlar = [], dusen = [], parca = [];
+  let i = 12, konum = false;
+  while (i + 8 <= u8.length){
+    const tur = latin.decode(u8.subarray(i,i+4));
+    const n = u8[i+4] | (u8[i+5]<<8) | (u8[i+6]<<16) | (u8[i+7]<<24);
+    const govde = u8.subarray(i+8, i+8+n), dolgu = n & 1;
+    let at = WEBP_UST.has(tur) || (ayar.icc && tur === "ICCP");
+    if (tur === "EXIF"){
+      const k = latin.decode(govde.subarray(0,4)) === "Exif" ? 6 : 0;
+      konum = exifSatirlari(tiffOku(u8, i+8+k), satirlar, on).konum || konum;
+    } else if (tur === "XMP ") xmpSatirlari(utf8.decode(govde), satirlar, on);
+    else if (/C2PA|JUMB/.test(tur)){ at = true; satirlar.push(S("iz", (on?on+" — ":"")+"Köken bildirimi", "C2PA")); }
+    if (at){ dusen.push(tur.trim()); if (!sadeceBak){ i += 8+n+dolgu; continue; } }
+    parca.push([tur, govde, dolgu]);
+    i += 8 + n + dolgu;
+  }
+  if (sadeceBak) return { out: u8, satirlar, dusen, konum };
+  const cikti = [];
+  for (let [tur, govde, dolgu] of parca){
+    if (tur === "VP8X" && govde.length){
+      govde = govde.slice(); govde[0] &= ~0b00001100;
+      if (ayar.icc) govde[0] &= ~0b00100000;
+    }
+    const b = new Uint8Array(8);
+    for (let k = 0; k < 4; k++) b[k] = tur.charCodeAt(k);
+    const L = govde.length;
+    b[4]=L&255; b[5]=(L>>8)&255; b[6]=(L>>16)&255; b[7]=(L>>24)&255;
+    cikti.push(b, govde);
+    if (dolgu) cikti.push(new Uint8Array(1));
+  }
+  const yuk = birlestir(cikti), bas = new Uint8Array(12);
+  "RIFF".split("").forEach((c,k) => bas[k] = c.charCodeAt(0));
+  const T = yuk.length + 4;
+  bas[4]=T&255; bas[5]=(T>>8)&255; bas[6]=(T>>16)&255; bas[7]=(T>>24)&255;
+  "WEBP".split("").forEach((c,k) => bas[8+k] = c.charCodeAt(0));
+  return { out: birlestir([bas, yuk]), satirlar, dusen, konum };
+}
+
+function gifIsle(u8, ayar, sadeceBak, on){
+  const sihir = latin.decode(u8.subarray(0,6));
+  if (sihir !== "GIF87a" && sihir !== "GIF89a") throw new Error("GIF imzası yok");
+  const satirlar = [], dusen = [], tut = [u8.subarray(0,6)];
+  let i = 6;
+  tut.push(u8.subarray(i,i+7));
+  const bayrak = u8[i+4]; i += 7;
+  if (bayrak & 0x80){ const s = 3*(2**((bayrak&7)+1)); tut.push(u8.subarray(i,i+s)); i += s; }
+  const atla = j => { while (j < u8.length && u8[j]) j += u8[j]+1; return j+1; };
+  while (i < u8.length){
+    const b = u8[i];
+    if (b === 0x3B){ tut.push(new Uint8Array([0x3B])); break; }
+    if (b === 0x21){
+      const tip = u8[i+1], son = atla(i+2), blok = u8.subarray(i, son);
+      let at = false;
+      if (tip === 0xFE){
+        const ham = []; let j = 2;
+        while (j < blok.length && blok[j]){ for (let k = 0; k < blok[j]; k++) ham.push(blok[j+1+k]); j += blok[j]+1; }
+        satirlar.push(S("iz", (on?on+" — ":"")+"GIF yorumu", latin.decode(new Uint8Array(ham)).slice(0,160)));
+        at = true; dusen.push("Comment");
+      } else if (tip === 0xFF){
+        const ad = latin.decode(blok.subarray(3,14));
+        if (!/NETSCAPE|ANIMEXTS/.test(ad)){
+          satirlar.push(S("iz", (on?on+" — ":"")+"Uygulama uzantısı", ad.trim()));
+          at = true; dusen.push("AppExt");
+        }
+      }
+      if (!(at && !sadeceBak)) tut.push(blok);
+      i = son; continue;
+    }
+    if (b === 0x2C){
+      tut.push(u8.subarray(i,i+10));
+      const f2 = u8[i+9]; i += 10;
+      if (f2 & 0x80){ const s = 3*(2**((f2&7)+1)); tut.push(u8.subarray(i,i+s)); i += s; }
+      tut.push(u8.subarray(i,i+1)); i += 1;
+      const son = atla(i); tut.push(u8.subarray(i,son)); i = son; continue;
+    }
+    tut.push(u8.subarray(i,i+1)); i += 1;
+  }
+  return { out: birlestir(tut), satirlar, dusen, konum:false };
+}
+
+function gorselIsleyici(u8, uz){
+  if (u8[0] === 0x89 && u8[1] === 0x50) return pngIsle;
+  if (u8[0] === 0xFF && u8[1] === 0xD8) return jpegIsle;
+  if (latin.decode(u8.subarray(0,3)) === "GIF") return gifIsle;
+  if (latin.decode(u8.subarray(0,4)) === "RIFF" && latin.decode(u8.subarray(8,12)) === "WEBP") return webpIsle;
+  return ({png:pngIsle, jpg:jpegIsle, jpeg:jpegIsle, jpe:jpegIsle, webp:webpIsle, gif:gifIsle})[uz] || null;
+}
+const MEDYA = /(?:^|\/)(?:media|Pictures)\/[^\/]+\.(?:jpe?g|png|webp|gif)$/i;
+
+/* ------------------------------------------------------------ OOXML / ODF */
+const TUR = {
+  docx:"word", docm:"word", dotx:"word", pptx:"pp", pptm:"pp", potx:"pp", ppsx:"pp",
+  xlsx:"xl", xlsm:"xl", xltx:"xl", odt:"odf", ods:"odf", odp:"odf", odg:"odf",
+  pdf:"pdf", png:"img", jpg:"img", jpeg:"img", jpe:"img", webp:"img", gif:"img"
+};
+const ETIKET = { word:"Word", pp:"PowerPoint", xl:"Excel", odf:"OpenDocument", pdf:"PDF" };
+const KOK = { word:"word/", pp:"ppt/", xl:"xl/" };
+
+const CEKIRDEK = [
+  ["dc:creator","risk","Yazar"], ["cp:lastModifiedBy","risk","Son kaydeden"],
+  ["dcterms:created","iz","Oluşturma tarihi"], ["dcterms:modified","iz","Değiştirme tarihi"],
+  ["cp:lastPrinted","iz","Son yazdırma"], ["cp:revision","iz","Kayıt sayısı"],
+  ["dc:title","bilgi","Başlık"], ["dc:subject","bilgi","Konu"], ["cp:keywords","bilgi","Anahtar kelimeler"],
+  ["dc:description","bilgi","Açıklama"], ["cp:category","bilgi","Kategori"], ["cp:contentStatus","bilgi","Durum"]
+];
+const UYGULAMA = [
+  ["Company","risk","Kurum"], ["Manager","risk","Yönetici"], ["HyperlinkBase","risk","Bağlantı tabanı"],
+  ["Application","iz","Uygulama"], ["AppVersion","iz","Uygulama sürümü"],
+  ["Template","iz","Şablon"], ["TotalTime","iz","Toplam düzenleme süresi"]
+];
+const ODF_META = [
+  ["meta:initial-creator","risk","İlk yazar"], ["dc:creator","risk","Son kaydeden"],
+  ["meta:printed-by","risk","Yazdıran"], ["meta:generator","iz","Uygulama"],
+  ["meta:creation-date","iz","Oluşturma tarihi"], ["dc:date","iz","Değiştirme tarihi"],
+  ["meta:print-date","iz","Son yazdırma"], ["meta:editing-cycles","iz","Kayıt sayısı"],
+  ["meta:editing-duration","iz","Toplam düzenleme süresi"],
+  ["dc:title","bilgi","Başlık"], ["dc:subject","bilgi","Konu"], ["meta:keyword","bilgi","Anahtar kelime"]
+];
+const W_RSID = /\s+w:rsid(?:R|RDefault|RPr|P|Tr|Del|Sect)?="[0-9A-Fa-f]{6,8}"/g;
+const YORUM_PARCA = ["word/comments.xml","word/commentsExtended.xml","word/commentsIds.xml",
+                     "word/commentsExtensible.xml","word/people.xml"];
+
+function yazarRaporu(yazarlar, s){
+  const anonim = yazarlar.delete("Yazar");
+  if (yazarlar.size) s.push(S("risk","Yorum / değişiklik yazarı",[...yazarlar].join(", ")));
+  else if (anonim) s.push(S("bilgi","Yorum / değişiklik yazarı","anonim"));
+}
+
+function sure(v){
+  const m = String(v).match(/P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?/);
+  if (/^\d+$/.test(v)) return v+" dakika";
+  if (!m) return v;
+  const dk = (+m[1]||0)*1440 + (+m[2]||0)*60 + (+m[3]||0);
+  return dk+" dakika";
+}
+
+async function parcalariOku(zip){
+  const adlar = Object.keys(zip.files).filter(n => !zip.files[n].dir);
+  const p = {};
+  for (const n of adlar){
+    p[n] = /\.(xml|rels)$/i.test(n) || n === "mimetype"
+      ? await zip.files[n].async("string")
+      : await zip.files[n].async("uint8array");
+  }
+  return { adlar, p };
+}
+
+function turBul(adlar){
+  if (adlar.includes("mimetype") && adlar.includes("content.xml")) return "odf";
+  for (const k in KOK) if (adlar.some(n => n.startsWith(KOK[k]))) return k;
+  return null;
+}
+
+async function belgeDenetle(kayit){
+  const { adlar, p } = await parcalariOku(kayit.zip);
+  const tur = turBul(adlar);
+  if (!tur) return { satirlar:[S("bilgi","Biçim","tanınamadı")], dusen:[] };
+  const s = [], kullanicilar = new Set(), gr = gorunmezRe(false), gorunmez = {};
+
+  if (tur === "odf"){
+    const meta = p["meta.xml"] || "";
+    for (const [ad,t,k] of ODF_META){
+      let v = etiket(meta, ad);
+      if (v){ if (ad === "meta:editing-duration") v = sure(v); s.push(S(t,k,v)); }
+    }
+    const sablon = (meta.match(/<meta:template[^>]*xlink:href="([^"]+)"/) || [])[1];
+    if (sablon) s.push(S("iz","Şablon",xmlCoz(sablon)));
+    const ozel = [...meta.matchAll(/<meta:user-defined[^>]*meta:name="([^"]+)"[^>]*>([^<]*)</g)];
+    for (const m of ozel.slice(0,10)) s.push(S("iz","Özel alan: "+xmlCoz(m[1]), xmlCoz(m[2])));
+    const yazici = (p["settings.xml"]||"").match(/config:name="PrinterName"[^>]*>([^<]+)</);
+    if (yazici) s.push(S("risk","Yazıcı adı",xmlCoz(yazici[1])));
+    const yazarlar = new Set();
+    for (const n of ["content.xml","styles.xml"]){
+      for (const m of (p[n]||"").matchAll(/<(?:office:annotation|text:changed-region)\b[\s\S]*?<dc:creator>([^<]*)<\/dc:creator>/g))
+        yazarlar.add(xmlCoz(m[1]));
+    }
+    const notSay = ((p["content.xml"]||"").match(/<office:annotation\b/g) || []).length;
+    if (notSay) s.push(S("bilgi","Yorum",notSay+" adet"));
+    yazarRaporu(yazarlar, s);
+    if (adlar.some(n => n.startsWith("Thumbnails/"))) s.push(S("iz","Küçük resim","ilk sayfanın görüntüsü dosyada saklı"));
+  } else {
+    const cekirdek = p["docProps/core.xml"] || "";
+    for (const [ad,t,k] of CEKIRDEK){ const v = etiket(cekirdek, ad); if (v) s.push(S(t,k,v)); }
+    const uyg = p["docProps/app.xml"] || "";
+    for (const [ad,t,k] of UYGULAMA){
+      let v = etiket(uyg, ad);
+      if (v){ if (ad === "TotalTime") v = sure(v); s.push(S(t,k,v)); }
+    }
+    const ozel = p["docProps/custom.xml"] || "";
+    for (const m of [...ozel.matchAll(/<property[^>]*name="([^"]+)"[^>]*>[\s\S]*?<vt:\w+>([^<]*)</g)].slice(0,10))
+      s.push(S("iz","Özel alan: "+xmlCoz(m[1]), xmlCoz(m[2])));
+    if (adlar.some(n => n.startsWith("docProps/thumbnail"))) s.push(S("iz","Küçük resim","ilk sayfanın görüntüsü dosyada saklı"));
+
+    const yazarlar = new Set();
+    const ekle = re => { for (const n of adlar) if (typeof p[n] === "string" && n.startsWith(KOK[tur]))
+      for (const m of p[n].matchAll(re)) if (m[1].trim()) yazarlar.add(xmlCoz(m[1])); };
+    if (tur === "word"){
+      ekle(/\bw:author="([^"]*)"/g);
+      ekle(/\bw15:author="([^"]*)"/g);
+      const yorum = ((p["word/comments.xml"]||"").match(/<w:comment\b/g) || []).length;
+      if (yorum) s.push(S("bilgi","Yorum",yorum+" adet"));
+      const degisiklik = ((p["word/document.xml"]||"").match(/<w:(?:ins|del)\b/g) || []).length;
+      if (degisiklik) s.push(S("iz","İzlenen değişiklik",degisiklik+" adet — belgede kabul edilmemiş düzeltmeler var"));
+      const gizli = ((p["word/document.xml"]||"").match(/<w:vanish\/>/g) || []).length;
+      if (gizli) s.push(S("iz","Gizli biçimlendirilmiş metin",gizli+" parça — ekranda görünmez, dosyada durur"));
+      let rsid = 0;
+      for (const n of adlar) if (typeof p[n] === "string" && n.startsWith("word/")) rsid += (p[n].match(W_RSID) || []).length;
+      if (rsid) s.push(S("iz","Revizyon oturum kimliği",rsid+" adet"));
+      const ayar = p["word/settings.xml"] || "";
+      if (/<w(?:14|15):docId\b/.test(ayar)) s.push(S("iz","Belge kimliği","sürümler arasında aynı kalan GUID"));
+    } else if (tur === "pp"){
+      ekle(/<(?:p:cmAuthor|p188:author)\b[^>]*\bname="([^"]*)"/g);
+      const gizli = adlar.filter(n => /^ppt\/slides\/slide\d+\.xml$/.test(n) && /<p:sld\b[^>]*\bshow="0"/.test(p[n])).length;
+      if (gizli) s.push(S("iz","Gizli slayt",gizli+" adet — sunumda görünmez, dosyada durur"));
+    } else if (tur === "xl"){
+      ekle(/<author>([^<]*)<\/author>/g);
+      ekle(/<person\b[^>]*\bdisplayName="([^"]*)"/g);
+      const wb = p["xl/workbook.xml"] || "";
+      const gizli = (wb.match(/<sheet\b[^>]*state="(?:hidden|veryHidden)"/g) || []).length;
+      if (gizli) s.push(S("iz","Gizli sayfa",gizli+" adet — çalışma kitabında görünmez, dosyada durur"));
+    }
+    yazarRaporu(yazarlar, s);
+  }
+
+  // bütün XML parçalarında kullanıcı adı taşıyan yollar ve görünmez karakterler
+  const disBag = new Set();
+  for (const n of adlar){
+    if (typeof p[n] !== "string") continue;
+    yollariBul(p[n], kullanicilar);
+    if (n.endsWith(".rels"))
+      for (const m of p[n].matchAll(/Target="([^"]+)"[^>]*TargetMode="External"/g))
+        if (/^file:|^[A-Za-z]:\\|^\\\\/.test(m[1])) disBag.add(xmlCoz(m[1]));
+    for (const m of p[n].matchAll(/>([^<]+)</g))
+      for (const ch of (xmlCoz(m[1]).match(gr) || [])){
+        const k = kodNoktasi(ch); gorunmez[k] = (gorunmez[k]||0) + 1;
+      }
+  }
+  if (kullanicilar.size) s.push(S("risk","Bilgisayar kullanıcı adı",[...kullanicilar].join(", ")+" — bir dosya yolunda geçiyor"));
+  for (const d of [...disBag].slice(0,5)) s.push(S("risk","Yerel dosyaya bağlantı",d));
+  const gk = Object.keys(gorunmez);
+  if (gk.length) s.push(S("iz","Görünmez karakter",gk.map(k => k+" × "+gorunmez[k]).join(", ")));
+
+  // gömülü fotoğraflar
+  let konumlu = 0, medya = 0;
+  for (const n of adlar){
+    if (!MEDYA.test(n)) continue;
+    medya++;
+    const f = gorselIsleyici(p[n], n.split(".").pop().toLowerCase());
+    if (!f) continue;
+    try {
+      const r = f(p[n], {}, true, n.split("/").pop());
+      if (r.konum) konumlu++;
+      for (const x of r.satirlar) if (x.t === "risk" || /Cihaz$/.test(x.k)) s.push(x);
+    } catch(e){}
+  }
+  if (medya) s.push(S("bilgi","Gömülü görsel",medya+" adet"+(konumlu ? ", "+konumlu+" tanesinde konum bilgisi" : "")));
+  const gomulu = adlar.filter(n => /\/embeddings\//.test(n)).length;
+  if (gomulu) s.push(S("iz","Gömülü dosya",gomulu+" adet — bunların kendi üstverisi bu araçla temizlenmez"));
+
+  return { tur, satirlar: s, dusen: [] };
+}
+
+function cekirdekKur(o, eski){
+  const f = [];
+  const ekle = (t,v,a) => { if (v) f.push("<"+t+(a||"")+">"+xmlMetin(v)+"</"+t+">"); };
+  ekle("dc:title", o.baslik);
+  ekle("dc:creator", o.yazar);
+  ekle("cp:lastModifiedBy", o.yazar);
+  if (o.tarih === "koru"){
+    const W = ' xsi:type="dcterms:W3CDTF"';
+    ekle("dcterms:created", eski.created, W);
+    ekle("dcterms:modified", eski.modified, W);
+  }
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n'
+    + '<cp:coreProperties'
+    + ' xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"'
+    + ' xmlns:dc="http://purl.org/dc/elements/1.1/"'
+    + ' xmlns:dcterms="http://purl.org/dc/terms/"'
+    + ' xmlns:dcmitype="http://purl.org/dc/dcmitype/"'
+    + ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+    + f.join("") + '</cp:coreProperties>';
+}
+
+function yazarlariGizle(x, log, adDahil){
+  x = x.replace(/\b((?:\w+:)?(?:author|userName|displayName))="[^"]*"/g, (m,a) => { log.yazar++; return a+'="Yazar"'; })
+       .replace(/\b((?:\w+:)?initials)="[^"]*"/g, (m,a) => a+'="Y"')
+       .replace(/\b((?:\w+:)?userId)="[^"]*"/g, (m,a) => a+'=""');
+  if (adDahil) x = x.replace(/\b(name)="[^"]*"/g, (m,a) => { log.yazar++; return a+'="Yazar"'; });
+  return x;
+}
+
+function gorunmezSok(x, o, log){
+  const gr = gorunmezRe(o.birlestir);
+  return x.replace(/>([^<]+)</g, (m, ham) => {
+    const coz = xmlCoz(ham);
+    if (!gr.test(coz)){ gr.lastIndex = 0; return m; }
+    gr.lastIndex = 0;
+    for (const h of coz.matchAll(gr)){
+      const i = h.index, once = coz[i-1] || "", sonra = coz[i+h[0].length] || "";
+      if (/[\p{L}\p{N}]/u.test(once) && /[\p{L}\p{N}]/u.test(sonra))
+        log.birlesik.push(coz.slice(Math.max(0,i-14), i+14).replace(gr,"|"));
+    }
+    const yeni = coz.replace(gr,"");
+    log.gorunmez += [...coz].length - [...yeni].length;
+    return ">" + xmlMetin(yeni) + "<";
+  });
+}
+
+function bagSil(x, hedef){
+  return x.replace(new RegExp('<Relationship\\b[^>]*Target="[^"]*'+rx(hedef)+'"[^>]*/>',"g"),"");
+}
+
+async function belgeTemizle(kayit, o){
+  const { adlar, p } = await parcalariOku(kayit.zip);
+  const tur = turBul(adlar);
+  if (!tur) throw new Error("biçim tanınamadı");
+  const log = { yazar:0, gorunmez:0, birlesik:[], rsid:0, damga:0, gorsel:0, silinen:[], yapilan:[] };
+  const sil = n => { if (n in p){ delete p[n]; log.silinen.push(n); } };
+
+  if (tur === "odf"){
+    if ("meta.xml" in p){
+      let m = p["meta.xml"];
+      const ic = m.match(/<office:meta>([\s\S]*?)<\/office:meta>/);
+      if (ic){
+        const kalan = [];
+        const ist = (ic[1].match(/<meta:document-statistic\b[^>]*\/>/) || [])[0];
+        if (o.baslik) kalan.push("<dc:title>"+xmlMetin(o.baslik)+"</dc:title>");
+        if (o.yazar) kalan.push("<meta:initial-creator>"+xmlMetin(o.yazar)+"</meta:initial-creator>",
+                                "<dc:creator>"+xmlMetin(o.yazar)+"</dc:creator>");
+        if (o.tarih === "koru"){
+          const c = ic[1].match(/<meta:creation-date>[^<]*<\/meta:creation-date>/);
+          const d = ic[1].match(/<dc:date>[^<]*<\/dc:date>/);
+          if (c) kalan.push(c[0]); if (d) kalan.push(d[0]);
+        }
+        if (ist) kalan.push(ist);
+        p["meta.xml"] = m.replace(ic[0], "<office:meta>"+kalan.join("")+"</office:meta>");
+        log.yapilan.push("meta.xml yeniden kuruldu");
+      }
+    }
+    if (typeof p["settings.xml"] === "string"){
+      p["settings.xml"] = p["settings.xml"]
+        .replace(/(config:name="PrinterName"[^>]*>)[^<]*(<)/, "$1$2")
+        .replace(/(config:name="PrinterSetup"[^>]*>)[^<]*(<)/, "$1$2");
+    }
+    for (const n of ["content.xml","styles.xml"]){
+      if (typeof p[n] !== "string") continue;
+      let x = p[n];
+      if (o.yorum){
+        const once = (x.match(/<office:annotation\b/g) || []).length;
+        x = x.replace(/<office:annotation\b[\s\S]*?<\/office:annotation>/g,"")
+             .replace(/<office:annotation-end\b[^>]*\/>/g,"");
+        if (once) log.yapilan.push(once+" yorum kaldırıldı");
+      }
+      if (o.anonim){
+        x = x.replace(/<dc:creator>[^<]*<\/dc:creator>/g, () => { log.yazar++; return "<dc:creator>Yazar</dc:creator>"; })
+             .replace(/<meta:creator-initials>[^<]*<\/meta:creator-initials>/g, "<meta:creator-initials>Y</meta:creator-initials>");
+      }
+      if (o.gorunmez) x = gorunmezSok(x, o, log);
+      p[n] = x;
+    }
+    for (const n of Object.keys(p)) if (n.startsWith("Thumbnails/")) sil(n);
+    if (typeof p["META-INF/manifest.xml"] === "string")
+      p["META-INF/manifest.xml"] = p["META-INF/manifest.xml"]
+        .replace(/<manifest:file-entry\b[^>]*manifest:full-path="Thumbnails\/[^"]*"[^>]*\/>\s*/g,"");
+  } else {
+    if ("docProps/core.xml" in p){
+      const eski = p["docProps/core.xml"];
+      p["docProps/core.xml"] = cekirdekKur(o, { created: etiket(eski,"dcterms:created"),
+                                                modified: etiket(eski,"dcterms:modified") });
+      log.yapilan.push("çekirdek özellikler yeniden kuruldu");
+    }
+    if (typeof p["docProps/app.xml"] === "string"){
+      let a = p["docProps/app.xml"];
+      for (const [ad] of UYGULAMA) a = etiketSil(a, ad);
+      p["docProps/app.xml"] = a;
+    }
+    if (o.ozel) sil("docProps/custom.xml");
+    for (const n of Object.keys(p)) if (n.startsWith("docProps/thumbnail")) sil(n);
+
+    if (tur === "word"){
+      if (o.yorum) for (const n of YORUM_PARCA) sil(n);
+      if (typeof p["word/settings.xml"] === "string"){
+        let st = p["word/settings.xml"];
+        st = etiketSil(st, "w:attachedTemplate");
+        st = etiketSil(st, "w15:docId"); st = etiketSil(st, "w14:docId");
+        if (o.rsid) st = etiketSil(st, "w:rsids");
+        p["word/settings.xml"] = st;
+      }
+      if (typeof p["word/_rels/settings.xml.rels"] === "string")
+        p["word/_rels/settings.xml.rels"] = p["word/_rels/settings.xml.rels"]
+          .replace(/<Relationship\b[^>]*Type="[^"]*\/attachedTemplate"[^>]*\/>/g,"");
+    }
+
+    for (const n of Object.keys(p)){
+      if (typeof p[n] !== "string" || !n.startsWith(KOK[tur])) continue;
+      let x = p[n];
+      if (tur === "word"){
+        if (o.rsid) x = x.replace(W_RSID, () => { log.rsid++; return ""; });
+        if (o.tarih === "sil") x = x.replace(/\s+w:date="[^"]*"/g, () => { log.damga++; return ""; });
+        if (o.yorum) x = x.replace(/<w:commentRange(?:Start|End)\b[^>]*\/>/g,"")
+                          .replace(/<w:commentReference\b[^>]*\/>/g,"");
+      }
+      if (o.anonim){
+        const adDahil = /^(ppt\/(authors|commentAuthors)\.xml|xl\/persons\/)/.test(n);
+        x = yazarlariGizle(x, log, adDahil);
+        if (n.startsWith("xl/comments")) x = x.replace(/<author>[^<]*<\/author>/g, () => { log.yazar++; return "<author>Yazar</author>"; });
+      }
+      if (o.gorunmez && /\/(document|header\d*|footer\d*|footnotes|endnotes|comments|sharedStrings)\.xml$|\/slides\/slide\d+\.xml$|\/notesSlides\//.test(n))
+        x = gorunmezSok(x, o, log);
+      p[n] = x;
+    }
+  }
+
+  // gömülü fotoğraflar
+  if (o.medya){
+    for (const n of Object.keys(p)){
+      if (!MEDYA.test(n) || typeof p[n] === "string") continue;
+      const f = gorselIsleyici(p[n], n.split(".").pop().toLowerCase());
+      if (!f) continue;
+      try {
+        const r = f(p[n], o, false);
+        if (r.out.length !== p[n].length){ p[n] = r.out; log.gorsel++; }
+      } catch(e){}
+    }
+  }
+
+  // silinen parçaların ilişki ve içerik türü kayıtları
+  for (const d of log.silinen){
+    const ad = d.split("/").pop();
+    for (const n of Object.keys(p)){
+      if (typeof p[n] !== "string") continue;
+      if (n.endsWith(".rels")) p[n] = bagSil(p[n], ad);
+      if (n === "[Content_Types].xml")
+        p[n] = p[n].replace(new RegExp('<Override\\b[^>]*PartName="/'+rx(d)+'"[^>]*/>',"g"),"");
+    }
+  }
+
+  // JSZip saati yerel saatten DOS biçimine çevirir; UTC öğle değeri
+  // her saat diliminde 1 Ocak 1980 olarak yazılır.
+  const tarih = o.zaman ? new Date(Date.UTC(1980,0,1,12,0,0)) : null;
+  const cikti = new JSZip();
+  const sira = tur === "odf" ? ["mimetype"].concat(adlar.filter(n => n !== "mimetype")) : adlar;
+  for (const n of sira){
+    if (!(n in p)) continue;
+    const opt = { createFolders:false };
+    if (tarih) opt.date = tarih;
+    if (typeof p[n] !== "string") opt.binary = true;
+    if (n === "mimetype") opt.compression = "STORE";
+    cikti.file(n, p[n], opt);
+  }
+  const blob = await cikti.generateAsync({ type:"blob", compression:"DEFLATE",
+    mimeType: kayit.dosya.type || "application/octet-stream" });
+  return { blob, log, tur };
+}
+
+/* ------------------------------------------------------------ PDF */
+const PDF_ALAN = [["Author","risk","Yazar"],["Creator","iz","Oluşturan program"],["Producer","iz","Üreten program"],
+  ["CreationDate","iz","Oluşturma tarihi"],["ModDate","iz","Değiştirme tarihi"],
+  ["Title","bilgi","Başlık"],["Subject","bilgi","Konu"],["Keywords","bilgi","Anahtar kelimeler"]];
+
+function pdfTarih(v){
+  const m = String(v).match(/D:(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?/);
+  return m ? m[1]+"-"+(m[2]||"01")+"-"+(m[3]||"01")+(m[4] ? " "+m[4]+":"+(m[5]||"00") : "") : v;
+}
+
+async function pdfDenetle(kayit){
+  const s = [], ham = latin.decode(kayit.u8);
+  if (/\/Encrypt\s/.test(ham)) return { satirlar:[S("bilgi","Şifreleme","dosya parola korumalı — önce parolayı kaldırın")], dusen:[], sifreli:true };
+  const doc = await PDFLib.PDFDocument.load(kayit.u8, { updateMetadata:false });
+  const bilgi = doc.getInfoDict();
+  for (const [ad,t,k] of PDF_ALAN){
+    const v = bilgi.get(PDFLib.PDFName.of(ad));
+    if (!v) continue;
+    let metin = v.decodeText ? v.decodeText() : String(v);
+    if (/Date$/.test(ad)) metin = pdfTarih(metin);
+    if (metin.trim()) s.push(S(t,k,metin.trim()));
+  }
+  for (const k of bilgi.keys()){
+    const ad = k.asString().slice(1);
+    if (PDF_ALAN.some(a => a[0] === ad) || ad === "Trapped") continue;
+    const v = bilgi.get(k);
+    s.push(S("iz","Özel alan: "+ad, v && v.decodeText ? v.decodeText() : String(v)));
+  }
+  const xmp = doc.catalog.get(PDFLib.PDFName.of("Metadata"));
+  if (xmp){
+    const nesne = doc.context.lookup(xmp);
+    const icerik = nesne && nesne.contents ? utf8.decode(nesne.contents) : "";
+    if (/<x:xmpmeta|<rdf:RDF/.test(icerik)) xmpSatirlari(icerik, s);
+    else s.push(S("iz","XMP bloğu", nesne && nesne.contents ? boyut(nesne.contents.length)+" (sıkıştırılmış)" : "var"));
+  }
+  const eof = (ham.match(/%%EOF/g) || []).length;
+  if (eof > 1) s.push(S("risk","Önceki kayıtlar",(eof-1)+" eski sürüm dosyanın içinde duruyor — silinmiş sanılan içerik geri okunabilir"));
+  const kullanicilar = new Set(); yollariBul(ham.slice(0, 2e6), kullanicilar);
+  if (kullanicilar.size) s.push(S("risk","Bilgisayar kullanıcı adı",[...kullanicilar].join(", ")+" — bir dosya yolunda geçiyor"));
+  if (/\/FT\s*\/Sig\b/.test(ham)) s.push(S("bilgi","Dijital imza","var — üstveriyi değiştirmek imzayı geçersiz kılar"));
+  s.push(S("bilgi","Sayfa",doc.getPageCount()));
+  return { satirlar:s, dusen:[] };
+}
+
+async function pdfTemizle(kayit, o){
+  const doc = await PDFLib.PDFDocument.load(kayit.u8, { updateMetadata:false });
+  const bilgi = doc.getInfoDict();
+  const tarihler = {};
+  for (const k of bilgi.keys()){
+    const ad = k.asString().slice(1);
+    if (o.tarih === "koru" && /Date$/.test(ad)) tarihler[ad] = bilgi.get(k);
+    bilgi.delete(k);
+  }
+  for (const ad in tarihler) bilgi.set(PDFLib.PDFName.of(ad), tarihler[ad]);
+  if (o.baslik) doc.setTitle(o.baslik);
+  if (o.yazar) doc.setAuthor(o.yazar);
+  if (o.xmp){
+    // Bağlantısı koparılan nesne nesne tablosunda kalırsa kaydedilen
+    // dosyaya yine yazılır; tablodan da silinir.
+    const ref = doc.catalog.get(PDFLib.PDFName.of("Metadata"));
+    doc.catalog.delete(PDFLib.PDFName.of("Metadata"));
+    if (ref instanceof PDFLib.PDFRef) doc.context.delete(ref);
+    for (const sayfa of doc.getPages()){
+      const r = sayfa.node.get(PDFLib.PDFName.of("Metadata"));
+      if (r){ sayfa.node.delete(PDFLib.PDFName.of("Metadata")); if (r instanceof PDFLib.PDFRef) doc.context.delete(r); }
+    }
+  }
+  const bytes = await doc.save();
+  const eof = (latin.decode(kayit.u8).match(/%%EOF/g) || []).length;
+  return { blob: new Blob([bytes], { type:"application/pdf" }),
+           log: { yapilan: ["bilgi sözlüğü boşaltıldı"].concat(o.xmp ? ["XMP silindi"] : [], eof > 1 ? [(eof-1)+" eski sürüm atıldı"] : []) } };
+}
+
+/* ------------------------------------------------------------ arayüz */
+let yuklu = [];
+const msg = $("mv-msg"), rapor = $("mv-rapor"), sonuc = $("mv-sonuc");
+const git = $("mv-go"), yeniden = $("mv-yeniden"), drop = $("mv-drop"), girdi = $("mv-file");
+
+drop.addEventListener("click", () => girdi.click());
+drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); girdi.click(); } });
+["dragenter","dragover"].forEach(v => drop.addEventListener(v, e => { e.preventDefault(); drop.classList.add("hot"); }));
+["dragleave","drop"].forEach(v => drop.addEventListener(v, e => { e.preventDefault(); drop.classList.remove("hot"); }));
+drop.addEventListener("drop", e => al(e.dataTransfer.files));
+girdi.addEventListener("change", e => al(e.target.files));
+
+function ayarlar(){
+  return {
+    yazar: $("mv-yazar").value.trim(), baslik: $("mv-baslik").value.trim(),
+    tarih: $("mv-tarih").value, anonim: $("mv-anonim").checked, yorum: $("mv-yorum").checked,
+    rsid: $("mv-rsid").checked, ozel: $("mv-ozel").checked, gorunmez: $("mv-gorunmez").checked,
+    birlestir: $("mv-birlestir").checked, medya: $("mv-medya").checked, zaman: $("mv-zaman").checked,
+    xmp: $("mv-xmp").checked, icc: $("mv-icc").checked
+  };
+}
+
+function durum(m, hata){ msg.className = "tk-msg" + (hata ? " err" : ""); msg.textContent = m; }
+
+async function al(dosyalar){
+  yuklu = []; sonuc.innerHTML = "";
+  const eksik = [];
+  for (const f of dosyalar){
+    const uz = (f.name.split(".").pop() || "").toLowerCase();
+    const tur = TUR[uz];
+    if (!tur){ eksik.push(f.name); continue; }
+    const kayit = { dosya:f, ad:f.name, uz, tur, u8:new Uint8Array(await f.arrayBuffer()) };
+    if (tur !== "img" && tur !== "pdf"){
+      if (typeof JSZip === "undefined"){ kayit.hata = "arşiv kütüphanesi yüklenemedi"; }
+      else try { kayit.zip = await JSZip.loadAsync(kayit.u8); } catch(e){ kayit.hata = "arşiv açılamadı"; }
+    }
+    if (tur === "pdf" && typeof PDFLib === "undefined") kayit.hata = "PDF kütüphanesi yüklenemedi";
+    yuklu.push(kayit);
+  }
+  listele();
+  git.disabled = yeniden.disabled = !yuklu.length;
+  if (yuklu.length) await denetle();
+  else durum(eksik.length ? "desteklenmeyen biçim: "+eksik.slice(0,3).join(", ") : "dosya yok", true);
+}
+
+function listele(){
+  $("mv-liste").innerHTML = yuklu.map(k =>
+    '<li><span class="mv-rozet">'+esc(k.tur === "img" ? k.uz.toUpperCase() : ETIKET[k.tur])+'</span>'
+    + '<span class="mv-ad">'+esc(k.ad)+'</span><span class="mv-boy">'+boyut(k.u8.length)+'</span></li>').join("");
+}
+
+function blok(ad, rozet, satirlar, ek){
+  const risk = satirlar.filter(x => x.t === "risk").length, iz = satirlar.filter(x => x.t === "iz").length;
+  const govde = satirlar.length
+    ? satirlar.map(x => '<div class="mv-satir '+x.t+'"><span class="mv-k">'+esc(x.k)+'</span>'
+        + '<span class="mv-v">'+(x.h || esc(x.v))+'</span></div>').join("")
+    : '<div class="mv-satir bilgi"><span class="mv-k">Üstveri</span><span class="mv-v mv-temiz">bulunamadı — temiz</span></div>';
+  return '<div class="mv-dosya"><div class="mv-bas"><span class="mv-rozet">'+esc(rozet)+'</span><b>'+esc(ad)+'</b>'
+    + '<span class="mv-sayac">'+risk+' kişisel · '+iz+' iz</span></div>'+govde+(ek||"")+'</div>';
+}
+
+async function denetle(){
+  durum("denetleniyor…");
+  const bloklar = []; let risk = 0, iz = 0;
+  for (const k of yuklu){
+    let r;
+    try {
+      if (k.hata) r = { satirlar:[S("bilgi","Hata",k.hata)] };
+      else if (k.tur === "img"){
+        const f = gorselIsleyici(k.u8, k.uz);
+        r = f ? f(k.u8, {}, true) : { satirlar:[S("bilgi","Biçim","tanınamadı")] };
+      }
+      else if (k.tur === "pdf") r = await pdfDenetle(k);
+      else r = await belgeDenetle(k);
+    } catch(e){ r = { satirlar:[S("bilgi","Hata",e.message)] }; }
+    k.denetim = r;
+    risk += r.satirlar.filter(x => x.t === "risk").length;
+    iz += r.satirlar.filter(x => x.t === "iz").length;
+    const ek = r.dusen && r.dusen.length
+      ? '<div class="mv-satir bilgi"><span class="mv-k">Temizlikte çıkar</span><span class="mv-v">'+esc([...new Set(r.dusen)].join(", "))+'</span></div>' : "";
+    bloklar.push(blok(k.ad, k.tur === "img" ? k.uz.toUpperCase() : ETIKET[k.tur], r.satirlar, ek));
+  }
+  $("mv-rapor-baslik").textContent = "Denetim";
+  $("mv-ozet").style.display = ""; $("mv-lejant").style.display = "";
+  $("mv-s-dosya").textContent = yuklu.length; $("mv-s-risk").textContent = risk; $("mv-s-iz").textContent = iz;
+  rapor.innerHTML = bloklar.join("");
+  durum(yuklu.length+" dosya denetlendi — hiçbir şey değiştirilmedi");
+}
+
+git.addEventListener("click", async () => {
+  git.disabled = yeniden.disabled = true;
+  durum("temizleniyor…");
+  const o = ayarlar(), bloklar = [], paket = typeof JSZip !== "undefined" ? new JSZip() : null;
+  let tamam = 0;
+  for (const k of yuklu){
+    try {
+      if (k.hata || (k.denetim && k.denetim.sifreli)) throw new Error(k.hata || "parola korumalı dosya");
+      let blob; const satirlar = [];
+      if (k.tur === "img"){
+        const f = gorselIsleyici(k.u8, k.uz);
+        if (!f) throw new Error("biçim tanınamadı");
+        const r = f(k.u8, o, false);
+        blob = new Blob([r.out], { type: k.dosya.type || "application/octet-stream" });
+        satirlar.push(S("bilgi","Boyut", boyut(k.u8.length)+" → "+boyut(r.out.length)));
+        satirlar.push(S("bilgi","Çıkarılan", [...new Set(r.dusen)].join(", ") || "yok"));
+        satirlar.push(S("bilgi","Piksel verisi","dokunulmadı"));
+      } else if (k.tur === "pdf"){
+        const r = await pdfTemizle(k, o);
+        blob = r.blob;
+        satirlar.push(S("bilgi","Yapılan", r.log.yapilan.join(" · ")));
+      } else {
+        const r = await belgeTemizle(k, o);
+        blob = r.blob;
+        const L = r.log;
+        if (L.yapilan.length) satirlar.push(S("bilgi","Yapılan", L.yapilan.join(" · ")));
+        if (L.yazar) satirlar.push(S("bilgi","Gizlenen yazar alanı", L.yazar));
+        if (L.rsid) satirlar.push(S("bilgi","Kaldırılan oturum kimliği", L.rsid));
+        if (L.damga) satirlar.push(S("bilgi","Kaldırılan değişiklik / yorum saati", L.damga));
+        if (L.gorunmez) satirlar.push(S("bilgi","Sökülen görünmez karakter", L.gorunmez));
+        if (L.gorsel) satirlar.push(S("bilgi","Temizlenen gömülü görsel", L.gorsel));
+        if (L.silinen.length) satirlar.push(S("bilgi","Kaldırılan parça", L.silinen.join(", ")));
+        for (const b of L.birlesik.slice(0,3)) satirlar.push(S("iz","Bitişen kelime","…"+b+"…  (gözden geçirin)"));
+      }
+      const yeniAd = k.ad.replace(/(\.[^.]+)$/, "-temiz$1");
+      if (paket) paket.file(yeniAd, blob);
+      const url = URL.createObjectURL(blob);
+      bloklar.push(blok(k.ad, k.tur === "img" ? k.uz.toUpperCase() : ETIKET[k.tur], satirlar,
+        '<div class="tk-acts" style="margin-top:8px"><a class="tk-btn" style="text-decoration:none" href="'
+        + url + '" download="' + esc(yeniAd) + '">' + esc(yeniAd) + ' indir</a></div>'));
+      tamam++;
+    } catch(e){
+      bloklar.push(blok(k.ad, k.tur === "img" ? k.uz.toUpperCase() : (ETIKET[k.tur]||k.uz), [S("bilgi","Hata", e.message)]));
+    }
+  }
+  $("mv-rapor-baslik").textContent = "Sonuç";
+  $("mv-ozet").style.display = "none"; $("mv-lejant").style.display = "none";
+  rapor.innerHTML = bloklar.join("");
+  sonuc.innerHTML = "";
+  if (paket && tamam > 1){
+    const z = await paket.generateAsync({ type:"blob" });
+    sonuc.innerHTML = '<div class="tk-acts" style="margin-top:6px"><a class="tk-btn ghost" style="text-decoration:none" href="'
+      + URL.createObjectURL(z) + '" download="temiz-dosyalar.zip">Hepsini tek arşiv olarak indir</a></div>';
+  }
+  durum(tamam+" dosya temizlendi — sonucu “Yeniden denetle” ile değil, indirdiğiniz dosyayı tekrar bırakarak doğrulayın");
+  git.disabled = yeniden.disabled = false;
+});
+
+yeniden.addEventListener("click", denetle);
+})();
+//]]></script>

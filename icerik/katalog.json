@@ -475,6 +475,13 @@
    "kategori": "Geliştirici",
    "aciklama": "UUID v4, ULID, Nano ID ve kısa kimlikler. Kriptografik rastgelelikle üretilir.",
    "ikon": "code"
+  },
+  {
+   "baslik": "Meta Veri Denetçisi ve Temizleyici",
+   "slug": "meta-veri-temizleyici",
+   "kategori": "Belge",
+   "aciklama": "Word, Excel, PowerPoint, PDF ve fotoğraflardaki yazar, kurum, yorum, revizyon izi ve konum bilgisini gösterir, isterseniz temizler.",
+   "ikon": "doc"
   }
  ],
  "sayfalar": [

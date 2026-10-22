@@ -1,6 +1,6 @@
 # VuMaTech Tools
 
-[tools.vumatech.net](https://tools.vumatech.net) — tarayıcıda çalışan 68 ücretsiz araç.
+[tools.vumatech.net](https://tools.vumatech.net) — tarayıcıda çalışan 69 ücretsiz araç.
 Akademik, belge, görsel, metin ve geliştirici araçları; dosyalar hiçbir sunucuya
 yüklenmez, bütün işlem kullanıcının cihazında yapılır.
 
@@ -53,7 +53,7 @@ Araç sayfalarının kendi içeriği Türkçedir; çeviri arayüz kabuğunu kaps
 
 ## Çevrimdışı sürüm
 
-`VuMaTech-Araclar-Cevrimdisi.zip` — 65 araç, gereken kütüphaneler ve tasarım
+`VuMaTech-Araclar-Cevrimdisi.zip` — 66 araç, gereken kütüphaneler ve tasarım
 tek bir HTML dosyasına gömülü. İnternet bağlantısı olmadan çalışır; ana
 sayfadaki indirme bağlantısı bu dosyayı sunar.
 
