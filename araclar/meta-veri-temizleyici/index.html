@@ -124,7 +124,7 @@
       <label><input type="checkbox" id="mv-medya" checked><span>Belge içindeki fotoğrafları da temizle
         <em>Word'e yapıştırılan telefon fotoğrafı konum bilgisini taşır</em></span></label>
       <label><input type="checkbox" id="mv-zaman" checked><span>Arşiv içi zaman damgalarını sabitle
-        <em>Temizlik anının dosyaya yazılmasını önler</em></span></label>
+        <em>Office'in kendi kaydettiği dosyalardaki gibi; temizlik anı dosyaya yazılmaz</em></span></label>
     </div>
 
     <p class="tk-h2">PDF ve görseller</p>
@@ -323,6 +323,30 @@ function xmpSatirlari(metin, satirlar, on){
   if (arac) satirlar.push(S("iz", p+"XMP oluşturan araç", arac));
   if (kisi) satirlar.push(S("risk", p+"XMP yazar", kisi));
   if (!arac && !kisi) satirlar.push(S("iz", p+"XMP bloğu", boyut(metin.length)));
+}
+
+/* Dosyayı bir programın, kütüphanenin ya da üretici modelin yazdığını
+   gösteren imzalar. Temizlikte bu alanların hepsi silinir. */
+const URETICI = [
+  [/python-docx/i,"python-docx"], [/openpyxl/i,"openpyxl"], [/xlsxwriter/i,"XlsxWriter"],
+  [/python-pptx/i,"python-pptx"], [/pptxgenjs/i,"PptxGenJS"], [/docx4j/i,"docx4j"],
+  [/\bpandoc\b/i,"Pandoc"], [/reportlab/i,"ReportLab"], [/pdf-lib/i,"pdf-lib"],
+  [/pdfkit/i,"PDFKit"], [/wkhtmltopdf/i,"wkhtmltopdf"], [/weasyprint/i,"WeasyPrint"],
+  [/skia\/pdf/i,"Chrome (Skia/PDF)"], [/headless ?chrome|puppeteer|playwright/i,"başsız tarayıcı"],
+  [/matplotlib/i,"matplotlib"], [/\b(?:PIL|Pillow)\b/,"Pillow"], [/imagemagick/i,"ImageMagick"],
+  [/chatgpt|openai|dall[\s·-]?e|gpt-?\d/i,"OpenAI"], [/\bgemini\b|imagen|synthid/i,"Google Gemini"],
+  [/\bclaude\b|anthropic/i,"Claude"], [/copilot/i,"Copilot"], [/midjourney/i,"Midjourney"],
+  [/stable ?diffusion|comfyui|automatic1111/i,"Stable Diffusion"], [/firefly/i,"Adobe Firefly"],
+  [/C2PA/,"içerik kökeni bildirimi"]
+];
+function ureticiTara(satirlar){
+  const bulunan = new Set();
+  for (const x of satirlar){
+    for (const [re, ad] of URETICI) if (re.test(x.v) || re.test(x.k)) bulunan.add(ad);
+    if (/^Oluşturma tarihi$/.test(x.k) && /^2013-12-23T23:15/.test(x.v)) bulunan.add("python-docx (şablon tarihi)");
+  }
+  if (bulunan.size) satirlar.unshift(S("risk","Otomatik üretim izi",
+    [...bulunan].join(", ")+" — dosyanın bir programla üretildiği anlaşılıyor"));
 }
 
 /* ------------------------------------------------------------ görseller */
@@ -849,9 +873,9 @@ async function belgeTemizle(kayit, o){
     }
   }
 
-  // JSZip saati yerel saatten DOS biçimine çevirir; UTC öğle değeri
-  // her saat diliminde 1 Ocak 1980 olarak yazılır.
-  const tarih = o.zaman ? new Date(Date.UTC(1980,0,1,12,0,0)) : null;
+  // Office kaydettiği arşivlerde bütün damgaları 1 Ocak 1980 00:00 yazar.
+  // JSZip UTC değerini kullandığından saat dilimi sonucu değiştirmez.
+  const tarih = o.zaman ? new Date(Date.UTC(1980,0,1,0,0,0)) : null;
   const cikti = new JSZip();
   const sira = tur === "odf" ? ["mimetype"].concat(adlar.filter(n => n !== "mimetype")) : adlar;
   for (const n of sira){
@@ -1015,6 +1039,7 @@ async function denetle(){
       else if (k.tur === "pdf") r = await pdfDenetle(k);
       else r = await belgeDenetle(k);
     } catch(e){ r = { satirlar:[S("bilgi","Hata",e.message)] }; }
+    if (r.satirlar) ureticiTara(r.satirlar);
     k.denetim = r;
     risk += r.satirlar.filter(x => x.t === "risk").length;
     iz += r.satirlar.filter(x => x.t === "iz").length;
