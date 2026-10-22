@@ -22,6 +22,7 @@ import io
 import json
 import os
 import re
+import hashlib
 import html
 import unicodedata
 
@@ -96,11 +97,30 @@ def govde_hazirla(ham):
     return g.strip()
 
 
+SURUM = {}
+
+
+def surumleri_hesapla():
+    """Varlıkların içerik özetini çıkarır.
+
+    _headers /assets/* için bir yıllık "immutable" önbellek tanımlar; adres
+    değişmezse tarayıcı ve kenar sunucular güncellenen dosyayı hiç istemez.
+    Adrese özet eklemek her değişiklikte yeni bir adres üretir.
+    """
+    for ad in ("kit.css", "site.js", "vitrin.js"):
+        with open(os.path.join(KOK, "assets", ad), "rb") as f:
+            SURUM[ad] = hashlib.sha1(f.read()).hexdigest()[:10]
+
+
+def varlik(ad):
+    return f"/assets/{ad}?v={SURUM[ad]}"
+
+
 def sayfa(baslik, aciklama, yol, icerik, kunye, altbilgi, genis=False, vitrin=False):
     tam_baslik = baslik if yol == "/" else f"{baslik} — VuMaTech Tools"
     kanonik = ALAN + yol
     e = html.escape
-    vitrin_betigi = '<script src="/assets/vitrin.js"></script>' if vitrin else ""
+    vitrin_betigi = f'<script src="{varlik("vitrin.js")}"></script>' if vitrin else ""
     return f"""<!DOCTYPE html>
 <html lang="tr"{' class="wide"' if genis else ''}>
 <head>
@@ -119,7 +139,7 @@ def sayfa(baslik, aciklama, yol, icerik, kunye, altbilgi, genis=False, vitrin=Fa
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="{FONT}">
-<link rel="stylesheet" href="/assets/kit.css">
+<link rel="stylesheet" href="{varlik("kit.css")}">
 {ERKEN_BETIK}
 </head>
 <body>
@@ -128,7 +148,7 @@ def sayfa(baslik, aciklama, yol, icerik, kunye, altbilgi, genis=False, vitrin=Fa
 {icerik}
 {altbilgi}
 </div>
-<script src="/assets/site.js"></script>
+<script src="{varlik("site.js")}"></script>
 {vitrin_betigi}
 </body>
 </html>
@@ -154,6 +174,9 @@ def main():
 
     araclar.sort(key=lambda a: (SIRA.index(a["kategori"]) if a["kategori"] in SIRA else 99,
                                 a["baslik"].lower()))
+
+    vitrin_betigi_uret(araclar)
+    surumleri_hesapla()
 
     kunye = oku("icerik", "parca", "crest.html")
     ana = oku("icerik", "parca", "ana.html")
@@ -181,8 +204,6 @@ def main():
         yaz(f'{p["slug"]}/index.html',
             sayfa(p["baslik"], f'{p["baslik"]} — VuMaTech Tools',
                   f'/{p["slug"]}/', icerik, kunye, altbilgi, genis=True))
-
-    vitrin_betigi_uret(araclar)
 
     yollar = ["/"] + [f'/araclar/{a["slug"]}/' for a in araclar] \
                    + [f'/{p["slug"]}/' for p in sayfalar]
