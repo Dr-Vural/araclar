@@ -104,7 +104,7 @@ if(lp){
 // e-posta adresi Türkçede destek@, diğer dillerde support@ olur.
 // Dil değişince bağlantılar da güncellenir.
 var WA_NO = "996999101444";
-var POSTA = { tr: "destek@vumatech.net", diger: "support@vumatech.net" };
+var POSTA = { tr: "iletisim@vumatech.net", diger: "contact@vumatech.net" };
 function iletisimBaglantilari(){
   var mobil = /Android|iPhone|iPad|iPod|Mobile|Opera Mini|IEMobile/i.test(navigator.userAgent || "");
   var metin = encodeURIComponent(T("wa_msg"));
