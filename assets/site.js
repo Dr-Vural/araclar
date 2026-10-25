@@ -101,8 +101,10 @@ if(lp){
 
 // İletişim bağlantıları: masaüstünde web istemcisi, telefonda uygulama.
 // WhatsApp mesajı ziyaretçinin diline göre hazır bir selamla açılır;
-// dil değişince bağlantılar da güncellenir.
+// e-posta adresi Türkçede destek@, diğer dillerde support@ olur.
+// Dil değişince bağlantılar da güncellenir.
 var WA_NO = "996999101444";
+var POSTA = { tr: "destek@vumatech.net", diger: "support@vumatech.net" };
 function iletisimBaglantilari(){
   var mobil = /Android|iPhone|iPad|iPod|Mobile|Opera Mini|IEMobile/i.test(navigator.userAgent || "");
   var metin = encodeURIComponent(T("wa_msg"));
@@ -117,6 +119,9 @@ function iletisimBaglantilari(){
   ["wa-btn", "wa-foot"].forEach(function(id){ var a = document.getElementById(id); if (a) ayarla(a, wa); });
   Array.prototype.forEach.call(document.querySelectorAll("a.wa-link"), function(a){ ayarla(a, wa); });
   var t = document.getElementById("tg-foot"); if (t) ayarla(t, tg);
+  var posta = LANG === "tr" ? POSTA.tr : POSTA.diger;
+  var m = document.getElementById("mail-foot");
+  if (m){ m.setAttribute("href", "mailto:" + posta); m.textContent = posta; }
 }
 iletisimBaglantilari();
 kancalar.push(iletisimBaglantilari);

@@ -215,7 +215,7 @@ $("dk-go").addEventListener("click",function(){
   records=[];var miss=0,done=0;
   dois.forEach(function(d){
     fetch("https://api.crossref.org/works/"+encodeURIComponent(d)
-      +"?mailto=vumatechnet@gmail.com")
+      +"?mailto=support@vumatech.net")
       .then(function(r){if(!r.ok)throw 0;return r.json()})
       .then(function(j){records.push(j.message)})
       .catch(function(){miss++})
@@ -283,7 +283,7 @@ $("dk-go").addEventListener("click",function(){
         <ul>
           <li><a id='wa-foot' href='https://wa.me/996999101444'>WhatsApp · +996 999 101 444</a></li>
           <li><a id='tg-foot' href='https://t.me/vumatech'>Telegram · @vumatech</a></li>
-          <li><a href='mailto:vumatechnet@gmail.com'>vumatechnet@gmail.com</a></li>
+          <li><a id='mail-foot' href='mailto:destek@vumatech.net'>destek@vumatech.net</a></li>
           <li><a href='https://vumatech.net'>vumatech.net</a></li>
         </ul>
       </div>
@@ -298,7 +298,7 @@ $("dk-go").addEventListener("click",function(){
 
 
 </div>
-<script src="/assets/site.js?v=e79ea86989"></script>
+<script src="/assets/site.js?v=52d17f0b6d"></script>
 
 </body>
 </html>

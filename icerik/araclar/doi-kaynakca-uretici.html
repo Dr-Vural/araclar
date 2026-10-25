@@ -158,7 +158,7 @@ $("dk-go").addEventListener("click",function(){
   records=[];var miss=0,done=0;
   dois.forEach(function(d){
     fetch("https://api.crossref.org/works/"+encodeURIComponent(d)
-      +"?mailto=vumatechnet@gmail.com")
+      +"?mailto=support@vumatech.net")
       .then(function(r){if(!r.ok)throw 0;return r.json()})
       .then(function(j){records.push(j.message)})
       .catch(function(){miss++})
