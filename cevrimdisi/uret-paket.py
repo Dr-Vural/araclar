@@ -132,6 +132,7 @@ def kabugu_kur(araclar):
                    lambda m: ortak, sayfa)
 
     # 2) çevrimdışı pakette anlamsız bölümleri çıkar
+    sayfa = re.sub(r'<script src="/assets/sayac\.js[^"]*"[^>]*></script>\n?', "", sayfa)
     sayfa = re.sub(r"<a class='offline-cta'.*?</a>", "", sayfa, flags=re.S)
     sayfa = re.sub(r"<div class='adzone'>.*?</div>\s*</div>", "</div>", sayfa, flags=re.S)
     sayfa = re.sub(r"<div class='adzone'>.*?-->\s*</div>", "", sayfa, flags=re.S)

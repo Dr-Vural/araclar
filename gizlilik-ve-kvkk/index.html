@@ -59,9 +59,11 @@
 
 <p style="font-size:16px;line-height:1.7;margin:0 0 20px">
 Bu metin, VuMaTech Tools'un kişisel verilerle nasıl ilişki kurduğunu
-açıklar. Kısa özeti şudur: <strong>bu site kişisel verinizi toplamaz,
-saklamaz ve üçüncü taraflarla paylaşmaz.</strong> Aşağıda bunun teknik
-gerekçesi ve tek tek istisnalar yer alır.</p>
+açıklar. Kısa özeti şudur: <strong>bu site adınızı, e-postanızı,
+dosyalarınızı ve girdiğiniz bilgileri toplamaz, saklamaz ve üçüncü
+taraflarla paylaşmaz.</strong> Kullanım sayısını görmek için yalnızca
+rastgele bir cihaz numarası ve açılan sayfanın adı tutulur (5. madde).
+Aşağıda bunun teknik gerekçesi ve tek tek istisnalar yer alır.</p>
 
 <p class="tk-h2">1. Veri sorumlusu</p>
 <p class="tk-note" style="font-size:15px">
@@ -97,9 +99,24 @@ Site, deneyiminizi iyileştirmek için tarayıcınızın yerel deposunda
 (localStorage) iki tür tercih tutabilir: <strong>koyu/açık tema seçiminiz</strong>
 ve <strong>favori araç listeniz</strong>. Bu bilgiler yalnızca sizin
 cihazınızda kalır, sunucuya gönderilmez ve kimlik oluşturmakta kullanılmaz.
-Tarayıcı verilerinizi temizlediğinizde silinirler.</p>
+Aynı depoda 5. maddede anlatılan rastgele cihaz numarası da durur.
+Tarayıcı verilerinizi temizlediğinizde hepsi silinir.</p>
 
-<p class="tk-h2">5. Reklam ve ölçümleme</p>
+<p class="tk-h2">5. Kullanım sayımı</p>
+<p class="tk-note" style="font-size:15px" data-i18n="stats_note">
+Kaç kişinin kullandığını bilmek için tarayıcınıza rastgele bir numara verilir; günde bir kez yalnızca bu numara ve açtığınız sayfanın adı gönderilir. Adınız, e-postanız, dosyalarınız ve girdiğiniz bilgiler gönderilmez.</p>
+<ul style="font-size:15px;color:var(--ink-2);line-height:1.6;margin:0 0 8px">
+  <li><strong>İşlenen veri:</strong> rastgele cihaz numarası ve açılan sayfanın adı</li>
+  <li><strong>Amaç:</strong> kullanım istatistiği (kaç kişinin hangi araçları kullandığı)</li>
+  <li><strong>Saklayan:</strong> VuMaTech; üçüncü taraflarla paylaşılmaz</li>
+  <li><strong>Süre:</strong> en çok yaklaşık 13 ay, sonra silinir</li>
+</ul>
+<p class="tk-note" style="font-size:15px">
+Numara adınızla ya da iletişim bilgilerinizle eşleştirilmez. Tarayıcı
+verilerinizi temizlediğinizde silinir ve bir sonraki ziyarette yeni bir
+numara verilir. Çevrimdışı sürüm hiçbir sayım göndermez.</p>
+
+<p class="tk-h2">6. Reklam ve ölçümleme</p>
 <p class="tk-note" style="font-size:15px">
 Site gelir için Google AdSense reklamları ve Google Analytics ölçümlemesi
 kullanabilir. Bu hizmetler, çalışabilmek için çerez yerleştirebilir ve
@@ -108,16 +125,16 @@ işleyebilir. Bu, bu araçların değil, Google'ın veri işlemesidir. Çerezler
 tarayıcı ayarlarınızdan reddedebilir veya silebilirsiniz. Google'ın
 uygulamaları için: <a href="https://policies.google.com/privacy">policies.google.com/privacy</a>.</p>
 
-<p class="tk-h2">6. KVKK ve GDPR kapsamındaki haklarınız</p>
+<p class="tk-h2">7. KVKK ve GDPR kapsamındaki haklarınız</p>
 <p class="tk-note" style="font-size:15px">
 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ve Avrupa Genel Veri
 Koruma Tüzüğü (GDPR) uyarınca; kişisel verilerinizin işlenip işlenmediğini
 öğrenme, işlenmişse buna ilişkin bilgi talep etme, düzeltilmesini veya
-silinmesini isteme haklarına sahipsiniz. Bu site kişisel veri toplamadığı
-için pratikte silinecek bir veriniz sunucularımızda bulunmaz; yine de her
-türlü soru için yukarıdaki iletişim kanallarından bize ulaşabilirsiniz.</p>
+silinmesini isteme haklarına sahipsiniz. Sunucularımızda sizi tanıtan bir
+bilgi bulunmaz; yalnızca 5. maddedeki rastgele numara ve sayfa adları tutulur.
+Her türlü soru için yukarıdaki iletişim kanallarından bize ulaşabilirsiniz.</p>
 
-<p class="tk-h2">7. Değişiklikler</p>
+<p class="tk-h2">8. Değişiklikler</p>
 <p style="font-size:15px;margin:0;color:var(--ink-2)">
 Bu metin, sitenin işleyişi değiştikçe güncellenebilir. Son güncelleme
 tarihini ve yürürlükteki sürümü her zaman bu sayfada bulabilirsiniz.
@@ -191,7 +208,8 @@ VuMaTech Studio · Bişkek</p>
 
 
 </div>
-<script src="/assets/site.js?v=d88f24d5b6"></script>
+<script src="/assets/site.js?v=847a437d44"></script>
+<script src="/assets/sayac.js?v=d006c38c46" defer></script>
 
 </body>
 </html>

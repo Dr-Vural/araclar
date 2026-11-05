@@ -107,7 +107,7 @@ def surumleri_hesapla():
     değişmezse tarayıcı ve kenar sunucular güncellenen dosyayı hiç istemez.
     Adrese özet eklemek her değişiklikte yeni bir adres üretir.
     """
-    for ad in ("kit.css", "site.js", "vitrin.js"):
+    for ad in ("kit.css", "site.js", "vitrin.js", "sayac.js"):
         with open(os.path.join(KOK, "assets", ad), "rb") as f:
             SURUM[ad] = hashlib.sha1(f.read()).hexdigest()[:10]
 
@@ -149,6 +149,7 @@ def sayfa(baslik, aciklama, yol, icerik, kunye, altbilgi, genis=False, vitrin=Fa
 {altbilgi}
 </div>
 <script src="{varlik("site.js")}"></script>
+<script src="{varlik("sayac.js")}" defer></script>
 {vitrin_betigi}
 </body>
 </html>
